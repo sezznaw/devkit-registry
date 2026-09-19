@@ -1,0 +1,19 @@
+# Run `make gen` before building the image: kitex_gen/ is not in git.
+FROM golang:1.24 AS build
+WORKDIR /src
+{{- if .GoPrivate}}
+ENV GOPRIVATE={{.GoPrivate}}
+{{- end}}
+COPY go.mod go.sum ./
+# For private modules pass a netrc: docker build --secret id=netrc,src=$HOME/.netrc .
+RUN --mount=type=secret,id=netrc,target=/root/.netrc,required=false go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /out/{{.Service}} ./cmd/{{.Service}}
+
+FROM gcr.io/distroless/static-debian12
+WORKDIR /app
+COPY --from=build /out/{{.Service}} /app/{{.Service}}
+COPY conf /app/conf
+ENV APP_ENV=prod
+EXPOSE {{.Port}}
+ENTRYPOINT ["/app/{{.Service}}"]

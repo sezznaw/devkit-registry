@@ -1,0 +1,16 @@
+# Production. Secrets come from the environment: ${VAR} is expanded at load time.
+service:
+  name: {{.Service}}
+  addr: ":{{.Port}}"
+
+registry_disabled: false
+nacos:
+  addrs: ["${NACOS_ADDR}"]
+  namespace: "${NACOS_NAMESPACE}"
+  group: DEFAULT_GROUP
+  username: "${NACOS_USERNAME}"
+  password: "${NACOS_PASSWORD}"
+
+log:
+  level: info
+  json: true

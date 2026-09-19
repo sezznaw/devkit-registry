@@ -1,0 +1,72 @@
+{
+  "name": "kitex-service",
+  "version": "0.1.0",
+  "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, GitHub Actions CI and Dockerfile. Used by `devkit ngs`.",
+  "deps": [],
+  "vars": [
+    {
+      "name": "Service",
+      "description": "Service name, lowercase with dashes (e.g. order, order-item)",
+      "required": true
+    },
+    {
+      "name": "Module",
+      "description": "Go module path of the new service (e.g. github.com/sezznaw/order)",
+      "required": true
+    },
+    {
+      "name": "CommonModule",
+      "description": "Module path of the shared common library",
+      "default": "github.com/sezznaw/devkit-common"
+    },
+    {
+      "name": "CommonVersion",
+      "description": "Version of common to require",
+      "default": "v0.1.0"
+    },
+    {
+      "name": "IdlRepo",
+      "description": "GitHub owner/repo holding the Thrift IDLs (checked out by CI)",
+      "default": "sezznaw/idl"
+    },
+    {
+      "name": "GoPrivate",
+      "description": "GOPRIVATE pattern when the organisation's modules are private (empty = public)",
+      "default": ""
+    },
+    {
+      "name": "Port",
+      "description": "Listen port",
+      "default": "8888"
+    },
+    {
+      "name": "NacosAddr",
+      "description": "Nacos server address for the dev config",
+      "default": "127.0.0.1:8848"
+    },
+    {
+      "name": "KitexVersion",
+      "description": "Kitex library and tool version",
+      "default": "v0.16.3"
+    },
+    {
+      "name": "ThriftgoVersion",
+      "description": "thriftgo tool version",
+      "default": "v0.4.5"
+    }
+  ],
+  "hooks": {
+    "post_install": [
+      "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
+    ],
+    "post_update": [
+      "go mod tidy"
+    ]
+  },
+  "once": [
+    "go.mod",
+    "README.md",
+    "conf/*",
+    "handler/*"
+  ]
+}

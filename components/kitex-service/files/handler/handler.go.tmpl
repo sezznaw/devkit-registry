@@ -1,0 +1,26 @@
+// Package handler implements the {{.Service | title}}Service RPCs.
+package handler
+
+import (
+	"context"
+
+	"{{.CommonModule}}/log"
+
+	{{.Service | snake}} "{{.Module}}/kitex_gen/{{.Service | snake}}"
+)
+
+// {{.Service | title}}ServiceImpl implements {{.Service | title | lower}}service.{{.Service | title}}Service.
+type {{.Service | title}}ServiceImpl struct{}
+
+// New returns the handler; wire dependencies (repos, clients) here.
+func New() *{{.Service | title}}ServiceImpl {
+	return &{{.Service | title}}ServiceImpl{}
+}
+
+// Ping is the sample RPC from the initial IDL. Replace it with real methods:
+// edit ../idl/{{.Service}}/{{.Service}}.thrift, run `make gen`, then implement
+// the new methods on this struct.
+func (s *{{.Service | title}}ServiceImpl) Ping(ctx context.Context, req *{{.Service | snake}}.PingReq) (*{{.Service | snake}}.PingResp, error) {
+	log.FromContext(ctx).Info("ping", "message", req.Message)
+	return &{{.Service | snake}}.PingResp{Message: "pong: " + req.Message}, nil
+}

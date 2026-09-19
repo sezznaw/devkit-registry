@@ -1,0 +1,15 @@
+# Local development. Selected when APP_ENV is unset or "dev".
+service:
+  name: {{.Service}}
+  addr: ":{{.Port}}"
+
+# No Nacos needed on a laptop; set to false to register locally.
+registry_disabled: true
+nacos:
+  addrs: ["{{.NacosAddr}}"]
+  namespace: ""
+  group: DEFAULT_GROUP
+
+log:
+  level: debug
+  json: false

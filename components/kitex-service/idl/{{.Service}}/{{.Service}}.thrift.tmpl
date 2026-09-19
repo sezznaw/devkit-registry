@@ -1,0 +1,15 @@
+// {{.Service}} service IDL. Created by `devkit ngs {{.Service}}`.
+// This file belongs to the shared IDL repository: open a pull request there.
+namespace go {{.Service | snake}}
+
+struct PingReq {
+    1: string message
+}
+
+struct PingResp {
+    1: string message
+}
+
+service {{.Service | title}}Service {
+    PingResp Ping(1: PingReq req)
+}

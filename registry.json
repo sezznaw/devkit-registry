@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "components": {
+    "kitex-service": {
+      "version": "0.1.0",
+      "description": "Complete Kitex (Thrift) service project with Nacos, logging, config, codegen Makefile, GitHub Actions CI and Dockerfile"
+    }
+  }
+}
