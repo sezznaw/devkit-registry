@@ -9,7 +9,8 @@ The template registry consumed by the `devkit` CLI (sibling checkout at
 authoritative in `../devkit/docs/registry.md`; read that before editing.
 The only component is `kitex-service`, the whole-project template behind
 `devkit ngs` (the early `logger` and `grpc` components were removed; shared
-code lives in the `../common` Go module instead).
+code lives in the Go module `github.com/sezznaw/devkit-common`, checked out
+locally at `../common`).
 
 ## Layout and contract
 
@@ -43,8 +44,10 @@ printf 'module_prefix: "github.com/sezznaw"\nidl_repo: "/path/to/a/local/idl/git
 devkit ngs order && cd order && go build ./... && go vet ./...
 ```
 
-Until `common` is published on GitHub, `go mod tidy` needs the file-based
-module proxy described in `../devkit/CLAUDE.md`.
+`devkit-common` is public, so `go mod tidy` in the generated service resolves
+through proxy.golang.org. Only when testing an *unpublished* version of the
+common module do you need the file-based module proxy described in
+`../devkit/CLAUDE.md`.
 
 ## kitex-service specifics
 
@@ -61,7 +64,9 @@ module proxy described in `../devkit/CLAUDE.md`.
   service package `{{.Service | title | lower}}service`
   (`order-item` -> `order_item/orderitemservice`).
 - Defaults `CommonModule`/`CommonVersion`/`KitexVersion` must stay in sync
-  with `../common` (its go.mod kitex version and latest tag). `IdlRepo` and
+  with `../common` (module `github.com/sezznaw/devkit-common`, its go.mod
+  kitex version and latest tag). Releasing a new common version therefore
+  means a new `kitex-service` version here too. `IdlRepo` and
   `GoPrivate` are filled by ngs from the project's devkit.yaml; the CI
   template uses `{{"{{"}}` escapes to emit literal GitHub `${{ }}` syntax.
 
