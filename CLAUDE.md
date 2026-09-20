@@ -100,6 +100,23 @@ common module do you need the file-based module proxy described in
   `GoPrivate` are filled by ngs from the project's devkit.yaml; the CI
   template uses `{{"{{"}}` escapes to emit literal GitHub `${{ }}` syntax.
 
+## Telling developers what changed
+
+`conf/*.yaml`, `handler/*`, `go.mod`, `idl.mk` are `once` files, so an update
+can never put a new setting into them. Two things compensate, and both must be
+maintained with every template change:
+
+- `changelog` in `component.json`: one entry per version with `changes` (what
+  is different) and `action` (what the developer may want to do by hand, with
+  the exact snippet). `devkit update` (>= 0.1.6) prints the entries between the
+  installed and the new version. An entry with no `action` is fine; a new
+  config setting without an `action` is a bug.
+- `conf/README.md`: a managed, bilingual reference of every setting with its
+  default. It is excluded from `once` because the pattern is `conf/*.yaml`.
+
+Comments in `conf/dev.yaml` / `conf/prod.yaml` are bilingual (English line,
+then Chinese line) and explain every key; keep that style when adding keys.
+
 ## Gotchas
 
 - Templates run with `missingkey=error`: an undefined `{{.Foo}}` breaks the

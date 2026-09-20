@@ -1,20 +1,107 @@
-# Local development. Selected when APP_ENV is unset or "dev".
+# =============================================================================
+# {{.Service}} - LOCAL DEVELOPMENT configuration / 本地开发配置
+#
+# Loaded when APP_ENV is unset or "dev". The file name selects the environment:
+# APP_ENV=test loads conf/test.yaml, APP_ENV=prod loads conf/prod.yaml.
+# 当环境变量 APP_ENV 未设置或为 "dev" 时加载本文件。文件名决定环境：
+# APP_ENV=test 加载 conf/test.yaml，APP_ENV=prod 加载 conf/prod.yaml。
+#
+# The conf directory is looked up in this order: $CONF_DIR, ./conf, next to the
+# executable. So the service starts from any working directory.
+# conf 目录的查找顺序：环境变量 CONF_DIR、当前目录下的 conf、可执行文件旁边。
+# 因此从任何工作目录启动服务都可以。
+#
+# ${NAME} anywhere in this file is replaced by the environment variable NAME
+# before the file is parsed. Use it for secrets; never commit real passwords.
+# 文件中任何位置的 ${NAME} 都会在解析前被替换成环境变量 NAME 的值。
+# 密码等敏感信息请用这种方式传入，不要把真实密码提交进仓库。
+#
+# This file is yours: devkit creates it once and never rewrites it. New settings
+# introduced by later template versions are announced by `devkit update` and
+# documented in conf/README.md.
+# 本文件归你所有：devkit 只创建一次，之后不会改写。以后模板新增的配置项，
+# `devkit update` 会在升级后提示，完整说明见 conf/README.md。
+# =============================================================================
+
 service:
+  # Name under which the service registers in Nacos and appears in every log
+  # line. Callers find the service by this name, so changing it breaks them.
+  # 服务在 Nacos 中注册的名字，也会出现在每一行日志里。
+  # 调用方靠这个名字找到本服务，修改它会导致调用方找不到。
   name: {{.Service}}
+
+  # Listen address of the RPC server, "host:port". An empty host (":{{.Port}}")
+  # listens on all network interfaces. When registering in Nacos an empty host
+  # is replaced by this machine's IPv4 address automatically.
+  # RPC 服务的监听地址，格式 "主机:端口"。主机留空（":{{.Port}}"）表示监听所有网卡。
+  # 向 Nacos 注册时，空主机会自动替换成本机的 IPv4 地址。
   addr: ":{{.Port}}"
 
-# No Nacos needed on a laptop; set to false to register locally.
+# true  = do not register in Nacos. The service still listens and can be called
+#         directly by address. Convenient on a laptop: no Nacos needed.
+# false = register in Nacos on start and deregister on stop (see "nacos" below).
+# true  = 不向 Nacos 注册。服务照常监听，可以通过地址直接调用。
+#         本机开发时很方便：不需要 Nacos。
+# false = 启动时注册到 Nacos，退出时注销（连接参数见下面的 nacos 一节）。
 registry_disabled: true
+
+# Nacos connection, used for registration (when enabled above) and for finding
+# the services this one calls (kitexx.ClientOptions).
+# Nacos 连接参数。用于注册本服务（上面开启时），以及查找本服务要调用的其他服务。
 nacos:
+  # Nacos servers as "host:port". List several for a cluster.
+  # Nacos 服务器地址，格式 "主机:端口"。集群可以写多个。
   addrs: ["{{.NacosAddr}}"]
+
+  # Namespace ID (not its display name). "" is the default "public" namespace.
+  # Namespaces isolate environments: a service only sees services in its own.
+  # 命名空间 ID（不是显示名称）。"" 表示默认的 public 命名空间。
+  # 命名空间用于隔离环境：服务只能发现同一命名空间里的其他服务。
   namespace: ""
+
+  # Service group. Callers must use the same group. Default: DEFAULT_GROUP.
+  # 服务分组。调用方必须使用相同的分组。默认 DEFAULT_GROUP。
   group: DEFAULT_GROUP
 
+  # Credentials, only needed when Nacos authentication is turned on.
+  # 用户名和密码，仅在 Nacos 开启了鉴权时需要。
+  # username: ""
+  # password: "${NACOS_PASSWORD}"
+
+  # Where the Nacos client writes its own log and its cache of service lists.
+  # Defaults: /tmp/nacos/log and /tmp/nacos/cache.
+  # Nacos 客户端自身日志和服务列表缓存的存放目录。
+  # 默认为 /tmp/nacos/log 和 /tmp/nacos/cache。
+  # log_dir: /tmp/nacos/log
+  # cache_dir: /tmp/nacos/cache
+
 log:
+  # Minimum level that is written: debug, info, warn, error.
+  # debug is verbose and meant for development.
+  # 输出的最低日志级别：debug、info、warn、error。debug 很详细，适合开发阶段。
   level: debug
+
+  # false = human-readable text lines (good in a terminal).
+  # true  = one JSON object per line (what log collectors expect in production).
+  # Kitex's internal messages use the same format and carry logger=kitex.
+  # false = 便于阅读的文本格式（适合终端）。
+  # true  = 每行一个 JSON 对象（生产环境的日志采集系统需要这种格式）。
+  # Kitex 框架内部的日志也是同样的格式，并带有 logger=kitex 标记。
   json: false
 
-# Graceful stop. Nothing to wait for locally.
+# Graceful stop, triggered by SIGINT (Ctrl+C) or SIGTERM. The order is:
+#   1. deregister from Nacos
+#   2. keep serving for deregister_wait, so callers notice and stop sending
+#   3. close the listener, let requests in progress finish (up to drain_timeout)
+#   4. run the kitexx.OnShutdown hooks (close database, Redis, ...)
+# 优雅退出，由 SIGINT（Ctrl+C）或 SIGTERM 触发。顺序是：
+#   1. 从 Nacos 注销
+#   2. 继续服务 deregister_wait 这么久，让调用方察觉并停止发送请求
+#   3. 关闭监听，等待处理中的请求完成（最多 drain_timeout）
+#   4. 执行 kitexx.OnShutdown 注册的钩子（关闭数据库、Redis 等）
 shutdown:
+  # Durations are written like 500ms, 3s, 1m. 0s disables the wait.
+  # Locally there is nobody to wait for, so stopping is immediate.
+  # 时长的写法如 500ms、3s、1m。0s 表示不等待。本地开发没有调用方需要等，所以立即退出。
   deregister_wait: 0s
   drain_timeout: 5s

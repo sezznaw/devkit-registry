@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -72,7 +72,49 @@
     "go.mod",
     "idl.mk",
     "README.md",
-    "conf/*",
+    "conf/*.yaml",
     "handler/*"
+  ],
+  "changelog": [
+    {
+      "version": "0.3.1",
+      "changes": [
+        "conf/README.md: a managed reference of every configuration setting, kept up to date by devkit update",
+        "new services get conf/dev.yaml and conf/prod.yaml with a detailed English/Chinese comment on every setting"
+      ],
+      "action": [
+        "Your existing conf/*.yaml were not touched. For the explanations, read conf/README.md,\nor create a scratch service with `devkit ngs` and copy the commented files from it."
+      ]
+    },
+    {
+      "version": "0.3.0",
+      "changes": [
+        "main.go: configuration is found from any start directory ($CONF_DIR, ./conf, next to the executable); start-up errors are plain messages instead of a panic",
+        "graceful stop: keeps serving after leaving Nacos, configurable drain time, kitexx.OnShutdown hooks that run after the last request",
+        "Kitex's internal logs use the same format as yours (logger=kitex); requires devkit-common v0.2.0, upgraded for you"
+      ],
+      "action": [
+        "Optional, in each conf/<env>.yaml (defaults are 3s and 15s). Locally use deregister_wait: 0s so stopping is instant:\nshutdown:\n  deregister_wait: 3s\n  drain_timeout: 15s",
+        "If the service owns resources, release them in main.go before kitexx.Run:\nkitexx.OnShutdown(\"db\", db.Close)"
+      ]
+    },
+    {
+      "version": "0.2.1",
+      "changes": [
+        "the list of IDLs to generate moved from the Makefile to idl.mk, a file you own, so the Makefile can keep being updated"
+      ],
+      "action": [
+        "If you had added IDLs to the IDLS line of the Makefile, put them into idl.mk:\nIDLS := <service>/<service>.thrift other/other.thrift"
+      ]
+    },
+    {
+      "version": "0.2.0",
+      "changes": [
+        "CI for GitLab (.gitlab-ci.yml) next to GitHub Actions; which one is generated follows where the code is hosted"
+      ],
+      "action": [
+        "If both files were generated and you only need one: devkit update --force --set CI=gitlab   (or github)"
+      ]
+    }
   ]
 }

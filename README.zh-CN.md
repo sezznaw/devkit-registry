@@ -8,7 +8,7 @@
 
 | 组件 | 版本 | 说明 |
 |------|------|------|
-| `kitex-service` | 0.3.0 | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
+| `kitex-service` | 0.3.1 | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
 
 ## 目录结构
 

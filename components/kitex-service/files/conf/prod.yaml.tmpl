@@ -1,24 +1,80 @@
-# Production. Secrets come from the environment: ${VAR} is expanded at load time.
+# =============================================================================
+# {{.Service}} - PRODUCTION configuration / 生产环境配置
+#
+# Loaded when APP_ENV=prod (the Dockerfile sets it). Every setting is explained
+# in conf/dev.yaml and conf/README.md; this file only notes what differs in
+# production.
+# 当 APP_ENV=prod 时加载（Dockerfile 里已设置）。每个配置项的含义见 conf/dev.yaml
+# 和 conf/README.md；这里只说明生产环境的不同之处。
+#
+# ${NAME} is replaced by the environment variable NAME before parsing. Addresses
+# and secrets come from the deployment platform, not from this file.
+# ${NAME} 会在解析前被替换成环境变量 NAME 的值。地址和密码由部署平台注入，
+# 不写在本文件里。
+#
+# This file is yours: devkit creates it once and never rewrites it.
+# 本文件归你所有：devkit 只创建一次，之后不会改写。
+# =============================================================================
+
 service:
+  # Must match the name callers use. 必须与调用方使用的名字一致。
   name: {{.Service}}
+
+  # All interfaces. The port must match the container port and EXPOSE in the
+  # Dockerfile.
+  # 监听所有网卡。端口必须与容器端口以及 Dockerfile 里的 EXPOSE 一致。
   addr: ":{{.Port}}"
 
+# Production services register, so that callers can find them.
+# 生产环境要注册到 Nacos，调用方才能发现本服务。
 registry_disabled: false
+
 nacos:
+  # Required. One "host:port"; for a cluster write several entries, e.g.
+  #   addrs: ["${NACOS_ADDR_1}", "${NACOS_ADDR_2}"]
+  # 必填。一个 "主机:端口"；集群可写多个，例如上面这样。
   addrs: ["${NACOS_ADDR}"]
+
+  # The namespace ID of the production environment. An empty value means the
+  # shared "public" namespace, which is usually NOT what you want in production.
+  # 生产环境的命名空间 ID。留空表示公共的 public 命名空间，生产环境通常【不应该】用它。
   namespace: "${NACOS_NAMESPACE}"
+
   group: DEFAULT_GROUP
+
+  # Leave both variables unset when Nacos authentication is off.
+  # Nacos 未开启鉴权时，这两个环境变量不设置即可。
   username: "${NACOS_USERNAME}"
   password: "${NACOS_PASSWORD}"
 
 log:
+  # info keeps the volume manageable; switch to debug only while investigating.
+  # info 级别的日志量可控；只在排查问题时临时改为 debug。
   level: info
+
+  # JSON, one object per line, for the log collector.
+  # JSON 格式，每行一个对象，供日志采集系统使用。
   json: true
 
-# Graceful stop: after leaving Nacos keep serving for deregister_wait so that
-# callers refresh their instance lists, then give in-flight requests up to
-# drain_timeout. Keep the sum below the platform's kill timeout (Kubernetes
-# terminationGracePeriodSeconds is 30s by default).
+# Graceful stop (the steps are described in conf/dev.yaml).
+# 优雅退出（各步骤的说明见 conf/dev.yaml）。
 shutdown:
+  # How long to keep serving after leaving Nacos. Callers cache the instance list
+  # and Nacos needs a moment to push the change; without this wait every rolling
+  # deploy produces a short burst of connection errors on the caller side.
+  # 从 Nacos 注销后继续服务多久。调用方会缓存实例列表，Nacos 推送变更也需要时间；
+  # 没有这段等待，每次滚动发布调用方都会出现一小段连接错误。
   deregister_wait: 3s
+
+  # How long requests already in progress get to finish. Set it above your
+  # slowest normal request.
+  # 已经在处理中的请求最多还能执行多久。应大于你最慢的正常请求耗时。
   drain_timeout: 15s
+
+  # IMPORTANT: deregister_wait + drain_timeout must stay below the time the
+  # platform waits before killing the process (Kubernetes
+  # terminationGracePeriodSeconds, 30s by default). Otherwise the process is
+  # killed in the middle of the graceful stop.
+  # 重要：deregister_wait + drain_timeout 必须小于部署平台强制杀进程前的等待时间
+  # （Kubernetes 的 terminationGracePeriodSeconds，默认 30 秒）。
+  # 否则进程会在优雅退出的中途被强杀。
