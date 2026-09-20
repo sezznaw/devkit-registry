@@ -87,12 +87,18 @@ common module do you need the file-based module proxy described in
 - Kitex package naming used in templates: namespace `{{.Service | snake}}`,
   service package `{{.Service | title | lower}}service`
   (`order-item` -> `order_item/orderitemservice`).
+- `CommonModule`, `CommonVersion`, `KitexVersion`, `ThriftgoVersion` are
+  declared `"track": true`: with devkit >= 0.1.8 existing services follow new
+  defaults on update (the Makefile's tool versions, for instance). Mark any
+  future version-like variable the same way; never mark something that also
+  appears in a `once` file, such as `Port`.
 - `main.go` is managed and uses the common library's API, while `go.mod` is a
   `once` file and `devkit update` reuses the vars stored at creation time
   (including the then-default `CommonVersion`). So when a template version
   needs a newer common, the `post_update` hook must name that version
-  literally (`go get ...devkit-common@vX.Y.Z && go mod tidy`); relying on
-  `{{.CommonVersion}}` would re-pin existing services to the old one.
+  literally (`go get ...devkit-common@vX.Y.Z && go mod tidy`): with a devkit
+  older than 0.1.8, `{{.CommonVersion}}` still resolves to the value stored at
+  creation and would re-pin existing services to the old one.
 - Defaults `CommonModule`/`CommonVersion`/`KitexVersion` must stay in sync
   with `../common` (module `github.com/sezznaw/devkit-common`, its go.mod
   kitex version and latest tag). Releasing a new common version therefore

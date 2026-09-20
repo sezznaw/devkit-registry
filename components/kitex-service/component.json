@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -17,12 +17,14 @@
     {
       "name": "CommonModule",
       "description": "Module path of the shared common library",
-      "default": "github.com/sezznaw/devkit-common"
+      "default": "github.com/sezznaw/devkit-common",
+      "track": true
     },
     {
       "name": "CommonVersion",
       "description": "Version of common to require",
-      "default": "v0.2.0"
+      "default": "v0.2.0",
+      "track": true
     },
     {
       "name": "IdlRepo",
@@ -52,12 +54,14 @@
     {
       "name": "KitexVersion",
       "description": "Kitex library and tool version",
-      "default": "v0.16.3"
+      "default": "v0.16.3",
+      "track": true
     },
     {
       "name": "ThriftgoVersion",
       "description": "thriftgo tool version",
-      "default": "v0.4.5"
+      "default": "v0.4.5",
+      "track": true
     }
   ],
   "hooks": {
@@ -77,6 +81,15 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.4.1",
+      "changes": [
+        "library and tool versions (KitexVersion, ThriftgoVersion, CommonVersion) now follow the template on update instead of staying at the value from when the service was created; needs devkit 0.1.8 or newer"
+      ],
+      "action": [
+        "Only if you want a service to stay on a specific version, pin it:\ndevkit update --set KitexVersion=v0.16.3"
+      ]
+    },
     {
       "version": "0.4.0",
       "changes": [
