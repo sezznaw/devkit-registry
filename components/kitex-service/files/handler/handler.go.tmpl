@@ -6,7 +6,9 @@ import (
 
 	"{{.CommonModule}}/log"
 
-	{{.Service | snake}} "{{.Module}}/kitex_gen/{{.Service | snake}}"
+	// Fixed alias: a service may be called "log" or "config", which would clash
+	// with other imports if its own name were used here.
+	api "{{.Module}}/kitex_gen/{{.Service | snake}}"
 )
 
 // {{.Service | title}}ServiceImpl implements {{.Service | title | lower}}service.{{.Service | title}}Service.
@@ -20,7 +22,7 @@ func New() *{{.Service | title}}ServiceImpl {
 // Ping is the sample RPC from the initial IDL. Replace it with real methods:
 // edit ../idl/{{.Service}}/{{.Service}}.thrift, run `make gen`, then implement
 // the new methods on this struct.
-func (s *{{.Service | title}}ServiceImpl) Ping(ctx context.Context, req *{{.Service | snake}}.PingReq) (*{{.Service | snake}}.PingResp, error) {
+func (s *{{.Service | title}}ServiceImpl) Ping(ctx context.Context, req *api.PingReq) (*api.PingResp, error) {
 	log.FromContext(ctx).Info("ping", "message", req.Message)
-	return &{{.Service | snake}}.PingResp{Message: "pong: " + req.Message}, nil
+	return &api.PingResp{Message: "pong: " + req.Message}, nil
 }

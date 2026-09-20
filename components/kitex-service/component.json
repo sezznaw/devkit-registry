@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, GitHub Actions CI and Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
