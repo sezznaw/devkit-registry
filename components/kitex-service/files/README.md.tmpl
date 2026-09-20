@@ -9,8 +9,8 @@ make run          # APP_ENV=dev, no Nacos required
 make test
 ```
 
-- IDL lives in the shared IDL repository `{{.IdlRepo}}` (`../idl` in the
-  devkit workspace). Change it there, run `make gen`, implement new methods in
+- IDL lives in the project's shared IDL repository (`../idl` next to this
+  service). Change it there, run `make gen`, implement new methods in
   `handler/`, and open a pull request in the IDL repository.
 - Configuration is `conf/<APP_ENV>.yaml`; `${VAR}` placeholders are read from
   the environment.

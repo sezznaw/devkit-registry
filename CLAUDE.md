@@ -54,10 +54,19 @@ common module do you need the file-based module proxy described in
 - `Module` is passed by ngs with `--set` semantics (there is no go.mod to read
   yet). `go.mod`, `conf/*`, `handler/*`, `README.md` are `once` files: created,
   then owned by the developer. Infra files (Makefile,
-  `.github/workflows/ci.yml`, Dockerfile, `cmd/<svc>/main.go`) stay managed so
+  the CI files, Dockerfile, `cmd/<svc>/main.go`) stay managed so
   they can be upgraded with `devkit update`.
 - The Makefile generates from `IDL_DIR ?= ../idl`; `kitex_gen/` is git-ignored
-  and CI regenerates it after checking out `IdlRepo`.
+  and CI regenerates it after checking out the IDL project.
+- Two CI files, both wrapped in `{{if}}` on the `CI` var (`github`, `gitlab`,
+  `both`, `none`): `.github/workflows/ci.yml` and `.gitlab-ci.yml`. A template
+  that renders empty produces no file (devkit >= 0.1.3), so exactly the wanted
+  ones appear. ngs sets `CI` from the host of `module_prefix`/`idl_repo` and
+  `IdlRepo` to the IDL project *path*; when `IdlRepo` is empty the GitHub file
+  falls back to `<repository_owner>/idl` and the GitLab file to
+  `${CI_PROJECT_NAMESPACE}/idl`. The GitLab pipeline clones IDL with
+  `CI_JOB_TOKEN`, which the IDL project must allow (job token permissions).
+  It has not been run on a real GitLab yet.
 - `main.go` imports `kitex_gen/...`, so the service only compiles after
   `make gen`; the post_install hook runs it (ngs installs kitex/thriftgo first).
 - Kitex package naming used in templates: namespace `{{.Service | snake}}`,

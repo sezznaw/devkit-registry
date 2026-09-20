@@ -4,3 +4,4 @@ bin/
 output/
 *.test
 .idl/
+.go/

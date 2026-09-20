@@ -1,7 +1,7 @@
 {
   "name": "kitex-service",
-  "version": "0.1.1",
-  "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, GitHub Actions CI and Dockerfile. Used by `devkit ngs`.",
+  "version": "0.2.0",
+  "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
     {
@@ -26,8 +26,13 @@
     },
     {
       "name": "IdlRepo",
-      "description": "GitHub owner/repo holding the Thrift IDLs (checked out by CI)",
-      "default": "sezznaw/idl"
+      "description": "Path of the shared IDL project as CI sees it (owner/repo on GitHub, group/project on GitLab). Empty: <owner or group of the service>/idl",
+      "default": ""
+    },
+    {
+      "name": "CI",
+      "description": "Which CI configuration to generate: github, gitlab, both or none. ngs detects it from module_prefix / idl_repo",
+      "default": "both"
     },
     {
       "name": "GoPrivate",
