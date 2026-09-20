@@ -1,0 +1,11 @@
+# IDLs this service generates code for, relative to the project's idl/ directory.
+#
+# This file is yours: devkit created it once and never touches it again, so the
+# Makefile itself can keep being upgraded by `devkit update`.
+#
+# Start with the service's own IDL. To call another service, add its IDL here
+# and run `make gen`; its client then appears in kitex_gen/. Example:
+#
+#   IDLS := {{.Service}}/{{.Service}}.thrift order/order.thrift pay/pay.thrift
+
+IDLS := {{.Service}}/{{.Service}}.thrift

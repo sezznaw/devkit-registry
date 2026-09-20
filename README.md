@@ -9,7 +9,7 @@ repository: devkit reads it through the GitHub API (raw files and tag tarballs).
 
 | Component | Version | Description |
 |-----------|---------|-------------|
-| `kitex-service` | 0.2.0 | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
+| `kitex-service` | 0.2.1 | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
 
 ## Layout
 

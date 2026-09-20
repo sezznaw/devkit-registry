@@ -52,10 +52,15 @@ common module do you need the file-based module proxy described in
 ## kitex-service specifics
 
 - `Module` is passed by ngs with `--set` semantics (there is no go.mod to read
-  yet). `go.mod`, `conf/*`, `handler/*`, `README.md` are `once` files: created,
+  yet). `go.mod`, `idl.mk`, `conf/*`, `handler/*`, `README.md` are `once` files: created,
   then owned by the developer. Infra files (Makefile,
   the CI files, Dockerfile, `cmd/<svc>/main.go`) stay managed so
   they can be upgraded with `devkit update`.
+- User data never lives in a managed file. The list of IDLs to generate is in
+  `idl.mk` (a `once` file, `IDLS := ...`), which the managed `Makefile` pulls
+  in with `-include idl.mk` and a `?=` fallback. Before 0.2.1 the list was a
+  line in the Makefile, so any service calling another one had a "modified"
+  Makefile that `devkit update` could no longer upgrade.
 - The Makefile generates from `IDL_DIR ?= ../idl`; `kitex_gen/` is git-ignored
   and CI regenerates it after checking out the IDL project.
 - Two CI files, both wrapped in `{{if}}` on the `CI` var (`github`, `gitlab`,

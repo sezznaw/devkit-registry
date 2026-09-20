@@ -2,11 +2,13 @@
 MODULE   := {{.Module}}
 SERVICE  := {{.Service}}
 
-# Thrift IDLs live in the shared IDL repository. Locally that is the sibling
-# checkout in your devkit workspace; CI overrides IDL_DIR after cloning it.
+# Thrift IDLs live in the project's shared IDL repository. Locally that is the
+# idl/ directory next to this service; CI overrides IDL_DIR after cloning it.
 IDL_DIR  ?= ../idl
-# Add the IDLs of services you call, e.g. user/user.thrift
-IDLS     := $(SERVICE)/$(SERVICE).thrift
+# Which IDLs to generate is listed in idl.mk (yours to edit, e.g. to add the
+# IDLs of services you call). Without that file only the service's own IDL is used.
+-include idl.mk
+IDLS     ?= $(SERVICE)/$(SERVICE).thrift
 
 KITEX_VERSION    := {{.KitexVersion}}
 THRIFTGO_VERSION := {{.ThriftgoVersion}}
