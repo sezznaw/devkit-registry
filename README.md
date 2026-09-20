@@ -34,6 +34,9 @@ The full format (variables, template functions, `once`, hooks) is documented in
    git push origin main --tags
    ```
 
+A new version becomes visible to users within about five minutes: devkit reads
+`registry.json` through GitHub's raw-file CDN, which caches it for 300 seconds.
+
 Tags are immutable: devkit caches every downloaded version forever. Never move
 or delete a tag; publish a new version instead. Existing services pick the new
 version up with `devkit update`.

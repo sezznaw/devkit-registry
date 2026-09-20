@@ -32,6 +32,8 @@ components/<name>/idl/...           写入项目的 IDL 仓库检出目录
    git push origin main --tags
    ```
 
+新版本大约五分钟内对用户可见：devkit 通过 GitHub 的 raw 文件 CDN 读取 `registry.json`，该 CDN 会缓存 300 秒。
+
 tag 不可变：devkit 会永久缓存每个下载过的版本。不要移动或删除 tag，需要修改时发布新版本。已有的服务通过 `devkit update` 升级到新版本。
 
 ## 打 tag 之前先验证

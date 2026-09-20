@@ -34,6 +34,16 @@ locally at `../common`).
 
 Version strings carry no leading `v` in JSON; the `v` is only in the tag.
 
+After pushing, the new index is not visible immediately: raw.githubusercontent.com
+caches `registry.json` for 300 s, separately per `Accept-Encoding`. Plain
+`curl` may already show the new version while devkit (Go client, gzip) still
+gets the old one. Check with `curl --compressed` and wait before concluding a
+publish went wrong.
+
+Test hygiene: commit real edits before mutating template files for an
+upgrade test, and clean up with `git stash`/a scratch copy, never with
+`git checkout --` on files that also carry uncommitted work.
+
 ## Testing a template before tagging
 
 ```sh
