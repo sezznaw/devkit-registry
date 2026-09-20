@@ -9,7 +9,7 @@ repository: devkit reads it through the GitHub API (raw files and tag tarballs).
 
 | Component | Version | Description |
 |-----------|---------|-------------|
-| `kitex-service` | 0.4.1 | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
+| `kitex-service` | 0.5.0 | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
 
 ## Layout
 
@@ -40,6 +40,20 @@ A new version becomes visible to users within about five minutes: devkit reads
 Tags are immutable: devkit caches every downloaded version forever. Never move
 or delete a tag; publish a new version instead. Existing services pick the new
 version up with `devkit update`.
+
+## Raising the Kitex version
+
+Every service uses the same Kitex, so it is raised in one place and in order:
+
+1. Release a `devkit-common` version whose `go.mod` requires the new Kitex.
+2. Here, in one commit: `KitexVersion`, `CommonVersion` and the two literal
+   versions in the `post_update` hook of `kitex-service`, plus a changelog
+   entry and the version bump.
+3. `python3 scripts/check.py` must pass; CI runs it too. It fails when the
+   template, the hook and common's `go.mod` disagree.
+
+Services pick it up with `devkit update`, which aligns their `go.mod` and
+reinstalls the generators if needed.
 
 ## Testing before you tag
 

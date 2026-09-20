@@ -87,11 +87,6 @@ common module do you need the file-based module proxy described in
 - Kitex package naming used in templates: namespace `{{.Service | snake}}`,
   service package `{{.Service | title | lower}}service`
   (`order-item` -> `order_item/orderitemservice`).
-- `CommonModule`, `CommonVersion`, `KitexVersion`, `ThriftgoVersion` are
-  declared `"track": true`: with devkit >= 0.1.8 existing services follow new
-  defaults on update (the Makefile's tool versions, for instance). Mark any
-  future version-like variable the same way; never mark something that also
-  appears in a `once` file, such as `Port`.
 - `main.go` is managed and uses the common library's API, while `go.mod` is a
   `once` file and `devkit update` reuses the vars stored at creation time
   (including the then-default `CommonVersion`). So when a template version
@@ -105,6 +100,28 @@ common module do you need the file-based module proxy described in
   means a new `kitex-service` version here too. `IdlRepo` and
   `GoPrivate` are filled by ngs from the project's devkit.yaml; the CI
   template uses `{{"{{"}}` escapes to emit literal GitHub `${{ }}` syntax.
+
+## One version for the whole team
+
+The owner's rule: every service uses the same Kitex, thriftgo and common
+version, and nobody can choose otherwise. The template is the single source:
+
+- `KitexVersion`, `ThriftgoVersion`, `CommonVersion`, `CommonModule` are
+  `"track": true`. devkit (>= 0.1.9) always renders them from the newest
+  template, on creation and on update, and refuses `--set` / `devkit.yaml`
+  `vars:` for them. Do not add an escape hatch.
+- Kitex appears in three places that must agree: the `KitexVersion` default,
+  the literal in the `post_update` hook, and the `go.mod` of the pinned
+  `devkit-common` release. **To raise Kitex: first release a common version on
+  the new Kitex, then set `KitexVersion`, `CommonVersion` and both literals in
+  the hook here, in one commit.** `scripts/check.py` enforces all of this and
+  runs in CI (`.github/workflows/check.yml`); run it before tagging.
+- The hook names versions literally because a devkit older than 0.1.8 would
+  expand `{{.KitexVersion}}` to the value stored when the service was created
+  and downgrade it.
+- `go.mod` is a `once` file, so the hook (`go get kitex@… common@…`) is what
+  moves existing services; the Makefile's `check-tools` stops `make gen` when
+  the installed generators are not the team's versions.
 
 ## Framework files versus service files
 

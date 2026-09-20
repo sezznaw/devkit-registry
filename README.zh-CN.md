@@ -8,7 +8,7 @@
 
 | 组件 | 版本 | 说明 |
 |------|------|------|
-| `kitex-service` | 0.4.1 | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
+| `kitex-service` | 0.5.0 | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
 
 ## 目录结构
 
@@ -35,6 +35,16 @@ components/<name>/idl/...           写入项目的 IDL 仓库检出目录
 新版本大约五分钟内对用户可见：devkit 通过 GitHub 的 raw 文件 CDN 读取 `registry.json`，该 CDN 会缓存 300 秒。
 
 tag 不可变：devkit 会永久缓存每个下载过的版本。不要移动或删除 tag，需要修改时发布新版本。已有的服务通过 `devkit update` 升级到新版本。
+
+## 升级 Kitex 版本
+
+所有服务使用同一个 Kitex 版本，所以只在一处、按顺序升级：
+
+1. 先发布一个 `devkit-common` 版本，它的 `go.mod` 要求新的 Kitex。
+2. 在本仓库用一次提交完成：`kitex-service` 的 `KitexVersion`、`CommonVersion`，以及 `post_update` 钩子里的两个字面版本号，再加一条变更说明和版本号升级。
+3. `python3 scripts/check.py` 必须通过，CI 也会运行它。模板、钩子、common 的 `go.mod` 三者不一致时它会失败。
+
+各服务通过 `devkit update` 获得新版本，它会对齐服务的 `go.mod`，并在需要时重装代码生成器。
 
 ## 打 tag 之前先验证
 

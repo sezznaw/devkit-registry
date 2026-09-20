@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -16,13 +16,13 @@
     },
     {
       "name": "CommonModule",
-      "description": "Module path of the shared common library",
+      "description": "Module path of the shared common library. Decided by the template for every service; cannot be set per service or project",
       "default": "github.com/sezznaw/devkit-common",
       "track": true
     },
     {
       "name": "CommonVersion",
-      "description": "Version of common to require",
+      "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
       "default": "v0.2.0",
       "track": true
     },
@@ -52,14 +52,20 @@
       "default": "127.0.0.1:8848"
     },
     {
+      "name": "GoVersion",
+      "description": "Go release (major.minor) for go.mod, the Docker image and GitLab CI; must not be lower than what devkit-common requires. Decided by the template for every service; cannot be set per service or project",
+      "default": "1.26",
+      "track": true
+    },
+    {
       "name": "KitexVersion",
-      "description": "Kitex library and tool version",
+      "description": "Kitex library and tool version. Decided by the template for every service; cannot be set per service or project",
       "default": "v0.16.3",
       "track": true
     },
     {
       "name": "ThriftgoVersion",
-      "description": "thriftgo tool version",
+      "description": "thriftgo tool version. Decided by the template for every service; cannot be set per service or project",
       "default": "v0.4.5",
       "track": true
     }
@@ -69,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/sezznaw/devkit-common@v0.2.0 && go mod tidy"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.2.0 && go mod tidy"
     ]
   },
   "once": [
@@ -81,6 +87,19 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.5.0",
+      "changes": [
+        "one Kitex version for the whole team: devkit update now also aligns the Kitex library in go.mod with the template, not only the generator version in the Makefile",
+        "make gen stops with a clear message when the installed kitex or thriftgo is not the team's version, instead of generating different code",
+        "versions can no longer be chosen per service or per project (needs devkit 0.1.9 or newer)",
+        "Dockerfile and GitLab CI use the Go release the common library needs (GoVersion, 1.26); with golang:1.24 the image refused to build because devkit-common requires Go 1.26"
+      ],
+      "action": [
+        "If `make gen` now reports another kitex or thriftgo version, run:\nmake tools",
+        "If devkit.yaml has KitexVersion, ThriftgoVersion or CommonVersion under `vars:`, remove those lines; devkit 0.1.9 refuses them."
+      ]
+    },
     {
       "version": "0.4.1",
       "changes": [

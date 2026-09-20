@@ -1,5 +1,7 @@
 # Run `make gen` before building the image: kitex_gen/ is not in git.
-FROM golang:1.24 AS build
+# The Go version is the team's (GoVersion in the template); the official image
+# refuses a module that needs a newer Go than it ships.
+FROM golang:{{.GoVersion}} AS build
 WORKDIR /src
 {{- if .GoPrivate}}
 ENV GOPRIVATE={{.GoPrivate}}
