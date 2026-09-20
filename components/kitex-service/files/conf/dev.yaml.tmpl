@@ -13,3 +13,8 @@ nacos:
 log:
   level: debug
   json: false
+
+# Graceful stop. Nothing to wait for locally.
+shutdown:
+  deregister_wait: 0s
+  drain_timeout: 5s

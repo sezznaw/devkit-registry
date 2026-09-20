@@ -14,3 +14,11 @@ nacos:
 log:
   level: info
   json: true
+
+# Graceful stop: after leaving Nacos keep serving for deregister_wait so that
+# callers refresh their instance lists, then give in-flight requests up to
+# drain_timeout. Keep the sum below the platform's kill timeout (Kubernetes
+# terminationGracePeriodSeconds is 30s by default).
+shutdown:
+  deregister_wait: 3s
+  drain_timeout: 15s

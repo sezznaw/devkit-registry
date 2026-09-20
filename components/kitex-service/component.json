@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -22,7 +22,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require",
-      "default": "v0.1.0"
+      "default": "v0.2.0"
     },
     {
       "name": "IdlRepo",
@@ -65,7 +65,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go mod tidy"
+      "go get github.com/sezznaw/devkit-common@v0.2.0 && go mod tidy"
     ]
   },
   "once": [

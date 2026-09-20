@@ -3,7 +3,7 @@
 package main
 
 import (
-	"log/slog"
+	"fmt"
 	"os"
 
 	"{{.CommonModule}}/config"
@@ -20,17 +20,36 @@ type Config struct {
 }
 
 func main() {
+	// conf/ is found via $CONF_DIR, ./conf, or next to the executable, so the
+	// service does not depend on the directory it is started from.
 	var cfg Config
-	config.MustLoad("conf", &cfg)
+	if err := config.LoadDefault(&cfg); err != nil {
+		fatal(err)
+	}
 
+	// Logging, Nacos registration, request logging and the graceful-stop
+	// settings (shutdown.* in the config).
 	opts, err := kitexx.Options(cfg.Config)
 	if err != nil {
-		slog.Error("init failed", "err", err)
-		os.Exit(1)
+		fatal(err)
 	}
 
 	svr := {{.Service | title | lower}}service.NewServer(handler.New(), opts...)
+
+	// Release what the service owns. Hooks run after the server has left Nacos
+	// and every in-flight request has finished, in reverse order:
+	//
+	//	kitexx.OnShutdown("db", db.Close)
+
+	// Blocks until SIGINT/SIGTERM, then stops gracefully and runs the hooks.
 	if err := kitexx.Run(svr, cfg.Config); err != nil {
 		os.Exit(1)
 	}
+}
+
+// fatal reports a startup problem in plain words; a panic would bury it under
+// a stack trace.
+func fatal(err error) {
+	fmt.Fprintf(os.Stderr, "{{.Service}}: cannot start: %v\n", err)
+	os.Exit(1)
 }
