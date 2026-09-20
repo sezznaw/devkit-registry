@@ -1,0 +1,73 @@
+// Package app is where the {{.Service}} service is put together: its
+// configuration, its dependencies and what happens to them on shutdown.
+//
+// This file is yours. devkit created it once and never rewrites it, while
+// cmd/{{.Service}}/main.go belongs to the framework and is replaced on every
+// `devkit update`. So everything specific to this service goes here (or into
+// packages you add), and main.go is never edited.
+//
+// 本文件归你所有：devkit 只创建一次，之后不会改写。而 cmd/{{.Service}}/main.go 属于
+// 框架，每次 `devkit update` 都会被替换。所以本服务特有的一切都写在这里（或你自己
+// 新增的包里），不要去修改 main.go。
+package app
+
+import (
+	"github.com/cloudwego/kitex/server"
+
+	"{{.CommonModule}}/kitexx"
+
+	"{{.Module}}/handler"
+)
+
+// Config is the whole configuration of the service, loaded from
+// conf/<APP_ENV>.yaml. The embedded kitexx.Config is the part the framework
+// reads (service, nacos, log, shutdown; see conf/README.md). Add your own
+// sections as fields next to it, together with the matching YAML:
+//
+//	Redis redisx.Config `yaml:"redis"`
+//
+//	redis:
+//	  addr: "${REDIS_ADDR}"
+//
+// Config 是本服务的完整配置，从 conf/<APP_ENV>.yaml 加载。内嵌的 kitexx.Config 是
+// 框架读取的部分（service、nacos、log、shutdown，见 conf/README.md）。你自己的配置节
+// 作为字段加在它旁边，并在 YAML 里写上对应的内容。
+type Config struct {
+	kitexx.Config `yaml:",inline"`
+}
+
+// Setup is called once at start-up, after the configuration is loaded and
+// logging is ready, and before the server accepts requests. Create what the
+// service depends on, register its cleanup, and return the handler.
+//
+// Cleanup registered with kitexx.OnShutdown runs after the server has left
+// Nacos and the last request in progress has finished, in reverse order:
+//
+//	rdb, err := redisx.New(context.Background(), cfg.Redis)
+//	if err != nil {
+//		return nil, err
+//	}
+//	kitexx.OnShutdown("redis", rdb.Close)
+//	return handler.New(rdb), nil
+//
+// Returning an error stops the start-up with a plain message.
+//
+// Setup 在启动时被调用一次：此时配置已加载、日志已就绪，服务尚未开始接收请求。
+// 在这里创建服务依赖的资源、注册它们的清理动作，并返回 handler。用 kitexx.OnShutdown
+// 注册的清理会在服务从 Nacos 注销、最后一个处理中的请求结束之后，按相反顺序执行。
+// 返回 error 会中止启动，并打印一条明确的错误信息。
+func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+	return handler.New(), nil
+}
+
+// ServerOptions returns extra Kitex server options for this service, applied
+// after the framework's own: additional middleware, connection or QPS limits,
+// and so on. Return nil when there is nothing to add.
+//
+//	return []server.Option{server.WithMiddleware(myMiddleware)}
+//
+// ServerOptions 返回本服务额外的 Kitex 服务端选项，在框架自身的选项之后生效：
+// 例如额外的中间件、连接数或 QPS 限制等。没有需要添加的就返回 nil。
+func ServerOptions(cfg *Config) []server.Option {
+	return nil
+}

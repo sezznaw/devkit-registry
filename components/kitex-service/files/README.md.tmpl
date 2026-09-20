@@ -12,6 +12,12 @@ make test
 - IDL lives in the project's shared IDL repository (`../idl` next to this
   service). Change it there, run `make gen`, implement new methods in
   `handler/`, and open a pull request in the IDL repository.
+- What is yours and what is the framework's: `app/`, `handler/`, `conf/*.yaml`,
+  `idl.mk` and `go.mod` are yours and never rewritten. `cmd/{{.Service}}/main.go`,
+  the Makefile, the CI files and the Dockerfile belong to the framework and are
+  replaced by `devkit update`; do not edit them. Service-specific wiring
+  (config fields, dependencies, shutdown cleanup, extra server options) goes
+  into `app/app.go`.
 - To call another service, add its IDL to `idl.mk` (for example
   `order/order.thrift`), run `make gen`, and use the generated client in
   `kitex_gen/`. `idl.mk` is yours; devkit never rewrites it.

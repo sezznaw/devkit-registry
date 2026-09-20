@@ -77,10 +77,15 @@ below the platform's kill timeout (Kubernetes: 30s by default).
 
 ## Your own settings / 增加你自己的配置
 
-Add a section to the YAML and a field to `Config` in `cmd/{{.Service}}/main.go`:
-在 YAML 里加一节，并在 `cmd/{{.Service}}/main.go` 的 `Config` 里加一个字段：
+Add a section to the YAML and a field to `Config` in **`app/app.go`**. That
+file is yours; `cmd/{{.Service}}/main.go` belongs to the framework and must not
+be edited, otherwise it can no longer be updated.
+
+在 YAML 里加一节，并在 **`app/app.go`** 的 `Config` 里加一个字段。这个文件归你所有；
+`cmd/{{.Service}}/main.go` 属于框架，不要修改它，否则它就无法再被升级。
 
 ```go
+// app/app.go
 type Config struct {
 	kitexx.Config `yaml:",inline"`
 	Redis redisx.Config `yaml:"redis"`
@@ -91,4 +96,19 @@ type Config struct {
 redis:
   addr: "${REDIS_ADDR}"
   password: "${REDIS_PASSWORD}"
+```
+
+Then create the dependency in `app.Setup` and register its cleanup there:
+然后在 `app.Setup` 里创建这个依赖，并在那里注册它的清理动作：
+
+```go
+// app/app.go
+func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+	rdb, err := redisx.New(context.Background(), cfg.Redis)
+	if err != nil {
+		return nil, err
+	}
+	kitexx.OnShutdown("redis", rdb.Close)
+	return handler.New(rdb), nil
+}
 ```

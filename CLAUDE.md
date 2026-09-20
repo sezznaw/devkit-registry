@@ -100,6 +100,26 @@ common module do you need the file-based module proxy described in
   `GoPrivate` are filled by ngs from the project's devkit.yaml; the CI
   template uses `{{"{{"}}` escapes to emit literal GitHub `${{ }}` syntax.
 
+## Framework files versus service files
+
+The owner's rule: the framework is maintained centrally through devkit, so
+nothing specific to one service may live in a framework file. A managed file
+that developers are told to edit becomes "modified" and can never be updated
+again. This went wrong twice (the `IDLS` line in the Makefile, then `Config`
+and `OnShutdown` in `main.go`) and was fixed the same way both times: move the
+service's part into a `once` file that the managed file calls or includes.
+
+- Managed (framework): `cmd/<svc>/main.go`, `Makefile`, CI files,
+  `Dockerfile`, `.gitignore`, `conf/README.md`. Never tell anyone to edit these.
+- `once` (service): `app/*`, `handler/*`, `conf/*.yaml`, `idl.mk`, `go.mod`,
+  `README.md`.
+- `main.go` only sequences the start-up and calls `app.Setup(&cfg)` and
+  `app.ServerOptions(&cfg)`. When a service needs a new kind of hook, add a
+  function to the `app/app.go` template and call it from `main.go`; do not
+  document "edit main.go". Existing services get new `app` functions only if
+  `main.go` tolerates their absence, so a new required hook is a breaking
+  change that needs a changelog action.
+
 ## Telling developers what changed
 
 `conf/*.yaml`, `handler/*`, `go.mod`, `idl.mk` are `once` files, so an update

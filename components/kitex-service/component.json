@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -71,11 +71,23 @@
   "once": [
     "go.mod",
     "idl.mk",
+    "app/*",
     "README.md",
     "conf/*.yaml",
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.4.0",
+      "changes": [
+        "new app/app.go, a file you own: the service's Config struct, a Setup function for its dependencies and shutdown cleanup, and optional extra server options",
+        "cmd/<service>/main.go is now pure framework code that calls app.Setup; nothing service-specific lives in it any more, so it can always be updated"
+      ],
+      "action": [
+        "If you had edited cmd/<service>/main.go, it was left alone and the new version is next to it as main.go.new. Move your changes into app/app.go, then take the new file:\nConfig fields            -> the Config struct in app/app.go\nkitexx.OnShutdown(...)   -> app.Setup\nextra server options     -> app.ServerOptions\nmv cmd/<service>/main.go.new cmd/<service>/main.go",
+        "If your handler needs dependencies, create them in app.Setup and pass them to handler.New(...)."
+      ]
+    },
     {
       "version": "0.3.1",
       "changes": [
@@ -95,7 +107,7 @@
       ],
       "action": [
         "Optional, in each conf/<env>.yaml (defaults are 3s and 15s). Locally use deregister_wait: 0s so stopping is instant:\nshutdown:\n  deregister_wait: 3s\n  drain_timeout: 15s",
-        "If the service owns resources, release them in main.go before kitexx.Run:\nkitexx.OnShutdown(\"db\", db.Close)"
+        "If the service owns resources, release them on shutdown. Since 0.4.0 this goes into app.Setup in app/app.go:\nkitexx.OnShutdown(\"db\", db.Close)"
       ]
     },
     {
