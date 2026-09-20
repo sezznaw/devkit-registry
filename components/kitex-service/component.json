@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.2.0",
+      "default": "v0.2.1",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.2.0 && go mod tidy"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.2.1 && go mod tidy"
     ]
   },
   "once": [
@@ -87,6 +87,12 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.5.1",
+      "changes": [
+        "devkit-common v0.2.1: when Nacos cannot be reached the service stops at once and names the address, the reason and the setting to check, instead of \"client not connected, current status:STARTING\" after a few seconds; it also explains a closed gRPC port (main port + 1000)"
+      ]
+    },
     {
       "version": "0.5.0",
       "changes": [
