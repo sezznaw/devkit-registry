@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -100,6 +100,15 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.1.1",
+      "changes": [
+        "a service created with `devkit nas` compiles after the first route is added. hz adds the function for a new method to handler/<name>/<name>_service.go and refers to the request and response structs by the name of their package (ser_api.LoginReq), while the handler the template created imported that package as `api`; the first `make gen` after an IDL change left code that did not build. New services import it under its own name"
+      ],
+      "action": [
+        "handler/ is yours and is not rewritten, so a service created with 0.1.0 needs this once, in handler/<name>/<name>_service.go: change the import\n\tapi \"<module>/hertz_gen/<name>\"\nto\n\t<name> \"<module>/hertz_gen/<name>\"\n(<name> with _ instead of -, e.g. ser_api) and replace `api.PingReq` and `api.PingResp` by `<name>.PingReq` and `<name>.PingResp`."
+      ]
+    },
     {
       "version": "0.1.0",
       "changes": [

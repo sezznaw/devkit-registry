@@ -6,7 +6,7 @@
       "description": "Complete Kitex (Thrift) service project with Nacos, logging, config, codegen Makefile, GitHub Actions and GitLab CI, Dockerfile"
     },
     "hertz-service": {
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes from the Thrift IDL (hz), RPC clients (Kitex), Nacos, logging with trace_id, config, codegen Makefile, GitHub Actions and GitLab CI, Dockerfile"
     }
   }

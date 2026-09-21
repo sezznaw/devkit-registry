@@ -71,6 +71,11 @@ common module do you need the file-based module proxy described in
   `router/**/middleware.go`. hz creates `handler/<ns>/<service>.go` and `middleware.go` once and
   afterwards only appends (a stub per new method); the template pre-creates the handler with a
   working `Ping`, at the path hz expects (`handler/{{.Service | snake}}/{{.Service | snake}}_service.go`).
+  That file must import `hertz_gen/<ns>` under the package's own name, never an alias: hz appends
+  stubs that say `<ns>.XxxReq` and does not touch the imports of an existing file (0.1.0 used the
+  alias `api` and the first added route did not compile; found by doing the new-employee
+  walkthrough for real). When a template pre-creates a file a generator later appends to, run the
+  generator once more with a changed IDL before releasing.
 - A Hertz handler imports `github.com/cloudwego/hertz/pkg/app`, so the service's own `app` package
   cannot be used from handlers. What handlers need (RPC clients, Redis) lives in package `deps`
   (`deps/deps.go`, a `once` file); `app.Setup(cfg, h)` creates it. Do not move it back into `app`.
