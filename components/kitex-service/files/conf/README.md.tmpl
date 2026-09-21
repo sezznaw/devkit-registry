@@ -90,6 +90,126 @@ shutdown:
 | `shutdown.deregister_wait` | `3s` |
 | `shutdown.drain_timeout` | `15s` |
 
+## Logging: the three production safeguards / 日志：三个生产环境的保护项
+
+`sampling`, `buffer` and `max_field_bytes` are off unless you set them, because
+each of them changes what ends up in the log: one leaves records out, one
+delays them, one cuts them. The first record of a starting service, `logger
+configured`, shows which are in effect. `dev.yaml` sets none of them, since in
+development you want every record, at once and in full.
+
+`sampling`、`buffer`、`max_field_bytes` 不配置就是关闭的，因为它们都会改变最终写进日志的
+内容：一个会丢记录，一个会延迟输出，一个会截断内容。服务启动时的第一条日志
+`logger configured` 会显示哪些正在生效。`dev.yaml` 三项都不设置，因为开发时你需要
+每一条日志都立即、完整地出现。
+
+| | What it does / 作用 | What it costs / 代价 | `prod.yaml` |
+|---|---|---|---|
+| `sampling` | within a second, identical records are written `first` times, then every `thereafter`-th. 一秒内相同的日志先写 `first` 条，之后每 `thereafter` 条写 1 条 | records are left out; how many is reported. 会丢日志；丢了多少会有记录 | **on / 开** |
+| `max_field_bytes` | cuts a longer message or field value and says how long it was. 截断过长的消息或字段值，并注明原长度 | the rest of that value is gone. 该值的剩余部分看不到 | **on / 开**, 8192 |
+| `buffer` | collects output in memory and writes it in larger pieces. 先在内存里攒一批再写出 | the last `flush_interval` is lost when the process dies abnormally. 进程异常死亡时丢失最后一个 `flush_interval` 内的日志 | **off / 关** |
+
+### sampling
+
+It protects the disk and the log collector from a flood: when Redis is down,
+every request logs the same error, tens of thousands of times a second, and
+they all say the same. Records count as identical when level and **message**
+are the same; fields do not count. So `zlog.Error("redis down", zlog.Int("uid",
+uid))` is sampled as one message, while `zlog.Errorf("redis down for %d", uid)`
+is a different message each time and is hardly sampled at all: one more reason
+to put values into fields.
+
+Nothing is dropped without a trace. For every second with drops there is one
+record per level and message, at the level of what was dropped:
+
+```
+ERROR zlog: records dropped by sampling dropped_msg="redis down" dropped=4213
+```
+
+它保护磁盘和日志采集系统不被洪峰打爆：Redis 挂掉时，每个请求都打同一条错误，每秒几万条，
+内容完全一样。“相同的日志”按级别和**消息文字**判断，字段不算。所以
+`zlog.Error("redis down", zlog.Int("uid", uid))` 会被当作同一条消息来采样；而
+`zlog.Errorf("redis down for %d", uid)` 每条的文字都不同，采样对它基本无效。
+这也是应该把值放进字段的又一个理由。
+
+被丢弃的日志不会无声无息地消失：凡是发生了丢弃的那一秒，都会按级别和消息各补一条记录
+（见上面的示例），级别与被丢弃的日志相同。
+
+### max_field_bytes
+
+A record is one line. Container runtimes split lines of more than 16 KB, and a
+collector that gets the pieces no longer sees a JSON object: the record is
+lost. The usual cause is `zlog.Any("resp", resp)` with a large value. The limit
+is **per value**, not per record, which is why the template sets 8192 and not
+16000: it leaves room for the other fields, but a record with several values
+near the limit can still exceed 16 KB. Stack traces are not cut.
+
+一条日志就是一行。容器运行时会把超过 16KB 的行拆开，采集系统拿到的碎片不再是一个 JSON
+对象，这条日志就丢了。常见的原因是 `zlog.Any("resp", resp)` 打出了一个很大的值。这个上限是
+针对**单个值**的，不是针对整条日志，所以模板设的是 8192 而不是 16000：给其他字段留出余量。
+但如果一条日志里有好几个接近上限的值，整行仍然可能超过 16KB。堆栈不会被截断。
+
+### buffer: when to turn it on / 什么时候该打开
+
+**Leave it off unless both of these are true / 除非同时满足下面两条，否则保持关闭：**
+
+1. The service logs a lot, roughly **tens of thousands of records a second**,
+   and a CPU profile shows writing the log as a real share of the CPU.
+   服务的日志量很大，大致在**每秒几万条以上**，并且从 CPU 性能分析里能看到写日志占了可观的比例。
+2. You accept losing the last moment of the log when the process dies
+   abnormally. 你能接受进程异常死亡时丢失最后一小段日志。
+
+Why the bar is that high: buffering saves one system call per record, about
+**1 to 2 microseconds** (measured with stdout as a pipe, as in a container).
+
+为什么门槛这么高：buffer 省掉的是每条日志的一次系统调用，大约 **1 到 2 微秒**
+（按容器里的真实情况测量：stdout 是一个管道）。
+
+| Records per second / 每秒日志条数 | CPU spent writing, unbuffered / 不开 buffer 时写日志占用的 CPU | Saved by buffering / 开 buffer 省下 |
+|---|---|---|
+| 1 000 (most services / 多数业务服务) | about 0.3 % of one core / 约一个核的 0.3% | about 0.2 % |
+| 10 000 | about 3 % | about 2 % |
+| 100 000 (gateways, battle servers / 网关、战斗服) | about 27 % | about 19 %: now it pays / 这时才值得 |
+
+What it costs. Records wait in memory for up to `flush_interval`.
+
+- **Not lost**: a normal stop (SIGTERM, Ctrl+C; `kitexx.Run` flushes before it
+  returns), a `zlog.Fatal`, a `zlog.Sync()`.
+- **Lost**: whatever was still in memory when the process is killed for using
+  too much memory, by `kill -9` or the platform's kill timeout, or by a panic
+  or a fatal runtime error nobody recovered.
+
+The second list is exactly when the last second of the log is what you need: it
+says what the process was doing when it died. That is why the template turns
+`sampling` on and `buffer` off, although both are for production: sampling only
+acts in an emergency and tells you what it left out, whereas buffering is a
+performance optimization that costs a little all the time and shows its price
+at the worst moment.
+
+代价：日志会在内存里最多停留 `flush_interval` 这么久。
+
+- **不会丢**：正常退出（SIGTERM、Ctrl+C，`kitexx.Run` 返回前会刷出）、`zlog.Fatal`、`zlog.Sync()`。
+- **会丢**：进程因为内存超限被杀、`kill -9`、部署平台的强杀超时、没有被捕获的 panic
+  或运行时致命错误。此时还留在内存里的日志都会丢失。
+
+会丢的这几种情况，恰恰是最需要最后一秒日志的时候：它能说明进程死之前在做什么。这就是为什么
+同样是生产环境的保护项，模板打开了 `sampling` 却关着 `buffer`：采样只在出事时才起作用，
+而且会告诉你它丢了多少；buffer 则是一项性能优化，它的代价平时看不出来，到最糟糕的时刻才显现。
+
+When you do turn it on, use a short interval. Under a high volume the buffer
+is flushed because it is full, not because of the timer, so a short interval
+costs almost nothing and bounds what can be lost:
+
+确定要打开时，把间隔设短。日志量大的时候，缓冲区主要是因为写满才刷出的，而不是靠定时，
+所以缩短间隔几乎没有额外开销，却能限制最多会丢多少：
+
+```yaml
+log:
+  buffer:
+    size: 262144          # 256 KB
+    flush_interval: 200ms # at most 0.2 s of records can be lost. 最多丢失 0.2 秒的日志
+```
+
 ## Graceful stop / 优雅退出
 
 On SIGINT or SIGTERM the service: (1) deregisters from Nacos, (2) keeps serving

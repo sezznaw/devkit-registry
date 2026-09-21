@@ -65,20 +65,28 @@ log:
   max_field_bytes: 8192
 
   # Protection against a flood of one and the same record: within a second the
-  # first 100 are written, after that every 100th.
-  # 日志洪峰保护：同一条日志一秒内先写前 100 条，之后每 100 条写 1 条。
+  # first 100 are written, after that every 100th. How many were left out is
+  # reported once a second: "zlog: records dropped by sampling".
+  # 日志洪峰保护：同一条日志一秒内先写前 100 条，之后每 100 条写 1 条。丢了多少条，
+  # 每秒会有一条汇总记录：zlog: records dropped by sampling。
   sampling:
     first: 100
     thereafter: 100
 
-  # Optional: collect output in memory and write it in larger pieces. Worth it
-  # for services that log a lot; what is lost when the process is killed is the
-  # last flush_interval.
-  # 可选：先在内存里攒一批再写出。日志量大的服务值得打开；进程被强杀时会丢失
-  # 最后一个 flush_interval 内的日志。
+  # Optional, off on purpose: collect output in memory and write it in larger
+  # pieces. It saves 1 to 2 microseconds per record, which only matters from
+  # tens of thousands of records a second. The price: when the process dies
+  # abnormally (out of memory, kill -9, an unrecovered panic) the records still
+  # in memory are lost, and those are the ones that say what it was doing.
+  # A normal stop loses nothing. Turn it on only when a CPU profile shows log
+  # writing as a real cost; conf/README.md has the numbers.
+  # 可选，有意保持关闭：先在内存里攒一批再写出。每条日志能省 1 到 2 微秒，只有每秒几万条
+  # 以上才有意义。代价：进程异常死亡（内存超限、kill -9、未捕获的 panic）时，还在内存里的
+  # 日志会丢失，而那几条恰恰能说明它死之前在做什么。正常退出不会丢。只有当 CPU 性能分析
+  # 显示写日志确实是一项开销时才打开；具体数字见 conf/README.md。
   # buffer:
   #   size: 262144
-  #   flush_interval: 1s
+  #   flush_interval: 200ms   # at most this much can be lost. 最多丢失这么久的日志
 
 # Optional: a Nacos configuration (data id) whose content is a log level. The
 # running service follows it, which is how debug logging is switched on in
