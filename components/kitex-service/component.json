@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.5.0",
+      "default": "v0.6.0",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.5.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.6.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,16 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.8.3",
+      "changes": [
+        "devkit-common v0.6.0: every service logs which services are alive. At start one record, \"services alive\", lists every service with its number of instances and their addresses. After that \"service online\", \"service offline\" and \"service instances changed\" say what came or went and, again, everything that is alive, so when ser-auth starts, ser-user says so and shows the whole picture. It also sees the last instance of a service go, which the Nacos client that calls go through never hears of",
+        "with these records on, \"service discovered\" and \"instances changed\" of the services this one calls repeat them and move to debug; the warning that nothing can take the requests of a called service stays"
+      ],
+      "action": [
+        "Nothing has to change: the records are on. To turn them off in one environment, add to the nacos section of that conf/*.yaml:\n  watch_services: false"
+      ]
+    },
     {
       "version": "0.8.2",
       "changes": [

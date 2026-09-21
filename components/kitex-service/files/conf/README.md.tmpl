@@ -72,6 +72,8 @@ nacos:
   password: ""
   register: true              # false = find services and read configuration, do NOT announce
                               # this one: a laptop against the development server's Nacos
+  watch_services: true        # log which services are alive: at start, and whenever one comes,
+                              # goes or changes its number of instances; false = off
   sdk_log_level: warn         # level from which the Nacos client's own records are written (logger=nacos-sdk)
   cache_dir: /tmp/nacos/cache # Nacos client cache
 
@@ -106,6 +108,7 @@ shutdown:
 | `nacos.addrs` | none; required unless `registry_disabled: true` |
 | `nacos.group` | `DEFAULT_GROUP` |
 | `nacos.register` | `true`; `false` = find services and read configuration, do not announce this one |
+| `nacos.watch_services` | `true` |
 | `nacos.sdk_log_level` | `warn` |
 | `nacos.cache_dir` | `/tmp/nacos/cache` |
 | `config_data_id` | `<service.name>.yaml` |
@@ -118,6 +121,35 @@ shutdown:
 | `log_level_data_id` | none |
 | `shutdown.deregister_wait` | `3s` |
 | `shutdown.drain_timeout` | `15s` |
+
+## Which services are alive
+
+Every service logs the state of all services in its Nacos namespace and group.
+At start there is one record, `services alive`. After that `service online`,
+`service offline` and `service instances changed` say what came or went and,
+again, everything that is alive with its number of instances, so the last of
+these records always tells how things are:
+
+```
+INFO service online name=ser-auth alive=1 services=2 instances=3
+    overview:
+      ┌──────────┬───┬──────────────────────────────────┐
+      │ SERVICE  │ N │ INSTANCES                        │
+      ├──────────┼───┼──────────────────────────────────┤
+      │ ser-auth │ 1 │ + 127.0.0.1:8889                 │
+      │ ser-user │ 2 │   127.0.0.1:8888  ← this process │
+      │          │   │   127.0.0.1:8890                 │
+      └──────────┴───┴──────────────────────────────────┘
+```
+
+`+` came (green), `-` went (red; a service of which nothing is left keeps a row
+with N = 0), `~` is not what it was (yellow), and the arrow is the process that
+prints the record.
+
+An instance of a service that is known shows up within a second; the first
+instance of a service whose name is new takes up to 3 seconds. In JSON the
+same is `overview: {service, changed, alive}`. `nacos.watch_services: false` turns the
+records off.
 
 ## Logging: the three production safeguards
 

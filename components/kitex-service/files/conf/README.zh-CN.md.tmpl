@@ -66,6 +66,8 @@ nacos:
   password: ""
   register: true              # false 表示只查找服务、读取配置，【不】注册自己：
                               # 笔记本连开发服务器的 Nacos 时使用
+  watch_services: true        # 在日志里说明当前存活的服务：启动时一次，之后每当有服务上线、
+                              # 下线或实例数变化时一次；false 表示关闭
   sdk_log_level: warn         # Nacos 客户端自身日志（logger=nacos-sdk）的输出级别
   cache_dir: /tmp/nacos/cache # Nacos 客户端缓存目录
 
@@ -100,6 +102,7 @@ shutdown:
 | `nacos.addrs` | 无；除非 `registry_disabled: true`，否则必填 |
 | `nacos.group` | `DEFAULT_GROUP` |
 | `nacos.register` | `true`；`false` 表示只查找服务、读取配置，不注册自己 |
+| `nacos.watch_services` | `true` |
 | `nacos.sdk_log_level` | `warn` |
 | `nacos.cache_dir` | `/tmp/nacos/cache` |
 | `config_data_id` | `<service.name>.yaml` |
@@ -112,6 +115,31 @@ shutdown:
 | `log_level_data_id` | 无 |
 | `shutdown.deregister_wait` | `3s` |
 | `shutdown.drain_timeout` | `15s` |
+
+## 当前有哪些服务存活
+
+每个服务都会在日志里说明它所在的 Nacos 命名空间和分组下全部服务的状态。启动时打一条
+`services alive`。之后每当有服务上线（`service online`）、下线（`service offline`）或
+实例数变化（`service instances changed`），都会打一条记录：既说明谁来了、谁走了，也再次
+列出当前存活的全部服务及各自的实例数，所以最后一条这类记录永远反映当前的状况：
+
+```
+INFO service online name=ser-auth alive=1 services=2 instances=3
+    overview:
+      ┌──────────┬───┬──────────────────────────────────┐
+      │ SERVICE  │ N │ INSTANCES                        │
+      ├──────────┼───┼──────────────────────────────────┤
+      │ ser-auth │ 1 │ + 127.0.0.1:8889                 │
+      │ ser-user │ 2 │   127.0.0.1:8888  ← this process │
+      │          │   │   127.0.0.1:8890                 │
+      └──────────┴───┴──────────────────────────────────┘
+```
+
+`+` 表示新上线（绿色），`-` 表示已下线（红色；整个服务都没了时它仍保留一行，N 为 0），
+`~` 表示状态变了（黄色），箭头指出打印这条记录的进程自己。
+
+已知服务的实例变化一秒以内就能看到；一个全新名字的服务的第一个实例最多需要 3 秒。
+JSON 格式下同样的内容是 `overview: {service, changed, alive}`。`nacos.watch_services: false` 可以关闭这些记录。
 
 ## 日志：三个生产环境的保护项
 
