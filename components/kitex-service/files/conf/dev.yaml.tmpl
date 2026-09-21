@@ -37,17 +37,25 @@ service:
   # 只想监听某一块网卡时，改写成 "主机:端口"，例如 "127.0.0.1:{{.Port}}"。
   addr: {{.Port}}
 
-# true  = do not register in Nacos. The service still listens and can be called
-#         directly by address. Convenient on a laptop: no Nacos needed.
+# true  = run without Nacos. The service is not registered, still listens and
+#         can be called directly by address; the services it calls are not
+#         looked up (give their address with client.WithHostPorts); and a
+#         configuration it reads from Nacos (kitexx.WatchConfig) is the file
+#         conf/nacos/<data id> instead, where saving the file counts as a change.
+#         Convenient on a laptop: no Nacos needed.
 # false = register in Nacos on start and deregister on stop (see "nacos" below).
-# true  = 不向 Nacos 注册。服务照常监听，可以通过地址直接调用。
-#         本机开发时很方便：不需要 Nacos。
+# true  = 不使用 Nacos。服务不注册，照常监听，可以通过地址直接调用；它要调用的服务
+#         也不会被查找（用 client.WithHostPorts 指明地址）；它从 Nacos 读取的配置
+#         （kitexx.WatchConfig）改为读取文件 conf/nacos/<data id>，保存文件就相当于
+#         在控制台里改了配置。本机开发时很方便：不需要 Nacos。
 # false = 启动时注册到 Nacos，退出时注销（连接参数见下面的 nacos 一节）。
 registry_disabled: true
 
-# Nacos connection, used for registration (when enabled above) and for finding
-# the services this one calls (kitexx.ClientOptions).
-# Nacos 连接参数。用于注册本服务（上面开启时），以及查找本服务要调用的其他服务。
+# Nacos connection, used for registration (when enabled above), for finding the
+# services this one calls (kitexx.ClientOptions) and for configuration that
+# follows Nacos while the service runs (kitexx.WatchConfig, see conf/README.md).
+# Nacos 连接参数。用于注册本服务（上面开启时）、查找本服务要调用的其他服务，
+# 以及读取运行中跟随 Nacos 变化的配置（kitexx.WatchConfig，见 conf/README.md）。
 nacos:
   # Nacos servers as "host:port". List several for a cluster.
   # Nacos 服务器地址，格式 "主机:端口"。集群可以写多个。
@@ -59,8 +67,9 @@ nacos:
   # 命名空间用于隔离环境：服务只能发现同一命名空间里的其他服务。
   namespace: ""
 
-  # Service group. Callers must use the same group. Default: DEFAULT_GROUP.
-  # 服务分组。调用方必须使用相同的分组。默认 DEFAULT_GROUP。
+  # Group of the service and of its configurations. Callers must use the same
+  # group. Default: DEFAULT_GROUP.
+  # 服务及其配置所在的分组。调用方必须使用相同的分组。默认 DEFAULT_GROUP。
   group: DEFAULT_GROUP
 
   # Credentials, only needed when Nacos authentication is turned on.
@@ -68,12 +77,27 @@ nacos:
   # username: ""
   # password: "${NACOS_PASSWORD}"
 
-  # Where the Nacos client writes its own log and its cache of service lists.
-  # Defaults: /tmp/nacos/log and /tmp/nacos/cache.
-  # Nacos 客户端自身日志和服务列表缓存的存放目录。
-  # 默认为 /tmp/nacos/log 和 /tmp/nacos/cache。
-  # log_dir: /tmp/nacos/log
+  # The Nacos client logs through the logger of the service (logger=nacos-sdk),
+  # from this level up: debug, info, warn, error. Default warn. At info it prints
+  # the content of every configuration it receives, passwords included. While
+  # Nacos is unreachable its many reconnect messages are replaced by three
+  # records (connection lost, still unreachable, restored); debug shows them all.
+  # Nacos 客户端的日志走本服务的日志系统（带 logger=nacos-sdk），从这个级别起输出：
+  # debug、info、warn、error，默认 warn。设为 info 时它会打印收到的每一份配置的内容，
+  # 包括密码。Nacos 连不上期间，它大量的重连日志会被三种记录代替（连接断开、仍未恢复、
+  # 已恢复）；设为 debug 可以看到全部原始日志。
+  # sdk_log_level: warn
+
+  # Where the Nacos client keeps its cache of service lists.
+  # Default: /tmp/nacos/cache.
+  # Nacos 客户端缓存服务列表的目录。默认 /tmp/nacos/cache。
   # cache_dir: /tmp/nacos/cache
+
+# The Nacos configuration (data id) that kitexx.WatchConfig reads and follows.
+# Default: "<service.name>.yaml". Only used when app/app.go calls WatchConfig.
+# kitexx.WatchConfig 读取并跟随的 Nacos 配置（data id）。默认 "<service.name>.yaml"。
+# 只有 app/app.go 里调用了 WatchConfig 才会用到。
+# config_data_id: {{.Service}}.yaml
 
 log:
   # Minimum level that is written: debug, info, warn, error.

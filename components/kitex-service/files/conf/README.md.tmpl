@@ -42,16 +42,18 @@ service:
   name: {{.Service}}          # registered name; callers use it. 注册名，调用方靠它找到服务
   addr: {{.Port}}              # port to listen on (all interfaces); "host:port" for one interface. 监听端口（所有网卡）；只监听一块网卡时写 "主机:端口"
 
-registry_disabled: false  # true = do not register in Nacos (local runs). true 表示不注册到 Nacos（本地开发）
+registry_disabled: false  # true = run without Nacos (local runs): not registered, no discovery, configurations are files in conf/nacos/. true 表示不使用 Nacos（本地开发）：不注册、不发现，配置读 conf/nacos/ 下的文件
 
 nacos:
   addrs: ["127.0.0.1:8848"]   # Nacos servers host:port, several for a cluster. Nacos 地址，集群写多个
   namespace: ""               # namespace ID, "" = public. 命名空间 ID，"" 为 public
-  group: DEFAULT_GROUP        # callers must use the same group. 调用方须使用相同分组
+  group: DEFAULT_GROUP        # of the service and its configurations; callers must use the same. 服务及其配置的分组，调用方须相同
   username: ""                # only with Nacos auth enabled. 仅在 Nacos 开启鉴权时需要
   password: ""
-  log_dir: /tmp/nacos/log     # Nacos client log. Nacos 客户端日志目录
+  sdk_log_level: warn         # level from which the Nacos client's own records are written (logger=nacos-sdk). Nacos 客户端自身日志的输出级别
   cache_dir: /tmp/nacos/cache # Nacos client cache. Nacos 客户端缓存目录
+
+config_data_id: ""            # Nacos data id read by kitexx.WatchConfig; "" = <service.name>.yaml. kitexx.WatchConfig 读取的 Nacos 配置，留空为 <service.name>.yaml
 
 log:
   level: info                 # debug | info | warn | error
@@ -80,6 +82,9 @@ shutdown:
 | `registry_disabled` | `false` |
 | `nacos.addrs` | none; required unless `registry_disabled: true` / 无；除非关闭注册，否则必填 |
 | `nacos.group` | `DEFAULT_GROUP` |
+| `nacos.sdk_log_level` | `warn` |
+| `nacos.cache_dir` | `/tmp/nacos/cache` |
+| `config_data_id` | `<service.name>.yaml` |
 | `log.level` | `info` |
 | `log.format` | `console` (`json: true` of older services is still understood / 旧服务的 `json: true` 仍然有效) |
 | `log.stacktrace` | none / 不带堆栈 |
@@ -209,6 +214,68 @@ log:
     size: 262144          # 256 KB
     flush_interval: 200ms # at most 0.2 s of records can be lost. 最多丢失 0.2 秒的日志
 ```
+
+## Configuration that follows Nacos / 跟随 Nacos 的配置
+
+What is in `conf/<env>.yaml` is read once, at start. What should change while
+the service runs (a level cap, a switch, a rate) goes into a configuration in
+Nacos instead, and into a struct of its own in `app/app.go`:
+
+`conf/<env>.yaml` 里的内容只在启动时读一次。需要在服务运行期间调整的东西（等级上限、
+开关、限流值）应该放进 Nacos 的一个配置里，并在 `app/app.go` 里用一个单独的结构体表示：
+
+```go
+// app/app.go
+type Dynamic struct {
+	Battle struct {
+		MaxLevel int `yaml:"max_level"`
+	} `yaml:"battle"`
+}
+
+var Dyn *nacosx.Value[Dynamic]
+
+func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id: config_data_id, default {{.Service}}.yaml
+	if err != nil {
+		return nil, err
+	}
+	Dyn = dyn
+	return handler.New(), nil
+}
+```
+
+```go
+if level > app.Dyn.Get().Battle.MaxLevel { // always the version in effect. 永远是当前生效的版本
+```
+
+- A change published in the Nacos console is in effect a moment later. `Get`
+  costs one atomic load and what it returned is never written to again, so no
+  lock is needed. `Dyn.OnChange(func(old, cur *Dynamic) { ... })` is for what
+  has to be rebuilt rather than read (a rate limiter, a pool).
+  在 Nacos 控制台发布的变更片刻之后生效。`Get` 只是一次原子读取，它返回的那一份
+  之后永远不会再被写入，因此不需要加锁。需要“重建”而不是“读取”的东西（限流器、
+  连接池）用 `Dyn.OnChange(func(old, cur *Dynamic) { ... })`。
+- A change that does not parse, or that `func (d *Dynamic) Validate() error`
+  (optional) refuses, is rejected with an ERROR record and the previous version
+  stays in effect; so does the last version when the configuration is deleted.
+  At start the same problems stop the service.
+  解析失败，或被 `func (d *Dynamic) Validate() error`（可选）拒绝的变更不会生效：
+  打一条 ERROR，上一个版本继续生效；配置被删除时也保留最后一个版本。
+  启动阶段遇到同样的问题则直接停止启动。
+- The log says what changed, key by key (`~ battle.max_level  60 → 80`), hides
+  the values of keys that look like secrets, and points out keys that `Dynamic`
+  has no field for, which is what a typo looks like.
+  日志会逐个 key 说明改了什么（`~ battle.max_level  60 → 80`），隐藏看起来像密钥的
+  key 的值，并指出 `Dynamic` 里没有对应字段的 key（手误写错的 key 就是这样）。
+- Put into `Dynamic` only what may change at run time. A listen address or a
+  database address there would look as if changing it did something.
+  `Dynamic` 里只放运行期间可以改的东西。监听地址、数据库地址放进去，
+  会让人误以为改了就能生效。
+- With `registry_disabled: true` there is no Nacos: the configuration is the
+  file `conf/nacos/{{.Service}}.yaml`, and saving it counts as a change, so the
+  above can be tried on a laptop. `log_level_data_id` works the same way.
+  `registry_disabled: true` 时没有 Nacos：配置就是文件 `conf/nacos/{{.Service}}.yaml`，
+  保存文件就相当于一次变更，所以以上行为在本机就能试。`log_level_data_id` 同理。
 
 ## Graceful stop / 优雅退出
 

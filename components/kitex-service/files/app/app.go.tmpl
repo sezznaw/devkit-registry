@@ -52,10 +52,17 @@ type Config struct {
 //
 // Returning an error stops the start-up with a plain message.
 //
+// Settings that should change while the service runs come from Nacos:
+// kitexx.WatchConfig[Dynamic](cfg.Config) returns a value whose Get() is always
+// the version in effect; see "Configuration that follows Nacos" in
+// conf/README.md.
+//
 // Setup 在启动时被调用一次：此时配置已加载、日志已就绪，服务尚未开始接收请求。
 // 在这里创建服务依赖的资源、注册它们的清理动作，并返回 handler。用 kitexx.OnShutdown
 // 注册的清理会在服务从 Nacos 注销、最后一个处理中的请求结束之后，按相反顺序执行。
 // 返回 error 会中止启动，并打印一条明确的错误信息。
+// 需要在运行期间调整的配置来自 Nacos：kitexx.WatchConfig[Dynamic](cfg.Config) 返回的值，
+// 其 Get() 永远是当前生效的版本；见 conf/README.md 的“跟随 Nacos 的配置”一节。
 func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
 	return handler.New(), nil
 }

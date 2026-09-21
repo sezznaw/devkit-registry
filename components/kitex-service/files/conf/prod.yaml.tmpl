@@ -88,6 +88,15 @@ log:
   #   size: 262144
   #   flush_interval: 200ms   # at most this much can be lost. 最多丢失这么久的日志
 
+# Optional: the Nacos configuration (data id) that kitexx.WatchConfig reads and
+# follows while the service runs. Default: "<service.name>.yaml". Only used when
+# app/app.go calls WatchConfig; see "Configuration that follows Nacos" in
+# conf/README.md.
+# 可选：kitexx.WatchConfig 读取并在运行中跟随的 Nacos 配置（data id）。
+# 默认 "<service.name>.yaml"。只有 app/app.go 里调用了 WatchConfig 才会用到；
+# 见 conf/README.md 的“跟随 Nacos 的配置”一节。
+# config_data_id: {{.Service}}.yaml
+
 # Optional: a Nacos configuration (data id) whose content is a log level. The
 # running service follows it, which is how debug logging is switched on in
 # production without a restart. The content is one word: debug, info, warn, error.

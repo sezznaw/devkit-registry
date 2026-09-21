@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.6.6",
+  "version": "0.7.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.3.4",
+      "default": "v0.4.0",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.4 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.4.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,21 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.7.0",
+      "changes": [
+        "devkit-common v0.4.0: configuration that follows Nacos while the service runs. `kitexx.WatchConfig[Dynamic](cfg.Config)` reads the Nacos configuration `<service.name>.yaml` (setting `config_data_id`) into a struct and keeps it current: `Get()` is always the version in effect. A change that does not parse or validate is rejected and the previous version stays; the log lists what changed key by key, with secrets hidden, and points out keys with a typo. conf/README.md has a new section on it",
+        "registration and discovery are on record: `registered in Nacos`, `service discovered` and `instances changed` with a line per instance (`+ 10.0.0.7:8888  weight=10`, `- 10.0.0.6:8888`), `deregistered from Nacos`",
+        "the Nacos client logs through the logger of the service (`logger=nacos-sdk`, new setting `nacos.sdk_log_level`, default warn) instead of into /tmp/nacos/log/nacos-sdk.log. While Nacos is unreachable its reconnect messages, several a second, are replaced by three records: `nacos connection lost`, `nacos is still unreachable`, `nacos connection restored`",
+        "`registry_disabled: true` now means: run without Nacos. In addition to not registering, a configuration read with WatchConfig or `log_level_data_id` is the file `conf/nacos/<data id>`, and saving the file counts as a change",
+        "services on this version and on earlier ones keep finding each other"
+      ],
+      "action": [
+        "Nothing has to change. `nacos.log_dir` in your conf/*.yaml is ignored from now on and can be removed.",
+        "Only if your own code called nacosx.SharedNamingClient, NewNamingClient or NewConfigClient: use `nc, err := kitexx.Nacos(cfg.Config)` and then nc.Naming() or nc.ConfigClient().",
+        "To use the new configuration, see the section \"Configuration that follows Nacos\" in conf/README.md."
+      ]
+    },
     {
       "version": "0.6.6",
       "changes": [
