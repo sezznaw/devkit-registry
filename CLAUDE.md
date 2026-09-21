@@ -86,7 +86,12 @@ common module do you need the file-based module proxy described in
   `make gen`; the post_install hook runs it (ngs installs kitex/thriftgo first).
 - Kitex package naming used in templates: namespace `{{.Service | snake}}`,
   service package `{{.Service | title | lower}}service`
-  (`order-item` -> `order_item/orderitemservice`).
+  (`order-item` -> `order_item/orderitemservice`). One exception that `main.go.tmpl` mirrors with
+  template built-ins (`slice`, `eq`; no devkit function, so older CLIs still render it): thriftgo
+  appends `_` to a Thrift service whose name begins with `New` (`news` -> `news/newsservice_`,
+  interface `NewsService_`), because of the `NewXxx` constructors it generates. Do not name a
+  test service `new...` and expect the plain name. `main.go` has no helper around `zlog.Fatal`:
+  called in place, the record's caller is the step that failed.
 - `main.go` is managed and uses the common library's API, while `go.mod` is a
   `once` file and `devkit update` reuses the vars stored at creation time
   (including the then-default `CommonVersion`). So when a template version

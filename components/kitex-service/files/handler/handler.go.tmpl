@@ -11,7 +11,7 @@ import (
 	api "{{.Module}}/kitex_gen/{{.Service | snake}}"
 )
 
-// {{.Service | title}}ServiceImpl implements {{.Service | title | lower}}service.{{.Service | title}}Service.
+// {{.Service | title}}ServiceImpl implements the {{.Service | title}}Service of the IDL.
 type {{.Service | title}}ServiceImpl struct{}
 
 // New returns the handler; wire dependencies (repos, clients) here.

@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -87,6 +87,13 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.8.2",
+      "changes": [
+        "a service whose name begins with \"new\" (news, new-order) compiles. thriftgo renames a Thrift service that begins with \"New\", because it would clash with the NewXxx constructors it generates: NewsService becomes package newsservice_. main.go imported newsservice, so such a service did not build after `devkit ngs`. main.go now follows that rule and refers to the package by a fixed alias",
+        "a start-up problem is logged from the step that failed. main.go called zlog.Fatal through a helper at the end of the file, so every \"cannot start\" record pointed at the same line of that helper, whether the configuration, the framework or app.Setup had failed. The helper is gone and the record names the line of the step"
+      ]
+    },
     {
       "version": "0.8.1",
       "changes": [
