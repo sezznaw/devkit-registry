@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.3.2",
+      "default": "v0.3.3",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.2 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.3 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,13 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.5",
+      "changes": [
+        "devkit-common v0.3.3: log sampling says what it left out. Every second in which records were dropped ends with one record per level and message, \"zlog: records dropped by sampling\" with dropped_msg and dropped, so the size of a flood can be read from the log",
+        "conf/README.md has a new section on the three production safeguards of the logger (sampling, max_field_bytes, buffer): what each protects against, what it costs, and when to turn buffer on, which prod.yaml leaves off on purpose"
+      ]
+    },
     {
       "version": "0.6.4",
       "changes": [
