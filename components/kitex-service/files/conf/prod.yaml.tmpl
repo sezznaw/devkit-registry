@@ -1,27 +1,35 @@
 # =============================================================================
-# {{.Service}} - PRODUCTION configuration / 生产环境配置
+# {{.Service}} - PRODUCTION configuration
 #
 # Loaded when APP_ENV=prod (the Dockerfile sets it). Every setting is explained
 # in conf/local.yaml and conf/README.md; this file only notes what differs in
 # production.
-# 当 APP_ENV=prod 时加载（Dockerfile 里已设置）。每个配置项的含义见 conf/local.yaml
-# 和 conf/README.md；这里只说明生产环境的不同之处。
 #
 # ${NAME} is replaced by the environment variable NAME before parsing. Addresses
 # and secrets come from the deployment platform, not from this file.
+#
+# This file is yours: devkit creates it once and never rewrites it.
+# -----------------------------------------------------------------------------
+# {{.Service}} - 生产环境配置
+#
+# 当 APP_ENV=prod 时加载（Dockerfile 里已设置）。每个配置项的含义见 conf/local.yaml
+# 和 conf/README.zh-CN.md；这里只说明生产环境的不同之处。
+#
 # ${NAME} 会在解析前被替换成环境变量 NAME 的值。地址和密码由部署平台注入，
 # 不写在本文件里。
 #
-# This file is yours: devkit creates it once and never rewrites it.
 # 本文件归你所有：devkit 只创建一次，之后不会改写。
 # =============================================================================
 
 service:
-  # Must match the name callers use. 必须与调用方使用的名字一致。
+  # Must match the name callers use.
+  #
+  # 必须与调用方使用的名字一致。
   name: {{.Service}}
 
   # Port to listen on (all interfaces). It must match the container port and
   # EXPOSE in the Dockerfile.
+  #
   # 监听的端口（所有网卡）。必须与容器端口以及 Dockerfile 里的 EXPOSE 一致。
   addr: {{.Port}}
 
@@ -30,6 +38,7 @@ service:
   # address and a mapped port. The deployment sets ADVERTISE_ADDR then. Empty
   # (the variable not set): the address this machine reaches Nacos from, and the
   # port above, which is right when callers reach the container directly.
+  #
   # 调用方访问本实例用的地址，"主机" 或 "主机:端口"。只有当它和进程自己看到的地址不一样
   # 时才需要：比如容器要通过宿主机地址加映射端口才能访问，这时由部署平台设置
   # ADVERTISE_ADDR。留空（不设置该变量）时，注册的是“本机连向 Nacos 时使用的地址”加上面
@@ -37,40 +46,47 @@ service:
   advertise: "${ADVERTISE_ADDR}"
 
 # Production services register, so that callers can find them.
+#
 # 生产环境要注册到 Nacos，调用方才能发现本服务。
 registry_disabled: false
 
 nacos:
   # Required. One "host:port"; for a cluster write several entries, e.g.
   #   addrs: ["${NACOS_ADDR_1}", "${NACOS_ADDR_2}"]
+  #
   # 必填。一个 "主机:端口"；集群可写多个，例如上面这样。
   addrs: ["${NACOS_ADDR}"]
 
   # The namespace ID of the production environment. An empty value means the
   # shared "public" namespace, which is usually NOT what you want in production.
+  #
   # 生产环境的命名空间 ID。留空表示公共的 public 命名空间，生产环境通常【不应该】用它。
   namespace: "${NACOS_NAMESPACE}"
 
   group: DEFAULT_GROUP
 
   # Leave both variables unset when Nacos authentication is off.
+  #
   # Nacos 未开启鉴权时，这两个环境变量不设置即可。
   username: "${NACOS_USERNAME}"
   password: "${NACOS_PASSWORD}"
 
 log:
   # info keeps the volume manageable; switch to debug only while investigating.
+  #
   # info 级别的日志量可控；只在排查问题时临时改为 debug。
   level: info
 
   # JSON, one object per line, for the log collector. Every record carries
   # service, env, host and version, and the trace_id of the request.
+  #
   # JSON 格式，每行一个对象，供日志采集系统使用。每条日志都带有 service、env、
   # host、version，以及请求的 trace_id。
   format: json
 
   # Longer messages and field values are cut. Container runtimes split lines of
   # more than 16 KB, after which the collector no longer sees one JSON object.
+  #
   # 超过这个长度的消息和字段值会被截断。容器运行时会把超过 16KB 的行拆开，
   # 拆开后采集系统看到的就不再是一个完整的 JSON 对象。
   max_field_bytes: 8192
@@ -78,6 +94,7 @@ log:
   # Protection against a flood of one and the same record: within a second the
   # first 100 are written, after that every 100th. How many were left out is
   # reported once a second: "zlog: records dropped by sampling".
+  #
   # 日志洪峰保护：同一条日志一秒内先写前 100 条，之后每 100 条写 1 条。丢了多少条，
   # 每秒会有一条汇总记录：zlog: records dropped by sampling。
   sampling:
@@ -91,42 +108,48 @@ log:
   # in memory are lost, and those are the ones that say what it was doing.
   # A normal stop loses nothing. Turn it on only when a CPU profile shows log
   # writing as a real cost; conf/README.md has the numbers.
+  #
   # 可选，有意保持关闭：先在内存里攒一批再写出。每条日志能省 1 到 2 微秒，只有每秒几万条
   # 以上才有意义。代价：进程异常死亡（内存超限、kill -9、未捕获的 panic）时，还在内存里的
   # 日志会丢失，而那几条恰恰能说明它死之前在做什么。正常退出不会丢。只有当 CPU 性能分析
-  # 显示写日志确实是一项开销时才打开；具体数字见 conf/README.md。
+  # 显示写日志确实是一项开销时才打开；具体数字见 conf/README.zh-CN.md。
   # buffer:
   #   size: 262144
-  #   flush_interval: 200ms   # at most this much can be lost. 最多丢失这么久的日志
+  #   flush_interval: 200ms   # at most this much can be lost / 最多丢失这么久的日志
 
 # Optional: the Nacos configuration (data id) that kitexx.WatchConfig reads and
 # follows while the service runs. Default: "<service.name>.yaml". Only used when
 # app/app.go calls WatchConfig; see "Configuration that follows Nacos" in
 # conf/README.md.
+#
 # 可选：kitexx.WatchConfig 读取并在运行中跟随的 Nacos 配置（data id）。
 # 默认 "<service.name>.yaml"。只有 app/app.go 里调用了 WatchConfig 才会用到；
-# 见 conf/README.md 的“跟随 Nacos 的配置”一节。
+# 见 conf/README.zh-CN.md 的“跟随 Nacos 的配置”一节。
 # config_data_id: {{.Service}}.yaml
 
 # Optional: a Nacos configuration (data id) whose content is a log level. The
 # running service follows it, which is how debug logging is switched on in
 # production without a restart. The content is one word: debug, info, warn, error.
+#
 # 可选：一个 Nacos 配置（data id），内容是一个日志级别。运行中的服务会跟随它变化，
 # 这样生产环境不用重启就能临时打开 debug 日志。内容只有一个词：debug、info、warn、error。
 # log_level_data_id: {{.Service}}.log-level
 
 # Graceful stop (the steps are described in conf/local.yaml).
+#
 # 优雅退出（各步骤的说明见 conf/local.yaml）。
 shutdown:
   # How long to keep serving after leaving Nacos. Callers cache the instance list
   # and Nacos needs a moment to push the change; without this wait every rolling
   # deploy produces a short burst of connection errors on the caller side.
+  #
   # 从 Nacos 注销后继续服务多久。调用方会缓存实例列表，Nacos 推送变更也需要时间；
   # 没有这段等待，每次滚动发布调用方都会出现一小段连接错误。
   deregister_wait: 3s
 
   # How long requests already in progress get to finish. Set it above your
   # slowest normal request.
+  #
   # 已经在处理中的请求最多还能执行多久。应大于你最慢的正常请求耗时。
   drain_timeout: 15s
 
@@ -134,6 +157,7 @@ shutdown:
   # platform waits before killing the process (Kubernetes
   # terminationGracePeriodSeconds, 30s by default). Otherwise the process is
   # killed in the middle of the graceful stop.
+  #
   # 重要：deregister_wait + drain_timeout 必须小于部署平台强制杀进程前的等待时间
   # （Kubernetes 的 terminationGracePeriodSeconds，默认 30 秒）。
   # 否则进程会在优雅退出的中途被强杀。

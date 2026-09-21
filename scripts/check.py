@@ -84,6 +84,60 @@ for name, entry in index["components"].items():
             else:
                 notes.append(f"{name}: Kitex {kitex} matches {common_mod}@{common_ver} ({where})")
 
+# The two languages never share a line and never touch: in comments the English
+# block, an empty comment line, then the Chinese block; Markdown comes as two
+# files (README.md and README.zh-CN.md). Mixed together, neither can be read.
+CJK = re.compile(r"[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]")
+
+
+def both_on_one_line(line):
+    """An English sentence followed by Chinese. A Chinese sentence that names an
+    identifier (kitexx.WatchConfig 返回的值) is not that: it starts in Chinese."""
+    m = CJK.search(line)
+    if not m:
+        return False
+    before = line[:m.start()].strip().lstrip("#/ ").strip()
+    return len(re.findall(r"[A-Za-z]{2,}", before)) >= 4 and before[-1:] in ".:;)" and " / " not in line
+
+COMMENTED_KEY = re.compile(r"^\s*(#|//)\s{0,3}[A-Za-z_][A-Za-z0-9_]*:(\s|$)")
+
+
+def comment_kind(line):
+    s = line.strip()
+    if not s.startswith(("#", "//")):
+        return "none"
+    if not s.strip("#/-= "):
+        return "blank"
+    if CJK.search(s):
+        return "zh"
+    return "key" if COMMENTED_KEY.match(line) else "en"
+
+
+for dirpath, _, files in os.walk(os.path.join(ROOT, "components")):
+    for fn in sorted(files):
+        path = os.path.join(dirpath, fn)
+        rel = os.path.relpath(path, ROOT)
+        try:
+            lines = open(path, encoding="utf-8").read().split("\n")
+        except UnicodeDecodeError:
+            continue
+        if fn.endswith(".json"):
+            continue
+        markdown = ".md" in fn
+        if markdown and "zh-CN" not in fn:
+            for i, l in enumerate(lines, 1):
+                if CJK.search(l) and "README.zh-CN.md" not in l:
+                    err(f"{rel}:{i}: Chinese in the English document; it belongs into the .zh-CN.md next to it")
+                    break
+            continue
+        if markdown:
+            continue
+        for i in range(len(lines)):
+            if both_on_one_line(lines[i]):
+                err(f"{rel}:{i + 1}: English and Chinese on one line; give each its own block")
+            if i and {comment_kind(lines[i - 1]), comment_kind(lines[i])} == {"en", "zh"}:
+                err(f"{rel}:{i + 1}: the English and the Chinese comment touch; put an empty comment line between them")
+
 for n in notes:
     print("note:", n)
 if errors:

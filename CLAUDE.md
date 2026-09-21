@@ -154,11 +154,16 @@ maintained with every template change:
   the exact snippet). `devkit update` (>= 0.1.6) prints the entries between the
   installed and the new version. An entry with no `action` is fine; a new
   config setting without an `action` is a bug.
-- `conf/README.md`: a managed, bilingual reference of every setting with its
-  default. It is excluded from `once` because the pattern is `conf/*.yaml`.
+- `conf/README.md` and `conf/README.zh-CN.md`: a managed reference of every setting with its
+  default, one file per language. It is excluded from `once` because the pattern is `conf/*.yaml`.
 
-Comments in `conf/local.yaml` / `conf/dev.yaml` / `conf/uat.yaml` / `conf/prod.yaml` are bilingual (English line,
-then Chinese line) and explain every key; keep that style when adding keys.
+Comments in `conf/local.yaml` / `conf/dev.yaml` / `conf/uat.yaml` / `conf/prod.yaml` are bilingual and
+explain every key. The owner could not read them while the languages ran into each other, so the
+layout is a rule and `scripts/check.py` enforces it: the English block, an empty comment line, then
+the Chinese block; never both languages on one line (a short `English / 中文` label is the one
+exception); a file header is the whole English part, a `# ----` divider, the whole Chinese part.
+Markdown is never bilingual in one file: `conf/README.md` (English) and `conf/README.zh-CN.md`
+(Chinese) have the same structure and a language switch in the first lines; change both together.
 
 ## Gotchas
 

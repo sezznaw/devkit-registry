@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -87,6 +87,16 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.8.1",
+      "changes": [
+        "English and Chinese no longer run into each other. conf/README.md is English only and conf/README.zh-CN.md is the same document in Chinese, with a link to switch at the top of each; before, both languages shared lines, tables and YAML comments and neither could be read",
+        "new services get conf/*.yaml whose comments keep the languages apart: the English block, an empty comment line, then the Chinese block, and a file header that is English first and Chinese second. Nothing about the settings changed"
+      ],
+      "action": [
+        "Your conf/*.yaml are yours and keep their comments as they are. If you want the new layout, the quickest way is to generate a throwaway service with `devkit ngs` and copy the comments over; the settings are the same."
+      ]
+    },
     {
       "version": "0.8.0",
       "changes": [
