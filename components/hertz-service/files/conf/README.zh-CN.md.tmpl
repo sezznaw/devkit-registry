@@ -1,0 +1,318 @@
+# 配置参考
+
+[English](README.md) | **简体中文**
+
+由 devkit 生成（hertz-service@{{.ComponentVersion}}）。**本文件由 devkit 管理：**
+`devkit update` 会改写它，所以它描述的始终是你的服务当前版本所支持的全部配置项。
+本目录下的 `local.yaml`、`dev.yaml`、`uat.yaml`、`prod.yaml` 以及其他 `*.yaml`
+归你所有，永远不会被改写；模板新版本增加配置项时，`devkit update` 会提示你，
+你再从这里复制过去。
+
+## 加载哪个文件
+
+| | |
+|---|---|
+| `APP_ENV` | 选择 `conf/<APP_ENV>.yaml`，默认 `local` |
+| `CONF_DIR` | 指定配置目录；未设置时依次查找 `./conf`、可执行文件旁边的 `conf` |
+| `${NAME}` | 解析前替换为环境变量 `NAME` 的值 |
+
+| 环境 | 文件 | 在哪里 | Nacos |
+|---|---|---|---|
+| `local`（不设置 `APP_ENV`） | `local.yaml` | 你自己的电脑 | 本机上的 Nacos，服务注册到它 |
+| `dev` | `dev.yaml` | 公共开发服务器 | `${NACOS_ADDR}`，由部署平台注入 |
+| `uat` | `uat.yaml` | 验收测试环境 | `${NACOS_ADDR}` |
+| `prod` | `prod.yaml` | 生产环境 | `${NACOS_ADDR}` |
+
+部署环境一定会设置 `APP_ENV`，笔记本从来不设，所以没有 `APP_ENV` 就是 `local`。
+三个部署环境的文件差别很小：地址和密码都由部署平台注入（`NACOS_ADDR`、
+`NACOS_NAMESPACE`、`NACOS_USERNAME`、`NACOS_PASSWORD`、`ADVERTISE_ADDR`），
+所以同一个镜像可以不加修改地从 dev 走到 uat 再到 prod。
+
+**每个环境都使用 Nacos，连不上 Nacos 的服务会拒绝启动**，并说明地址和原因。
+在你自己的电脑上，这意味着要先启动一个 Nacos；命令写在 `local.yaml` 里。
+
+**笔记本永远不会注册进别人也在用的 Nacos。** 在 `local` 环境里，服务只允许注册到
+本机上的 Nacos（127.0.0.1、localhost）。把 `local.yaml` 指向开发服务器的 Nacos
+却不写 `register: false`，启动时会被拒绝：一旦注册进去，所有人的请求都会有一部分
+被发到你的电脑上，而你的代码可能只写了一半，或者正停在断点上。写了
+`register: false`，服务会在那边查找其他服务、读取配置，但不注册自己。
+
+**Docker 镜像里没有 `local.yaml`。** Dockerfile 把 `APP_ENV=prod` 设为默认值，
+并且不把 `local.yaml` 放进镜像。这样一来，容器的 `APP_ENV` 如果被清空，服务会
+拒绝启动并列出现有的配置文件，而不是悄悄用开发者的配置运行（连 127.0.0.1 的
+Nacos、debug 级别、控制台格式）。
+
+要增加一个环境，把 `prod.yaml` 复制为例如 `staging.yaml`，启动时设置
+`APP_ENV=staging`。
+
+## 全部配置项
+
+```yaml
+service:
+  name: {{.Service}}          # 注册名，调用方靠它找到服务
+  addr: {{.Port}}              # 监听端口（所有网卡）；只监听一块网卡时写 "主机:端口"
+  advertise: "${ADVERTISE_ADDR}"  # 调用方访问本实例的地址，"主机" 或 "主机:端口"：
+                              # 通过宿主机地址加映射端口访问的容器才需要。
+                              # 留空时注册“本机连向 Nacos 时使用的地址”
+
+registry_disabled: false      # true 表示不使用 Nacos（测试、断网时）：不注册、不发现，
+                              # 配置读 conf/nacos/ 下的文件
+
+nacos:
+  addrs: ["127.0.0.1:8848"]   # Nacos 地址 主机:端口，集群写多个
+  namespace: ""               # 命名空间 ID，"" 为 public
+  group: DEFAULT_GROUP        # 服务及其配置的分组，调用方须相同
+  username: ""                # 仅在 Nacos 开启鉴权时需要
+  password: ""
+  register: true              # false 表示只查找服务、读取配置，【不】注册自己：
+                              # 笔记本连开发服务器的 Nacos 时使用
+  watch_services: true        # 在日志里说明当前存活的服务：启动时一次，之后每当有服务上线、
+                              # 下线或实例数变化时一次；false 表示关闭
+  sdk_log_level: warn         # Nacos 客户端自身日志（logger=nacos-sdk）的输出级别
+  cache_dir: /tmp/nacos/cache # Nacos 客户端缓存目录
+
+config_data_id: ""            # kitexx.WatchConfig 读取的 Nacos 配置，留空为 <service.name>.yaml
+
+log:
+  level: info                 # debug | info | warn | error
+  format: console             # console | json（每行一个 JSON 对象）
+  stacktrace: ""              # 从哪个级别起带调用堆栈，例如 error
+  max_field_bytes: 0          # 截断过长的消息和字段值，0 不限制
+  sampling:                   # 洪峰保护，设置 first 才生效
+    first: 0                  # 同一条日志每秒完整写出的条数
+    thereafter: 0             # 之后每 n 条写 1 条
+  buffer:                     # 写缓冲，设置 size 才生效
+    size: 0                   # 字节数
+    flush_interval: 1s
+  version: ""                 # JSON 日志里的 version，默认取构建时的版本库修订号
+
+log_level_data_id: ""         # 内容为日志级别的 Nacos 配置，留空关闭
+
+shutdown:
+  deregister_wait: 3s         # 注销后继续服务的时长，0s 关闭
+  drain_timeout: 15s          # 处理中的请求最多还能执行多久
+```
+
+| 配置项 | 省略时的默认值 |
+|--------|----------------|
+| `service.name` | 无，必填 |
+| `service.addr` | `8080` |
+| `service.advertise` | 本机连向 Nacos 时使用的地址，加监听端口 |
+| `registry_disabled` | `false` |
+| `nacos.addrs` | 无；除非 `registry_disabled: true`，否则必填 |
+| `nacos.group` | `DEFAULT_GROUP` |
+| `nacos.register` | `true`；`false` 表示只查找服务、读取配置，不注册自己 |
+| `nacos.watch_services` | `true` |
+| `nacos.sdk_log_level` | `warn` |
+| `nacos.cache_dir` | `/tmp/nacos/cache` |
+| `config_data_id` | `<service.name>.yaml` |
+| `log.level` | `info` |
+| `log.format` | `console`（旧服务的 `json: true` 仍然有效） |
+| `log.stacktrace` | 不带堆栈 |
+| `log.max_field_bytes` | `0`，不限制 |
+| `log.sampling` | 关闭 |
+| `log.buffer` | 关闭 |
+| `log_level_data_id` | 无 |
+| `shutdown.deregister_wait` | `3s` |
+| `shutdown.drain_timeout` | `15s` |
+
+## 请求日志和 trace_id
+
+每个请求对应一条记录 `http`，带有 `method`、`path`、`status`、`latency` 和 `client`；
+4xx 是警告，5xx 是错误。handler 里用 `zlog.Ctx(ctx)` 打的日志带着同一个 `trace_id`、
+`method` 和 `path`：
+
+```
+INFO handler/{{.Service | snake}}/{{.Service | snake}}_service.go:36 ping trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping message=hi
+INFO http trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping status=200 latency=1.2ms client=127.0.0.1
+```
+
+请求头 `X-Trace-Id` 看起来像一个 id（8 到 64 位的字母、数字、`-` 或 `_`）时就沿用它，否则
+新生成一个。它会写进响应头 `X-Trace-Id`，这样报问题的人可以说清楚是哪个请求；handler
+调用 RPC 服务时把请求的 `ctx` 传下去，它就会一路传到后面的服务，整条调用链用一个 id 就能
+查到。handler 里的 panic 会变成一条带堆栈的错误记录，并返回 500。
+
+## 当前有哪些服务存活
+
+每个服务都会在日志里说明它所在的 Nacos 命名空间和分组下全部服务的状态。启动时打一条
+`services alive`。之后每当有服务上线（`service online`）、下线（`service offline`）或
+实例数变化（`service instances changed`），都会打一条记录：既说明谁来了、谁走了，也再次
+列出当前存活的全部服务及各自的实例数，所以最后一条这类记录永远反映当前的状况：
+
+```
+INFO service online name=ser-auth alive=1 services=2 instances=3
+    overview:
+      ┌──────────┬───┬──────────────────────────────────┐
+      │ SERVICE  │ N │ INSTANCES                        │
+      ├──────────┼───┼──────────────────────────────────┤
+      │ ser-auth │ 1 │ + 127.0.0.1:8889                 │
+      │ ser-user │ 2 │   127.0.0.1:8888  ← this process │
+      │          │   │   127.0.0.1:8890                 │
+      └──────────┴───┴──────────────────────────────────┘
+```
+
+`+` 表示新上线（绿色），`-` 表示已下线（红色；整个服务都没了时它仍保留一行，N 为 0），
+`~` 表示状态变了（黄色），箭头指出打印这条记录的进程自己。
+
+已知服务的实例变化一秒以内就能看到；一个全新名字的服务的第一个实例最多需要 3 秒。
+JSON 格式下同样的内容是 `overview: {service, changed, alive}`。`nacos.watch_services: false` 可以关闭这些记录。
+
+## 日志：三个生产环境的保护项
+
+`sampling`、`buffer`、`max_field_bytes` 不配置就是关闭的，因为它们都会改变最终
+写进日志的内容：一个会丢记录，一个会延迟输出，一个会截断内容。服务启动时的第一条
+日志 `logger configured` 会显示哪些正在生效。`local.yaml` 三项都不设置，因为开发时
+你需要每一条日志都立即、完整地出现。
+
+| | 作用 | 代价 | `prod.yaml` |
+|---|---|---|---|
+| `sampling` | 一秒内相同的日志先写 `first` 条，之后每 `thereafter` 条写 1 条 | 会丢日志；丢了多少会有记录 | **开** |
+| `max_field_bytes` | 截断过长的消息或字段值，并注明原长度 | 该值的剩余部分看不到 | **开**，8192 |
+| `buffer` | 先在内存里攒一批再写出 | 进程异常死亡时丢失最后一个 `flush_interval` 内的日志 | **关** |
+
+### sampling
+
+它保护磁盘和日志采集系统不被洪峰打爆：Redis 挂掉时，每个请求都打同一条错误，
+每秒几万条，内容完全一样。“相同的日志”按级别和**消息文字**判断，字段不算。所以
+`zlog.Error("redis down", zlog.Int("uid", uid))` 会被当作同一条消息来采样；而
+`zlog.Errorf("redis down for %d", uid)` 每条的文字都不同，采样对它基本无效。
+这也是应该把值放进字段的又一个理由。
+
+被丢弃的日志不会无声无息地消失：凡是发生了丢弃的那一秒，都会按级别和消息各补一条
+记录，级别与被丢弃的日志相同：
+
+```
+ERROR zlog: records dropped by sampling dropped_msg="redis down" dropped=4213
+```
+
+### max_field_bytes
+
+一条日志就是一行。容器运行时会把超过 16KB 的行拆开，采集系统拿到的碎片不再是一个
+JSON 对象，这条日志就丢了。常见的原因是 `zlog.Any("resp", resp)` 打出了一个很大的
+值。这个上限是针对**单个值**的，不是针对整条日志，所以模板设的是 8192 而不是
+16000：给其他字段留出余量。但如果一条日志里有好几个接近上限的值，整行仍然可能
+超过 16KB。堆栈不会被截断。
+
+### buffer：什么时候该打开
+
+**除非同时满足下面两条，否则保持关闭：**
+
+1. 服务的日志量很大，大致在**每秒几万条以上**，并且从 CPU 性能分析里能看到
+   写日志占了可观的比例。
+2. 你能接受进程异常死亡时丢失最后一小段日志。
+
+为什么门槛这么高：buffer 省掉的是每条日志的一次系统调用，大约 **1 到 2 微秒**
+（按容器里的真实情况测量：stdout 是一个管道）。
+
+| 每秒日志条数 | 不开 buffer 时写日志占用的 CPU | 开 buffer 省下 |
+|---|---|---|
+| 1 000（多数业务服务） | 约一个核的 0.3% | 约 0.2% |
+| 10 000 | 约 3% | 约 2% |
+| 100 000（网关、战斗服） | 约 27% | 约 19%：这时才值得 |
+
+代价：日志会在内存里最多停留 `flush_interval` 这么久。
+
+- **不会丢**：正常退出（SIGTERM、Ctrl+C，`hertzx.Run` 返回前会刷出）、
+  `zlog.Fatal`、`zlog.Sync()`。
+- **会丢**：进程因为内存超限被杀、`kill -9`、部署平台的强杀超时、没有被捕获的
+  panic 或运行时致命错误。此时还留在内存里的日志都会丢失。
+
+会丢的这几种情况，恰恰是最需要最后一秒日志的时候：它能说明进程死之前在做什么。
+这就是为什么同样是生产环境的保护项，模板打开了 `sampling` 却关着 `buffer`：
+采样只在出事时才起作用，而且会告诉你它丢了多少；buffer 则是一项性能优化，
+它的代价平时看不出来，到最糟糕的时刻才显现。
+
+确定要打开时，把间隔设短。日志量大的时候，缓冲区主要是因为写满才刷出的，
+而不是靠定时，所以缩短间隔几乎没有额外开销，却能限制最多会丢多少：
+
+```yaml
+log:
+  buffer:
+    size: 262144          # 256 KB
+    flush_interval: 200ms # 最多丢失 0.2 秒的日志
+```
+
+## 跟随 Nacos 的配置
+
+`conf/<env>.yaml` 里的内容只在启动时读一次。需要在服务运行期间调整的东西
+（等级上限、开关、限流值）应该放进 Nacos 的一个配置里，并在 `app/app.go` 里
+用一个单独的结构体表示：
+
+```go
+// app/app.go
+type Dynamic struct {
+	Battle struct {
+		MaxLevel int `yaml:"max_level"`
+	} `yaml:"battle"`
+}
+
+var Dyn *nacosx.Value[Dynamic]
+
+func Setup(cfg *Config, h *server.Hertz) error {
+	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id 取 config_data_id，默认 {{.Service}}.yaml
+	if err != nil {
+		return err
+	}
+	Dyn = dyn
+	return nil
+}
+```
+
+```go
+if level > app.Dyn.Get().Battle.MaxLevel { // 永远是当前生效的版本
+```
+
+- 在 Nacos 控制台发布的变更片刻之后生效。`Get` 只是一次原子读取，它返回的那一份
+  之后永远不会再被写入，因此不需要加锁。需要“重建”而不是“读取”的东西（限流器、
+  连接池）用 `Dyn.OnChange(func(old, cur *Dynamic) { ... })`。
+- 解析失败，或被 `func (d *Dynamic) Validate() error`（可选）拒绝的变更不会生效：
+  打一条 ERROR，上一个版本继续生效；配置被删除时也保留最后一个版本。
+  启动阶段遇到同样的问题则直接停止启动。
+- 日志会逐个 key 说明改了什么（`~ battle.max_level  60 → 80`），隐藏看起来像密钥的
+  key 的值，并指出 `Dynamic` 里没有对应字段的 key（手误写错的 key 就是这样）。
+- `Dynamic` 里只放运行期间可以改的东西。监听地址、数据库地址放进去，
+  会让人误以为改了就能生效。
+- `registry_disabled: true` 时没有 Nacos：配置就是文件
+  `conf/nacos/{{.Service}}.yaml`，保存文件就相当于一次变更，所以以上行为不需要
+  Nacos 也能试。`log_level_data_id` 同理。
+
+## 优雅退出
+
+收到 SIGINT 或 SIGTERM 后，服务会：（1）从 Nacos 注销；（2）继续服务
+`deregister_wait`，让调用方刷新实例列表；（3）关闭监听，等待处理中的请求完成，
+最多 `drain_timeout`；（4）执行 `hertzx.OnShutdown` 注册的钩子。
+`deregister_wait + drain_timeout` 要小于部署平台的强杀超时（Kubernetes 默认 30 秒）。
+
+## 增加你自己的配置
+
+在 YAML 里加一节，并在 **`app/app.go`** 的 `Config` 里加一个字段。这个文件归你所有；
+`cmd/{{.Service}}/main.go` 属于框架，不要修改它，否则它就无法再被升级。
+
+```go
+// app/app.go
+type Config struct {
+	hertzx.Config `yaml:",inline"`
+	Redis redisx.Config `yaml:"redis"`
+}
+```
+
+```yaml
+redis:
+  addr: "${REDIS_ADDR}"
+  password: "${REDIS_PASSWORD}"
+```
+
+然后在 `app.Setup` 里创建这个依赖，并在那里注册它的清理动作：
+
+```go
+// app/app.go
+func Setup(cfg *Config, h *server.Hertz) error {
+	rdb, err := redisx.New(context.Background(), cfg.Redis)
+	if err != nil {
+		return err
+	}
+	hertzx.OnShutdown("redis", rdb.Close)
+	deps.Redis = rdb // 在 deps/deps.go 里声明；handler/ 里的路由通过 deps.Redis 使用它
+	return nil
+}
+```

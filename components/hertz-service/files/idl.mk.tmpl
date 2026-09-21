@@ -1,0 +1,15 @@
+# IDLs this service generates code for, relative to the project's idl/ directory.
+#
+# This file is yours: devkit created it once and never touches it again, so the
+# Makefile itself can keep being upgraded by `devkit update`.
+#
+# API_IDL is the IDL of this service's own HTTP API: routes, handlers and
+# request/response structs are generated from it (hz).
+#
+# IDLS lists the RPC services this API calls; their clients appear in
+# kitex_gen/ after `make gen`. Example:
+#
+#   IDLS := user/user.thrift order/order.thrift
+
+API_IDL := {{.Service}}/{{.Service}}.thrift
+IDLS    :=

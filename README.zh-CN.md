@@ -8,7 +8,8 @@
 
 | 组件 | 版本 | 说明 |
 |------|------|------|
-| `kitex-service` | 0.5.1 | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
+| `kitex-service` | 见 `registry.json` | 完整的 Kitex（Thrift）服务项目：Nacos、日志、配置、代码生成 Makefile、GitHub Actions 与 GitLab CI 两种 CI 配置、Dockerfile。`devkit ngs` 生成的就是它。 |
+| `hertz-service` | 见 `registry.json` | 完整的 API（HTTP）服务工程，基于 Hertz：用 `hz` 从 Thrift IDL 生成路由和结构体，用 Kitex 生成它要调用的 RPC 服务的客户端，Nacos、日志、配置、CI、Dockerfile 与 RPC 服务相同。`devkit nas` 生成的就是它。 |
 
 ## 目录结构
 

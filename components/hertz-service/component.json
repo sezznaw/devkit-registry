@@ -1,0 +1,110 @@
+{
+  "name": "hertz-service",
+  "version": "0.1.0",
+  "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
+  "deps": [],
+  "vars": [
+    {
+      "name": "Service",
+      "description": "Service name, lowercase with dashes (e.g. order, order-item)",
+      "required": true
+    },
+    {
+      "name": "Module",
+      "description": "Go module path of the new service (e.g. github.com/sezznaw/order)",
+      "required": true
+    },
+    {
+      "name": "CommonModule",
+      "description": "Module path of the shared common library. Decided by the template for every service; cannot be set per service or project",
+      "default": "github.com/sezznaw/devkit-common",
+      "track": true
+    },
+    {
+      "name": "CommonVersion",
+      "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
+      "default": "v0.7.0",
+      "track": true
+    },
+    {
+      "name": "IdlRepo",
+      "description": "Path of the shared IDL project as CI sees it (owner/repo on GitHub, group/project on GitLab). Empty: <owner or group of the service>/idl",
+      "default": ""
+    },
+    {
+      "name": "CI",
+      "description": "Which CI configuration to generate: github, gitlab, both or none. ngs detects it from module_prefix / idl_repo",
+      "default": "both"
+    },
+    {
+      "name": "GoPrivate",
+      "description": "GOPRIVATE pattern when the organisation's modules are private (empty = public)",
+      "default": ""
+    },
+    {
+      "name": "Port",
+      "description": "HTTP port the service listens on",
+      "default": "8080"
+    },
+    {
+      "name": "NacosAddr",
+      "description": "Address of the Nacos on a developer's own machine, written to conf/local.yaml",
+      "default": "127.0.0.1:8848"
+    },
+    {
+      "name": "GoVersion",
+      "description": "Go release (major.minor) for go.mod, the Docker image and GitLab CI; must not be lower than what devkit-common requires. Decided by the template for every service; cannot be set per service or project",
+      "default": "1.26",
+      "track": true
+    },
+    {
+      "name": "KitexVersion",
+      "description": "Kitex version, for the clients of the RPC services this API calls. Decided by the template for every service; cannot be set per service or project",
+      "default": "v0.16.3",
+      "track": true
+    },
+    {
+      "name": "HertzVersion",
+      "description": "Hertz version. Decided by the template for every service; cannot be set per service or project",
+      "default": "v0.10.6",
+      "track": true
+    },
+    {
+      "name": "HzVersion",
+      "description": "Version of hz, the Hertz code generator. Decided by the template for every service; cannot be set per service or project",
+      "default": "v0.9.7",
+      "track": true
+    },
+    {
+      "name": "ThriftgoVersion",
+      "description": "thriftgo tool version. Decided by the template for every service; cannot be set per service or project",
+      "default": "v0.4.5",
+      "track": true
+    }
+  ],
+  "hooks": {
+    "post_install": [
+      "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
+    ],
+    "post_update": [
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.7.0 && go mod tidy"
+    ]
+  },
+  "once": [
+    "go.mod",
+    "idl.mk",
+    "app/*",
+    "deps/*",
+    "README.md",
+    "conf/*.yaml",
+    "handler/*/*"
+  ],
+  "changelog": [
+    {
+      "version": "0.1.0",
+      "changes": [
+        "first version: an API service on Hertz, created with `devkit nas <name>`. The HTTP API is defined in the project's Thrift IDL (api.get, api.post, ...), `make gen` generates routes and structs with hz and the clients of the RPC services it calls with kitex; configuration, Nacos, logging and the graceful stop are those of an RPC service"
+      ]
+    }
+  ]
+}

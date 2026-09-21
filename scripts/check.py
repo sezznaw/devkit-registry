@@ -36,6 +36,7 @@ def common_gomod(module, version):
 
 
 index = json.load(open(os.path.join(ROOT, "registry.json")))
+shared = {}  # a version every template has -> {value: [components]}
 for name, entry in index["components"].items():
     path = os.path.join(ROOT, "components", name, "component.json")
     if not os.path.exists(path):
@@ -51,9 +52,11 @@ for name, entry in index["components"].items():
 
     defaults = {v["name"]: v.get("default", "") for v in comp.get("vars", [])}
     tracked = {v["name"] for v in comp.get("vars", []) if v.get("track")}
-    for v in ("GoVersion", "KitexVersion", "ThriftgoVersion", "CommonVersion", "CommonModule"):
+    for v in ("GoVersion", "KitexVersion", "ThriftgoVersion", "CommonVersion", "CommonModule", "HertzVersion", "HzVersion"):
         if v in defaults and v not in tracked:
             err(f"{name}: {v} must be \"track\": true, versions are the same for every service")
+        if v in defaults:
+            shared.setdefault(v, {}).setdefault(defaults[v], []).append(name)
 
     hook = " ".join(comp.get("hooks", {}).get("post_update", []))
     kitex, common_mod, common_ver = defaults.get("KitexVersion"), defaults.get("CommonModule"), defaults.get("CommonVersion")
@@ -61,7 +64,10 @@ for name, entry in index["components"].items():
         err(f"{name}: post_update must align go.mod with `go get github.com/cloudwego/kitex@{kitex}` (KitexVersion default); found: {hook!r}")
     if common_mod and common_ver and f"{common_mod}@{common_ver}" not in hook:
         err(f"{name}: post_update must contain `{common_mod}@{common_ver}` (CommonVersion default); found: {hook!r}")
-    if "{{" in hook and ("KitexVersion" in hook or "CommonVersion" in hook):
+    hertz = defaults.get("HertzVersion")
+    if hertz and f"github.com/cloudwego/hertz@{hertz}" not in hook:
+        err(f"{name}: post_update must align go.mod with `go get github.com/cloudwego/hertz@{hertz}` (HertzVersion default); found: {hook!r}")
+    if "{{" in hook and ("KitexVersion" in hook or "CommonVersion" in hook or "HertzVersion" in hook):
         err(f"{name}: write versions literally in post_update; a devkit older than 0.1.8 expands the variables to stale values")
 
     if kitex and common_mod and common_ver:
@@ -78,11 +84,23 @@ for name, entry in index["components"].items():
                 if tuple(int(x) for x in want_go.split(".")[:2]) < need:
                     err(f"{name}: GoVersion is {want_go} but {common_mod}@{common_ver} needs go {need[0]}.{need[1]}; "
                         "the golang Docker image refuses to build a module that needs a newer Go")
+            if hertz:
+                hm = re.search(r"^\s*(?:require\s+)?github\.com/cloudwego/hertz\s+(\S+)", gomod, re.M)
+                if not hm or hm.group(1) != hertz:
+                    err(f"{name}: HertzVersion is {hertz} but {common_mod}@{common_ver} requires hertz {hm.group(1) if hm else None} ({where}). "
+                        "Release a common version on the same Hertz first, then pin it here.")
             if have != kitex:
                 err(f"{name}: KitexVersion is {kitex} but {common_mod}@{common_ver} requires kitex {have} ({where}). "
                     "Release a common version on the same Kitex first, then pin it here.")
             else:
                 notes.append(f"{name}: Kitex {kitex} matches {common_mod}@{common_ver} ({where})")
+
+# One project has services of every kind, side by side, on one common/ checkout
+# and one set of generators: the templates must agree on what they share.
+for v, values in sorted(shared.items()):
+    if len(values) > 1:
+        err(f"{v} differs between the templates: " + "; ".join(f"{val} in {', '.join(names)}" for val, names in sorted(values.items()))
+            + ". A project has one common/ and one set of tools; bump them together.")
 
 # The two languages never share a line and never touch: in comments the English
 # block, an empty comment line, then the Chinese block; Markdown comes as two

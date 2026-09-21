@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The template registry consumed by the `devkit` CLI (sibling checkout at
 `../devkit`). There is no build here: the repo is data. Format and rules are
 authoritative in `../devkit/docs/registry.md`; read that before editing.
-The only component is `kitex-service`, the whole-project template behind
-`devkit ngs` (the early `logger` and `grpc` components were removed; shared
+There are two components, both whole-project templates: `kitex-service`
+behind `devkit ngs` (RPC) and `hertz-service` behind `devkit nas` (HTTP API) (the early `logger` and `grpc` components were removed; shared
 code lives in the Go module `github.com/sezznaw/devkit-common`, checked out
 locally at `../common`).
 
@@ -58,6 +58,30 @@ devkit ngs order && cd order && go build ./... && go vet ./...
 through proxy.golang.org. Only when testing an *unpublished* version of the
 common module do you need the file-based module proxy described in
 `../devkit/CLAUDE.md`.
+
+## hertz-service specifics
+
+- The HTTP API is Thrift IDL with Hertz annotations (`api.get="/ping"`), generated with `hz`.
+  Verified with hz v0.9.7 / Hertz v0.10.6: never run `hz new`. The template ships `.hz`
+  (`handlerDir: handler`, `modelDir: hertz_gen`, `routerDir: router`; `hz update` has no
+  `--router_dir` flag, it reads this file) and the Makefile runs only
+  `hz update -I $(IDL_DIR) -idl ... -t template=slim`. `template=slim` makes plain structs;
+  without it the models need `replace github.com/apache/thrift => v0.13.0` in go.mod.
+- Generated and git-ignored like `kitex_gen/`: `hertz_gen/`, `router/**/*.go` except
+  `router/**/middleware.go`. hz creates `handler/<ns>/<service>.go` and `middleware.go` once and
+  afterwards only appends (a stub per new method); the template pre-creates the handler with a
+  working `Ping`, at the path hz expects (`handler/{{.Service | snake}}/{{.Service | snake}}_service.go`).
+- A Hertz handler imports `github.com/cloudwego/hertz/pkg/app`, so the service's own `app` package
+  cannot be used from handlers. What handlers need (RPC clients, Redis) lives in package `deps`
+  (`deps/deps.go`, a `once` file); `app.Setup(cfg, h)` creates it. Do not move it back into `app`.
+- `main.go`: `config.LoadDefault` -> `hertzx.New` -> `app.Setup(&cfg, h)` ->
+  `router.GeneratedRegister(h)` -> `hertzx.Run`. The configuration is `kitexx.Config`
+  (`hertzx.Config` is an alias), so `conf/*` are the RPC template's with HTTP wording; keep the
+  two sets in step when a setting is added.
+- Both templates must pin the same `CommonVersion`, `KitexVersion`, `ThriftgoVersion`, `GoVersion`
+  (a project has one `common/` and one set of generators); `scripts/check.py` fails otherwise, and
+  also checks `HertzVersion` against the pinned common's go.mod and the `post_update` literal.
+  A common release therefore means a new version of BOTH templates.
 
 ## kitex-service specifics
 

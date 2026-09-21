@@ -1,0 +1,10 @@
+module {{.Module}}
+
+go {{.GoVersion}}.0
+
+require (
+	{{.CommonModule}} {{.CommonVersion}}
+	github.com/cloudwego/hertz {{.HertzVersion}}
+	github.com/cloudwego/kitex {{.KitexVersion}}
+	gopkg.in/yaml.v3 v3.0.1
+)

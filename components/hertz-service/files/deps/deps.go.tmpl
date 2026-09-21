@@ -1,0 +1,23 @@
+// Package deps holds what the routes in handler/ need: the clients of the RPC
+// services this API calls, a Redis connection, and the like. app.Setup creates
+// them at start-up and puts them here; a handler uses them as deps.User.
+//
+// Why not package app: a Hertz handler already has an "app", the package of
+// *app.RequestContext, and two packages of one name in every handler file
+// would be a nuisance. This file is yours; devkit creates it once.
+//
+// deps 包保存 handler/ 里的路由需要的东西：要调用的 RPC 服务的客户端、Redis 连接等。
+// app.Setup 在启动时创建它们并放到这里，handler 里用 deps.User 这样的方式使用。
+//
+// 为什么不放在 app 包里：Hertz 的 handler 本来就有一个 "app"（*app.RequestContext
+// 所在的包），每个 handler 文件里出现两个同名的包会很别扭。本文件归你所有，devkit 只
+// 创建一次。
+package deps
+
+// To add the client of an RPC service: list its IDL in idl.mk, run `make gen`,
+// declare it here and create it in app.Setup.
+//
+// 增加一个 RPC 服务的客户端：在 idl.mk 里列出它的 IDL，执行 `make gen`，在这里声明，
+// 并在 app.Setup 里创建。
+//
+//	var User userservice.Client

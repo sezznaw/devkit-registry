@@ -1,0 +1,24 @@
+// {{.Service}} API. Created by `devkit nas {{.Service}}`.
+//
+// This file is the contract of the HTTP API: every method is a route, and the
+// annotations say which one. After a change run `make gen` in the service; new
+// methods get an empty function in handler/{{.Service | snake}}/, existing ones are left alone.
+//
+//   api.get / api.post / api.put / api.delete = "<path>"   the route of a method
+//   api.query = "name"    the field comes from the query string   (?name=...)
+//   api.path  = "name"    the field comes from the path           (/user/:name)
+//   api.body  = "name"    the field comes from the JSON body
+//   api.header = "Name"   the field comes from a request header
+namespace go {{.Service | snake}}
+
+struct PingReq {
+    1: string message (api.query="message")
+}
+
+struct PingResp {
+    1: string message
+}
+
+service {{.Service | title}}Service {
+    PingResp Ping(1: PingReq req) (api.get="/ping")
+}

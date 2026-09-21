@@ -1,0 +1,36 @@
+// Package {{.Service | snake}} implements the routes of the {{.Service | title}}Service of the IDL.
+//
+// This file is yours. `make gen` (hz) adds an empty function here for every
+// method that is new in the IDL and never changes the ones that exist. What a
+// handler needs (the clients of the RPC services it calls) is created in
+// app/app.go, kept in package deps and used as deps.User.GetUser(ctx, ...).
+package {{.Service | snake}}
+
+import (
+	"context"
+
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
+	"{{.CommonModule}}/zlog"
+
+	api "{{.Module}}/hertz_gen/{{.Service | snake}}"
+)
+
+// Ping is the sample route from the initial IDL. Replace it with real ones:
+// edit ../idl/{{.Service}}/{{.Service}}.thrift and run `make gen`.
+// @router /ping [GET]
+func Ping(ctx context.Context, c *app.RequestContext) {
+	var req api.PingReq
+	if err := c.BindAndValidate(&req); err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	// zlog.Ctx(ctx) is the logger of this request: every record carries its
+	// trace_id, method and path. Pass ctx on when you call an RPC service, and
+	// the trace_id travels with the call.
+	zlog.Ctx(ctx).Info("ping", zlog.Str("message", req.Message))
+
+	c.JSON(consts.StatusOK, &api.PingResp{Message: "pong: " + req.Message})
+}

@@ -9,7 +9,8 @@ repository: devkit reads it through the GitHub API (raw files and tag tarballs).
 
 | Component | Version | Description |
 |-----------|---------|-------------|
-| `kitex-service` | 0.5.1 | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
+| `kitex-service` | see `registry.json` | Whole Kitex (Thrift) service project: Nacos, logging, config, codegen Makefile, CI for GitHub Actions and GitLab CI, Dockerfile. This is what `devkit ngs` generates. |
+| `hertz-service` | see `registry.json` | Whole API (HTTP) service project on Hertz: routes and structs generated from the Thrift IDL with `hz`, Kitex clients for the RPC services behind it, and the same Nacos, logging, config, CI and Dockerfile as an RPC service. This is what `devkit nas` generates. |
 
 ## Layout
 

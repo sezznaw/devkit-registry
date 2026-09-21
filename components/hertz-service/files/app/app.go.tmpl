@@ -1,0 +1,61 @@
+// Package app is where the {{.Service}} API service is put together.
+//
+// This file is yours: devkit creates it once and never rewrites it, while
+// cmd/{{.Service}}/main.go belongs to the framework and is replaced by
+// `devkit update`. So everything specific to this service goes here (or into
+// packages you add), and main.go is never edited.
+//
+// 本文件归你所有：devkit 只创建一次，之后不会改写。而 cmd/{{.Service}}/main.go 属于
+// 框架，每次 `devkit update` 都会被替换。所以本服务特有的一切都写在这里（或你自己
+// 新增的包里），不要去修改 main.go。
+package app
+
+import (
+	"github.com/cloudwego/hertz/pkg/app/server"
+
+	"{{.CommonModule}}/hertzx"
+)
+
+// Config is the whole configuration of the service, loaded from
+// conf/<APP_ENV>.yaml. The embedded hertzx.Config is the part the framework
+// reads (service, nacos, log, shutdown; see conf/README.md). Add your own
+// sections next to it, as fields, and the matching keys to the YAML files.
+//
+// Config 是本服务的完整配置，从 conf/<APP_ENV>.yaml 加载。内嵌的 hertzx.Config 是
+// 框架读取的部分（service、nacos、log、shutdown，见 conf/README.zh-CN.md）。你自己的
+// 配置节作为字段加在它旁边，并在 YAML 里写上对应的内容。
+type Config struct {
+	hertzx.Config `yaml:",inline"`
+}
+
+// Setup is called once at start-up, after the configuration is loaded and the
+// logger is installed, before the first request is served. Create here what
+// the routes need and put it into package deps, add middleware that applies to
+// every route with h.Use, and register cleanup with hertzx.OnShutdown: it runs
+// in reverse order after the service has left Nacos and the last request in
+// progress has finished. Returning an error stops the start with a plain
+// message.
+//
+// The client of an RPC service (its IDL is listed in idl.mk, `make gen` has
+// generated kitex_gen/, deps/deps.go declares `var User userservice.Client`):
+//
+//	opts, err := kitexx.ClientOptions(cfg.Config) // finds "user" through Nacos
+//	if err != nil {
+//		return err
+//	}
+//	if deps.User, err = userservice.NewClient("user", opts...); err != nil {
+//		return err
+//	}
+//
+// In a handler, pass the ctx of the request on: deps.User.GetUser(ctx, req).
+// It carries the trace_id to the RPC service.
+//
+// Setup 在启动时被调用一次：此时配置已加载、日志已就绪，服务尚未开始接收请求。
+// 在这里创建路由需要的东西并放进 deps 包，用 h.Use 添加对所有路由生效的中间件，用 hertzx.OnShutdown
+// 注册清理动作：它们会在服务从 Nacos 注销、最后一个处理中的请求结束之后，按相反顺序执行。
+// 返回 error 会中止启动，并打印一条明确的错误信息。创建 RPC 客户端的写法见上面的示例
+// （在 deps/deps.go 里声明，在这里创建）；在 handler 里调用 deps.User.GetUser(ctx, req)
+// 时把请求的 ctx 原样传下去，trace_id 靠它传到 RPC 服务。
+func Setup(cfg *Config, h *server.Hertz) error {
+	return nil
+}
