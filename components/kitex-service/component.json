@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -87,6 +87,16 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.4",
+      "changes": [
+        "the Docker image no longer contains conf/dev.yaml. A container whose APP_ENV got lost or overridden used to start with the development settings and look healthy: not registered in Nacos, so no caller found it, and logging colored text that a collector cannot parse. Now it refuses to start and names the configuration files there are"
+      ],
+      "action": [
+        "Only if you run the image with APP_ENV=dev somewhere, for example in a development cluster: that no longer starts. Give that environment a file of its own:\ncp conf/prod.yaml conf/test.yaml      # then adjust it, and deploy with APP_ENV=test",
+        "If you had edited the Dockerfile, the new one is next to it as Dockerfile.new; take over the two lines that mention /out/conf."
+      ]
+    },
     {
       "version": "0.6.3",
       "changes": [

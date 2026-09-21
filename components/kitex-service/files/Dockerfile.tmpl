@@ -11,11 +11,18 @@ COPY go.mod go.sum ./
 RUN --mount=type=secret,id=netrc,target=/root/.netrc,required=false go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/{{.Service}} ./cmd/{{.Service}}
+# The image gets the configuration of every environment except dev. A service
+# whose APP_ENV got lost or overridden would otherwise start with conf/dev.yaml
+# and look healthy: not registered in Nacos, so no caller finds it, and logging
+# colored text that the collector cannot parse. Without the file it refuses to
+# start and says which files there are. (The final image has no shell, so the
+# selection is made here.)
+RUN mkdir -p /out/conf && cp conf/*.yaml /out/conf/ && rm -f /out/conf/dev.yaml
 
 FROM gcr.io/distroless/static-debian12
 WORKDIR /app
 COPY --from=build /out/{{.Service}} /app/{{.Service}}
-COPY conf /app/conf
+COPY --from=build /out/conf /app/conf
 ENV APP_ENV=prod
 # What is logged before the configuration is read, which is the case when it
 # cannot be read, has to be JSON for the log collector as well.

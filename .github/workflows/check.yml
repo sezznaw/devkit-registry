@@ -1,7 +1,8 @@
 name: check
 on:
+  # Every branch: a template version is an immutable tag, so what is checked
+  # here has to be green before main is touched.
   push:
-    branches: [main]
   pull_request:
 jobs:
   consistency:
@@ -9,3 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 scripts/check.py
+
+  dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: scripts/test_dockerfile.sh

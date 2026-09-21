@@ -19,6 +19,18 @@ adds a setting, `devkit update` tells you, and you copy it from here.
 | `CONF_DIR` | directory to read from. Otherwise `./conf`, then `conf` next to the executable. 指定配置目录；未设置时依次查找 `./conf`、可执行文件旁边的 `conf` |
 | `${NAME}` | replaced by the environment variable `NAME` before parsing. 解析前替换为环境变量 `NAME` 的值 |
 
+**The Docker image has no `dev.yaml`.** The Dockerfile sets `APP_ENV=prod` and
+leaves `dev.yaml` out of the image, so a container whose `APP_ENV` got lost or
+overridden refuses to start and names the files there are, instead of running
+with the development settings: not registered in Nacos, debug level, console
+output. For a development cluster use an environment of its own, e.g.
+`test.yaml` with `APP_ENV=test`.
+
+**Docker 镜像里没有 `dev.yaml`。** Dockerfile 设置了 `APP_ENV=prod`，并且不把
+`dev.yaml` 放进镜像。这样一来，容器的 `APP_ENV` 如果丢失或被覆盖，服务会拒绝启动并列出
+现有的配置文件，而不是悄悄用开发配置运行（不注册到 Nacos、debug 级别、控制台格式）。
+开发集群请使用单独的环境，例如 `test.yaml` 加 `APP_ENV=test`。
+
 To add an environment, copy `prod.yaml` to e.g. `test.yaml` and start the
 service with `APP_ENV=test`.
 要增加一个环境，把 `prod.yaml` 复制为例如 `test.yaml`，启动时设置 `APP_ENV=test`。
