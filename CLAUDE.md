@@ -157,7 +157,7 @@ maintained with every template change:
 - `conf/README.md`: a managed, bilingual reference of every setting with its
   default. It is excluded from `once` because the pattern is `conf/*.yaml`.
 
-Comments in `conf/dev.yaml` / `conf/prod.yaml` are bilingual (English line,
+Comments in `conf/local.yaml` / `conf/dev.yaml` / `conf/uat.yaml` / `conf/prod.yaml` are bilingual (English line,
 then Chinese line) and explain every key; keep that style when adding keys.
 
 ## Gotchas

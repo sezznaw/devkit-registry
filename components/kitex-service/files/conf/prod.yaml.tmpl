@@ -2,9 +2,9 @@
 # {{.Service}} - PRODUCTION configuration / 生产环境配置
 #
 # Loaded when APP_ENV=prod (the Dockerfile sets it). Every setting is explained
-# in conf/dev.yaml and conf/README.md; this file only notes what differs in
+# in conf/local.yaml and conf/README.md; this file only notes what differs in
 # production.
-# 当 APP_ENV=prod 时加载（Dockerfile 里已设置）。每个配置项的含义见 conf/dev.yaml
+# 当 APP_ENV=prod 时加载（Dockerfile 里已设置）。每个配置项的含义见 conf/local.yaml
 # 和 conf/README.md；这里只说明生产环境的不同之处。
 #
 # ${NAME} is replaced by the environment variable NAME before parsing. Addresses
@@ -24,6 +24,17 @@ service:
   # EXPOSE in the Dockerfile.
   # 监听的端口（所有网卡）。必须与容器端口以及 Dockerfile 里的 EXPOSE 一致。
   addr: {{.Port}}
+
+  # The address callers reach this instance at, "host" or "host:port", when it is
+  # not the one the process sees: a container that is reached through the host's
+  # address and a mapped port. The deployment sets ADVERTISE_ADDR then. Empty
+  # (the variable not set): the address this machine reaches Nacos from, and the
+  # port above, which is right when callers reach the container directly.
+  # 调用方访问本实例用的地址，"主机" 或 "主机:端口"。只有当它和进程自己看到的地址不一样
+  # 时才需要：比如容器要通过宿主机地址加映射端口才能访问，这时由部署平台设置
+  # ADVERTISE_ADDR。留空（不设置该变量）时，注册的是“本机连向 Nacos 时使用的地址”加上面
+  # 的端口；调用方能直接访问容器时，这就是对的。
+  advertise: "${ADVERTISE_ADDR}"
 
 # Production services register, so that callers can find them.
 # 生产环境要注册到 Nacos，调用方才能发现本服务。
@@ -104,8 +115,8 @@ log:
 # 这样生产环境不用重启就能临时打开 debug 日志。内容只有一个词：debug、info、warn、error。
 # log_level_data_id: {{.Service}}.log-level
 
-# Graceful stop (the steps are described in conf/dev.yaml).
-# 优雅退出（各步骤的说明见 conf/dev.yaml）。
+# Graceful stop (the steps are described in conf/local.yaml).
+# 优雅退出（各步骤的说明见 conf/local.yaml）。
 shutdown:
   # How long to keep serving after leaving Nacos. Callers cache the instance list
   # and Nacos needs a moment to push the change; without this wait every rolling

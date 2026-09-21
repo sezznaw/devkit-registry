@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.4.0",
+      "default": "v0.5.0",
       "track": true
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "name": "NacosAddr",
-      "description": "Nacos server address for the dev config",
+      "description": "Address of the Nacos on a developer's own machine, written to conf/local.yaml",
       "default": "127.0.0.1:8848"
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.4.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.5.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,20 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.8.0",
+      "changes": [
+        "four environments, one file each: conf/local.yaml (your own machine; what a service uses when APP_ENV is not set), conf/dev.yaml (the shared development server), conf/uat.yaml and conf/prod.yaml. \"dev\" used to mean the laptop, which left no name for the development server. `make run` uses local; the Docker image contains every environment except local",
+        "every environment uses Nacos, the laptop too: new services get a conf/local.yaml that registers in the Nacos on 127.0.0.1:8848 and refuses to start when it is not running. The file has the docker command, and reads the account from NACOS_USERNAME and NACOS_PASSWORD",
+        "devkit-common v0.5.0: a laptop never registers in a Nacos that other people use. In the local environment a service registers in a Nacos on the same machine only; anything else is refused at start. `nacos.register: false` is the way to work from your machine against the development server's Nacos: the service finds the others and reads its configuration there, and is not announced",
+        "devkit-common v0.5.0: what gets registered is the address this machine reaches Nacos from (the right one with a VPN or Docker networks; 127.0.0.1 with a local Nacos). `service.advertise` (\"host\" or \"host:port\", from ADVERTISE_ADDR in the deployed files) is registered instead, for containers that are reached through the host's address and a mapped port"
+      ],
+      "action": [
+        "The default environment is now local, so a service without conf/local.yaml no longer starts on your machine. Your old conf/dev.yaml was the laptop file; make it that again, and give the servers theirs:\ngit mv conf/dev.yaml conf/local.yaml\ncp conf/prod.yaml conf/dev.yaml     # then set   level: debug\ncp conf/prod.yaml conf/uat.yaml",
+        "In conf/local.yaml set `registry_disabled: false` and the account of your Nacos (conf/README.md has every setting):\nnacos:\n  addrs: [\"127.0.0.1:8848\"]\n  username: \"${NACOS_USERNAME}\"\n  password: \"${NACOS_PASSWORD}\"",
+        "In conf/dev.yaml, conf/uat.yaml and conf/prod.yaml add below `addr:` (only matters for containers behind a mapped port):\n  advertise: \"${ADVERTISE_ADDR}\""
+      ]
+    },
     {
       "version": "0.7.0",
       "changes": [

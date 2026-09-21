@@ -42,7 +42,7 @@ build:
 	go build -o bin/$(SERVICE) ./cmd/$(SERVICE)
 
 run:
-	APP_ENV=$${APP_ENV:-dev} go run ./cmd/$(SERVICE)
+	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE)
 
 test:
 	go test ./...

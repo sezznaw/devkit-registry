@@ -1,13 +1,12 @@
 # =============================================================================
-# {{.Service}} - DEV configuration / 开发服务器配置
+# {{.Service}} - UAT configuration / 验收测试环境配置
 #
-# Loaded when APP_ENV=dev: the shared development server, where everybody's
-# services run together. Not your own machine, that is conf/local.yaml. Every
-# setting is explained in conf/local.yaml and conf/README.md; this file only
-# notes what differs on a server.
-# 当 APP_ENV=dev 时加载：公共的开发服务器，所有人的服务都部署在一起的地方。
-# 它不是你自己的电脑，那是 conf/local.yaml。每个配置项的含义见 conf/local.yaml 和
-# conf/README.md；这里只说明服务器环境的不同之处。
+# Loaded when APP_ENV=uat: user acceptance test. It is meant to behave like
+# production, so keep this file the same as conf/prod.yaml unless there is a
+# reason. Every setting is explained in conf/local.yaml and conf/README.md.
+# 当 APP_ENV=uat 时加载：验收测试环境。它应该和生产环境表现一致，所以没有特别的理由
+# 就让本文件与 conf/prod.yaml 保持相同。每个配置项的含义见 conf/local.yaml 和
+# conf/README.md。
 #
 # ${NAME} is replaced by the environment variable NAME before parsing. Addresses
 # and secrets come from the deployment platform, not from this file.
@@ -48,11 +47,9 @@ nacos:
   # 必填。一个 "主机:端口"；集群可写多个，例如上面这样。
   addrs: ["${NACOS_ADDR}"]
 
-  # The namespace ID of the development environment. When dev and uat share one
-  # Nacos server, the namespace is what keeps them apart: a service only sees
-  # the services of its own namespace.
-  # 开发环境的命名空间 ID。dev 和 uat 共用一台 Nacos 时，靠命名空间把它们隔开：
-  # 服务只能发现同一命名空间里的其他服务。
+  # The namespace ID of the uat environment. When dev and uat share one Nacos
+  # server, the namespace is what keeps them apart.
+  # uat 环境的命名空间 ID。dev 和 uat 共用一台 Nacos 时，靠命名空间把它们隔开。
   namespace: "${NACOS_NAMESPACE}"
 
   group: DEFAULT_GROUP
@@ -63,9 +60,9 @@ nacos:
   password: "${NACOS_PASSWORD}"
 
 log:
-  # debug on the development server: that is what it is for.
-  # 开发服务器上用 debug：它就是用来排查问题的。
-  level: debug
+  # info keeps the volume manageable; switch to debug only while investigating.
+  # info 级别的日志量可控；只在排查问题时临时改为 debug。
+  level: info
 
   # JSON, one object per line, for the log collector. Every record carries
   # service, env, host and version, and the trace_id of the request.

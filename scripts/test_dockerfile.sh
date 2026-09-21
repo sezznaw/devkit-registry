@@ -5,7 +5,7 @@
 # `devkit ngs` only writes it. This renders it for a stand-in service that
 # loads its configuration exactly like a generated main.go does, and checks
 # what the image does with APP_ENV, which is where a mistake is expensive: a
-# container that starts with conf/dev.yaml looks healthy and serves nobody.
+# container that starts with conf/local.yaml, a developer's settings, serves nobody.
 #
 # Needs docker, go and python3. CI runs it on every push.
 set -euo pipefail
@@ -38,7 +38,7 @@ func main() {
 	fmt.Println("loaded:", cfg.Name)
 }
 GO
-for env in dev prod test; do echo "name: from-$env" > "conf/$env.yaml"; done
+for env in local dev uat prod; do echo "name: from-$env" > "conf/$env.yaml"; done
 echo "not a configuration file" > conf/README.md
 
 # The template with its variables filled in; the optional GOPRIVATE block is
@@ -65,17 +65,20 @@ docker build --progress=plain -t "$img" . > build.log 2>&1 || { cat build.log; f
 out=$(docker run --rm "$img") || fail "the image does not start as it is built: $out"
 [ "$out" = "loaded: from-prod" ] || fail "without any variable the image must use prod.yaml, got: $out"
 
-out=$(docker run --rm -e APP_ENV=test "$img") || fail "APP_ENV=test: $out"
-[ "$out" = "loaded: from-test" ] || fail "every environment but dev must be in the image, got: $out"
+# One image goes from dev to uat to prod.
+for env in dev uat; do
+  out=$(docker run --rm -e APP_ENV=$env "$img") || fail "APP_ENV=$env: $out"
+  [ "$out" = "loaded: from-$env" ] || fail "every environment but local must be in the image, got: $out"
+done
 
-# APP_ENV lost: config falls back to "dev", and that file must not be there.
+# APP_ENV lost: config falls back to "local", and that file must not be there.
 set +e; out=$(docker run --rm -e APP_ENV= "$img" 2>&1); code=$?; set -e
 [ "$code" -eq 1 ] || fail "with APP_ENV empty the container must exit with status 1, got $code: $out"
 echo "$out" | python3 -c '
 import json, sys
 rec = json.loads(sys.stdin.read().strip().splitlines()[0])
 assert rec["level"] == "FATAL" and rec["service"] == "demo", rec
-assert "dev.yaml does not exist" in rec["err"] and "available: prod, test" in rec["err"], rec["err"]
+assert "local.yaml does not exist" in rec["err"] and "available: dev, prod, uat" in rec["err"], rec["err"]
 ' || fail "the refusal must be one JSON record that names the files there are, got: $out"
 
-echo "ok: the image uses prod.yaml, has every environment but dev, and refuses to start without APP_ENV"
+echo "ok: the image uses prod.yaml, has dev, uat and prod but not local, and refuses to start without APP_ENV"
