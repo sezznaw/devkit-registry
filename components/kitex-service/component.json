@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.3.0",
+      "default": "v0.3.1",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.1 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,13 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.2",
+      "changes": [
+        "devkit-common v0.3.1: the first record of a starting service, \"logger configured\", lists the log settings in effect (level, format, stacktrace, sampling, buffer, max_field_bytes, service, env, version, host, output) under the names they have in conf/*.yaml, with \"(default)\" behind what was not set. It is written whatever the level",
+        "a typo in the log settings (for example format: consol) is now reported whatever the level; with level: error the warning used to filter itself out"
+      ]
+    },
     {
       "version": "0.6.1",
       "changes": [
