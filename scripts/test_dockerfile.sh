@@ -48,13 +48,19 @@ sed -e '/^{{- if .GoPrivate}}$/,/^{{- end}}$/d' \
     "$comp/files/Dockerfile.tmpl" > Dockerfile
 if grep -n '{{' Dockerfile; then echo "FAIL: the Dockerfile template uses a variable this script does not fill in"; exit 1; fi
 
+# The go line is the one of go.mod.tmpl, not that of the Go installed here:
+# `go mod init` writes the local release, and the golang:<GoVersion> image
+# refuses a module that asks for a newer Go than it has.
 go mod init demo >/dev/null 2>&1
+go mod edit -go="$go_version.0" -toolchain=none
 go get "$common@$common_version" >/dev/null 2>&1
 go mod tidy >/dev/null 2>&1
+grep -q "^go $go_version.0\$" go.mod || { echo "FAIL: the stand-in go.mod must say go $go_version.0 like go.mod.tmpl:"; cat go.mod; exit 1; }
 
 img=devkit-dockerfile-test
-docker build -q -t "$img" . >/dev/null
 fail() { echo "FAIL: $*"; exit 1; }
+# The build is quiet unless it fails; then its whole output is what is needed.
+docker build --progress=plain -t "$img" . > build.log 2>&1 || { cat build.log; fail "the image does not build"; }
 
 out=$(docker run --rm "$img") || fail "the image does not start as it is built: $out"
 [ "$out" = "loaded: from-prod" ] || fail "without any variable the image must use prod.yaml, got: $out"
