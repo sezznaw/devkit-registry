@@ -43,7 +43,18 @@ nacos:
 
 log:
   level: info                 # debug | info | warn | error
-  json: false                 # true = one JSON object per line. true 为每行一个 JSON 对象
+  format: console             # console | json (one JSON object per line). json 为每行一个 JSON 对象
+  stacktrace: ""              # level from which records carry the call stack, e.g. error. 从哪个级别起带调用堆栈
+  max_field_bytes: 0          # cut longer messages and field values; 0 = no limit. 截断过长的消息和字段值，0 不限制
+  sampling:                   # flood protection, off unless first is set. 洪峰保护，设置 first 才生效
+    first: 0                  # records per second and message written in full. 同一条日志每秒完整写出的条数
+    thereafter: 0             # after that every n-th. 之后每 n 条写 1 条
+  buffer:                     # buffered output, off unless size is set. 写缓冲，设置 size 才生效
+    size: 0                   # bytes. 字节数
+    flush_interval: 1s
+  version: ""                 # "version" of every JSON record; default: VCS revision of the build. JSON 日志里的 version，默认取构建时的版本库修订号
+
+log_level_data_id: ""         # Nacos data id whose content is the log level; "" = off. 内容为日志级别的 Nacos 配置，留空关闭
 
 shutdown:
   deregister_wait: 3s         # keep serving this long after leaving Nacos; 0s = off. 注销后继续服务的时长，0s 关闭
@@ -58,7 +69,12 @@ shutdown:
 | `nacos.addrs` | none; required unless `registry_disabled: true` / 无；除非关闭注册，否则必填 |
 | `nacos.group` | `DEFAULT_GROUP` |
 | `log.level` | `info` |
-| `log.json` | `false` |
+| `log.format` | `console` (`json: true` of older services is still understood / 旧服务的 `json: true` 仍然有效) |
+| `log.stacktrace` | none / 不带堆栈 |
+| `log.max_field_bytes` | `0`, no limit / 不限制 |
+| `log.sampling` | off / 关闭 |
+| `log.buffer` | off / 关闭 |
+| `log_level_data_id` | none / 无 |
 | `shutdown.deregister_wait` | `3s` |
 | `shutdown.drain_timeout` | `15s` |
 

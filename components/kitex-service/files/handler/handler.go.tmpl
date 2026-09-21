@@ -4,7 +4,7 @@ package handler
 import (
 	"context"
 
-	"{{.CommonModule}}/log"
+	"{{.CommonModule}}/zlog"
 
 	// Fixed alias: a service may be called "log" or "config", which would clash
 	// with other imports if its own name were used here.
@@ -23,6 +23,8 @@ func New() *{{.Service | title}}ServiceImpl {
 // edit ../idl/{{.Service}}/{{.Service}}.thrift, run `make gen`, then implement
 // the new methods on this struct.
 func (s *{{.Service | title}}ServiceImpl) Ping(ctx context.Context, req *api.PingReq) (*api.PingResp, error) {
-	log.FromContext(ctx).Info("ping", "message", req.Message)
+	// zlog.Ctx(ctx) is the logger of this request: every record carries its
+	// trace_id and method. Fields are typed, one bracket per key and value.
+	zlog.Ctx(ctx).Info("ping", zlog.Str("message", req.Message))
 	return &api.PingResp{Message: "pong: " + req.Message}, nil
 }

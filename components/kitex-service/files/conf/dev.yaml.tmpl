@@ -81,13 +81,21 @@ log:
   # 输出的最低日志级别：debug、info、warn、error。debug 很详细，适合开发阶段。
   level: debug
 
-  # false = human-readable text lines (good in a terminal).
-  # true  = one JSON object per line (what log collectors expect in production).
-  # Kitex's internal messages use the same format and carry logger=kitex.
-  # false = 便于阅读的文本格式（适合终端）。
-  # true  = 每行一个 JSON 对象（生产环境的日志采集系统需要这种格式）。
-  # Kitex 框架内部的日志也是同样的格式，并带有 logger=kitex 标记。
-  json: false
+  # console = colored lines for people. In GoLand's Run window and in a terminal
+  #           the file:line of every record is a link to that line.
+  # json    = one JSON object per line (what log collectors expect in production).
+  # Kitex's internal messages, and what dependencies print with the standard
+  # log or log/slog packages, come out in the same format.
+  # console = 给人看的彩色文本。在 GoLand 的 Run 窗口和终端里，每条日志的
+  #           文件名:行号 都可以点击跳转。
+  # json    = 每行一个 JSON 对象（生产环境的日志采集系统需要这种格式）。
+  # Kitex 框架内部的日志，以及依赖库用标准库 log、log/slog 打的日志，都是同样的格式。
+  format: console
+
+  # Attach the call stack to records from this level up. On the console every
+  # frame of the stack is a link. Remove the line for no stacks.
+  # 从这个级别起，日志附带调用堆栈。控制台里堆栈的每一行都可以点击。删掉这行则不带堆栈。
+  stacktrace: error
 
 # Graceful stop, triggered by SIGINT (Ctrl+C) or SIGTERM. The order is:
 #   1. deregister from Nacos

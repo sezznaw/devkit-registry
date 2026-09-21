@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.2.1",
+      "default": "v0.3.0",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.2.1 && go mod tidy"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.0 && go mod tidy"
     ]
   },
   "once": [
@@ -87,6 +87,21 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.0",
+      "changes": [
+        "devkit-common v0.3.0: new logger zlog (on zap) replaces the log package. Console output for people: a color per level, file:line that GoLand and terminals turn into a link, key=value fields, stacks of errors and panics below the record with every frame a link. JSON output for collectors: service, env, host, version and the trace_id of the request on every record, never the same key twice",
+        "a trace_id follows a request from service to service (kitexx.ClientOptions now uses the TTHeader transport); zlog.Ctx(ctx) is the logger of the request",
+        "what Kitex and dependencies log (klog, log, log/slog) comes out in the same format",
+        "new log settings: format, stacktrace, max_field_bytes, sampling, buffer, version; log_level_data_id makes the level follow a Nacos configuration at run time",
+        "a service that cannot read its configuration now reports it through the logger; the Dockerfile sets ZLOG_FORMAT=json so that this line is JSON too"
+      ],
+      "action": [
+        "The log package is gone from devkit-common, so handler code has to move to zlog. Replace the import \"<common>/log\" with \"<common>/zlog\" and rewrite the calls:\nlog.FromContext(ctx).Info(\"ping\", \"message\", m)   ->   zlog.Ctx(ctx).Info(\"ping\", zlog.Str(\"message\", m))\nslog.Error(\"save failed\", \"err\", err)             ->   zlog.Error(\"save failed\", zlog.Err(err))\nFields: zlog.Str, Int, Float, Bool, Dur, Time, Err, Any, Secret. go vet ./... finds what is left.",
+        "In conf/*.yaml replace `json: false` with `format: console` and `json: true` with `format: json`. The old key still works, so nothing breaks if you wait.",
+        "Clients made with kitexx.ClientOptions now speak TTHeader. Kitex servers accept it without any change; only a server that is not Kitex needs a look."
+      ]
+    },
     {
       "version": "0.5.1",
       "changes": [

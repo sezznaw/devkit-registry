@@ -17,5 +17,8 @@ WORKDIR /app
 COPY --from=build /out/{{.Service}} /app/{{.Service}}
 COPY conf /app/conf
 ENV APP_ENV=prod
+# What is logged before the configuration is read, which is the case when it
+# cannot be read, has to be JSON for the log collector as well.
+ENV ZLOG_FORMAT=json ZLOG_SERVICE={{.Service}} ZLOG_ENV=prod
 EXPOSE {{.Port}}
 ENTRYPOINT ["/app/{{.Service}}"]

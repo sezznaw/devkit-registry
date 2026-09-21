@@ -12,11 +12,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"{{.CommonModule}}/config"
 	"{{.CommonModule}}/kitexx"
+	"{{.CommonModule}}/zlog"
 
 	"{{.Module}}/app"
 	"{{.Module}}/kitex_gen/{{.Service | snake}}/{{.Service | title | lower}}service"
@@ -51,9 +51,10 @@ func main() {
 	}
 }
 
-// fatal reports a start-up problem in plain words; a panic would bury it under
-// a stack trace.
+// fatal reports a start-up problem and ends the process with status 1. It goes
+// through the logger, which before kitexx.Options is configured by the
+// environment (the Dockerfile sets ZLOG_FORMAT=json): this is the one line a
+// log collector must not fail to parse.
 func fatal(err error) {
-	fmt.Fprintf(os.Stderr, "{{.Service}}: cannot start: %v\n", err)
-	os.Exit(1)
+	zlog.Fatal("cannot start", zlog.Err(err))
 }
