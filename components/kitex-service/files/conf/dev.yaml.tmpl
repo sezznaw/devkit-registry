@@ -30,12 +30,12 @@ service:
   # 调用方靠这个名字找到本服务，修改它会导致调用方找不到。
   name: {{.Service}}
 
-  # Listen address of the RPC server, "host:port". An empty host (":{{.Port}}")
-  # listens on all network interfaces. When registering in Nacos an empty host
-  # is replaced by this machine's IPv4 address automatically.
-  # RPC 服务的监听地址，格式 "主机:端口"。主机留空（":{{.Port}}"）表示监听所有网卡。
-  # 向 Nacos 注册时，空主机会自动替换成本机的 IPv4 地址。
-  addr: ":{{.Port}}"
+  # Port the RPC server listens on, on every network interface. When registering
+  # in Nacos this machine's IPv4 address is filled in automatically. To listen
+  # on one interface only, write "host:port" instead, e.g. "127.0.0.1:{{.Port}}".
+  # RPC 服务监听的端口（监听所有网卡）。向 Nacos 注册时会自动填入本机的 IPv4 地址。
+  # 只想监听某一块网卡时，改写成 "主机:端口"，例如 "127.0.0.1:{{.Port}}"。
+  addr: {{.Port}}
 
 # true  = do not register in Nacos. The service still listens and can be called
 #         directly by address. Convenient on a laptop: no Nacos needed.

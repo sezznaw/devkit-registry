@@ -20,10 +20,10 @@ service:
   # Must match the name callers use. 必须与调用方使用的名字一致。
   name: {{.Service}}
 
-  # All interfaces. The port must match the container port and EXPOSE in the
-  # Dockerfile.
-  # 监听所有网卡。端口必须与容器端口以及 Dockerfile 里的 EXPOSE 一致。
-  addr: ":{{.Port}}"
+  # Port to listen on (all interfaces). It must match the container port and
+  # EXPOSE in the Dockerfile.
+  # 监听的端口（所有网卡）。必须与容器端口以及 Dockerfile 里的 EXPOSE 一致。
+  addr: {{.Port}}
 
 # Production services register, so that callers can find them.
 # 生产环境要注册到 Nacos，调用方才能发现本服务。

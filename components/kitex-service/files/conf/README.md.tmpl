@@ -40,7 +40,7 @@ service with `APP_ENV=test`.
 ```yaml
 service:
   name: {{.Service}}          # registered name; callers use it. 注册名，调用方靠它找到服务
-  addr: ":{{.Port}}"            # listen address host:port; empty host = all interfaces. 监听地址，主机留空表示所有网卡
+  addr: {{.Port}}              # port to listen on (all interfaces); "host:port" for one interface. 监听端口（所有网卡）；只监听一块网卡时写 "主机:端口"
 
 registry_disabled: false  # true = do not register in Nacos (local runs). true 表示不注册到 Nacos（本地开发）
 
@@ -76,7 +76,7 @@ shutdown:
 | Setting | Default when omitted / 省略时的默认值 |
 |---------|--------------------------------------|
 | `service.name` | none, required / 无，必填 |
-| `service.addr` | `:8888` |
+| `service.addr` | `8888` |
 | `registry_disabled` | `false` |
 | `nacos.addrs` | none; required unless `registry_disabled: true` / 无；除非关闭注册，否则必填 |
 | `nacos.group` | `DEFAULT_GROUP` |
