@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.3.1",
+      "default": "v0.3.2",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.1 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.3.2 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -87,6 +87,12 @@
     "handler/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.3",
+      "changes": [
+        "devkit-common v0.3.2: the \"logger configured\" record of a starting service says where the values come from that the framework fills in: `service: order (from service.name)`, `env: prod (from APP_ENV)`, or `env: dev (APP_ENV is not set)`. In JSON these remarks, and which settings are defaults, are in \"config_notes\""
+      ]
+    },
     {
       "version": "0.6.2",
       "changes": [
