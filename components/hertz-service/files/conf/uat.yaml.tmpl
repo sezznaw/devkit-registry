@@ -162,3 +162,19 @@ shutdown:
   # 重要：deregister_wait + drain_timeout 必须小于部署平台强制杀进程前的等待时间
   # （Kubernetes 的 terminationGracePeriodSeconds，默认 30 秒）。
   # 否则进程会在优雅退出的中途被强杀。
+
+# Tracing (OpenTelemetry): the OTLP gRPC collector spans are sent to, such as
+# Tempo on port 4317. Empty switches tracing off. The deployment sets the
+# address; every request then shows up in Grafana as a trace, and the
+# trace_id in the log is the id of that trace.
+#
+# 链路追踪（OpenTelemetry）：span 发往的 OTLP gRPC 采集端，比如 Tempo 的 4317 端口。
+# 留空即关闭。地址由部署平台注入；开启后每个请求在 Grafana 里都是一条 trace，
+# 日志里的 trace_id 就是这条 trace 的 id。
+otel:
+  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
+  # Share of new traces that are recorded, 0 to 1; a decision a caller made
+  # is kept. 1 in dev; lower it in production when the collector cannot keep up.
+  #
+  # 新 trace 的采样比例，0 到 1；调用方已经决定的沿用其决定。dev 用 1，生产按采集端压力调低。
+  sample_ratio: 1.0

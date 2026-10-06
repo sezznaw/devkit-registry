@@ -198,3 +198,11 @@ shutdown:
   # 时长的写法如 500ms、3s、1m。0s 表示不等待。本地开发没有调用方需要等，所以立即退出。
   deregister_wait: 0s
   drain_timeout: 5s
+
+# Tracing is off on a developer's machine unless OTEL_EXPORTER_OTLP_ENDPOINT
+# is set (for example to a Tempo reached through a port-forward).
+#
+# 本机默认不开链路追踪，除非设置了 OTEL_EXPORTER_OTLP_ENDPOINT（比如 port-forward 过来的 Tempo）。
+otel:
+  endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
+  sample_ratio: 1.0

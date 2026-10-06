@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.7.0",
+      "default": "v0.8.0",
       "track": true
     },
     {
@@ -87,7 +87,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.7.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.8.0 && go mod tidy"
     ]
   },
   "once": [
@@ -100,6 +100,13 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.2.0",
+      "changes": [
+        "devkit-common v0.8.0: OpenTelemetry tracing. With `otel.endpoint` set (the deployment sets OTEL_EXPORTER_OTLP_ENDPOINT) every request is a server span named like `GET /user/:id`, continuing the caller's W3C traceparent, and the RPC clients the handler calls make child spans; X-Trace-Id stays, and one that is 32 hex characters is the id of the trace. Empty endpoint: nothing changes.",
+        "conf/*.yaml gain an `otel:` section (endpoint, sample_ratio)."
+      ]
+    },
     {
       "version": "0.1.1",
       "changes": [
