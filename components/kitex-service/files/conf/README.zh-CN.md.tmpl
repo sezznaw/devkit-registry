@@ -117,6 +117,12 @@ shutdown:
 | `shutdown.drain_timeout` | `15s` |
 | `otel.endpoint` | 空（关闭） |
 | `otel.sample_ratio` | `1.0` |
+| `mysql.enabled` | `false` |
+| `mysql.source` | `static` |
+| `mysql.role` | `tenant` |
+| `mysql.addr` | `127.0.0.1:3306` |
+| `mysql.max_open` / `max_idle` / `conn_max_lifetime` | `20` / `5` / `30m` |
+| `mysql.slow_query` | `200ms` |
 
 ## 当前有哪些服务存活
 

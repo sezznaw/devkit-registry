@@ -206,3 +206,21 @@ shutdown:
 otel:
   endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
   sample_ratio: 1.0
+
+# MySQL. Off by default; a service that uses MySQL turns it on in every
+# environment's file. Locally it is your own database: `infra/db/local.sh up`
+# starts one in Docker with the same schema as dev. To look at dev's database
+# instead, port-forward it (port rule: 13306) and set MYSQL_ADDR and
+# MYSQL_PASSWORD; the framework warns that you are on a shared database.
+#
+# MySQL。默认关闭；用 MySQL 的服务在每个环境的文件里都打开。本机连的是你自己的库：
+# `infra/db/local.sh up` 在 Docker 里起一个，表结构和 dev 一样。想看 dev 的库就 port-forward
+# （端口规则：13306）并设置 MYSQL_ADDR 和 MYSQL_PASSWORD，框架会提醒你连的是共享库。
+mysql:
+  enabled: false
+  # source: static
+  # addr: "${MYSQL_ADDR}"   # empty: 127.0.0.1:3306
+  # db: tenant_a
+  # user: tenant_a
+  # password: "${MYSQL_PASSWORD}"
+  # slow_query: 200ms

@@ -177,3 +177,22 @@ otel:
   #
   # 新 trace 的采样比例，0 到 1；调用方已经决定的沿用其决定。dev 用 1，生产按采集端压力调低。
   sample_ratio: 1.0
+
+# MySQL. Every service has this section; most leave it off. On, the framework
+# connects before the service registers (no database, no start) and hands the
+# handle to repo/ as rt.DB. In a deployment the address is not written here:
+# source platform looks the database of the tenant this deployment serves
+# (environment variable TENANT_CODE) up in the platform's datasource table;
+# the platform database's own address is infra.yaml in Nacos, and every
+# password is an environment variable the deployment sets.
+#
+# MySQL。每个服务都有这一段，大多数关着。打开后框架在服务注册之前连库（连不上就不启动），
+# 并把句柄作为 rt.DB 交给 repo/。部署环境里不写地址：source platform 按本部署服务的租户
+# （环境变量 TENANT_CODE）去平台库的 datasource 表查；平台库自己的地址在 Nacos 的 infra.yaml，
+# 所有密码都是部署注入的环境变量。
+mysql:
+  enabled: false
+  # source: platform
+  # role: tenant            # tenant: this tenant's database; platform: the platform database itself
+                            # tenant：本租户的库；platform：平台库本身
+  # slow_query: 200ms       # slower than this is a warn record "mysql slow query"

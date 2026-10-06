@@ -14,6 +14,9 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 
 	"{{.CommonModule}}/hertzx"
+	"{{.CommonModule}}/kitexx"
+
+	"{{.Module}}/deps"
 )
 
 // Config is the whole configuration of the service, loaded from
@@ -56,6 +59,7 @@ type Config struct {
 // 返回 error 会中止启动，并打印一条明确的错误信息。创建 RPC 客户端的写法见上面的示例
 // （在 deps/deps.go 里声明，在这里创建）；在 handler 里调用 deps.User.GetUser(ctx, req)
 // 时把请求的 ctx 原样传下去，trace_id 靠它传到 RPC 服务。
-func Setup(cfg *Config, h *server.Hertz) error {
+func Setup(cfg *Config, rt *kitexx.Runtime, h *server.Hertz) error {
+	deps.Runtime = rt
 	return nil
 }

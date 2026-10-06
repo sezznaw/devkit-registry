@@ -9,14 +9,25 @@ import (
 	// Fixed alias: a service may be called "log" or "config", which would clash
 	// with other imports if its own name were used here.
 	api "{{.Module}}/kitex_gen/{{.Service | snake}}"
+	"{{.Module}}/repo"
 )
 
 // {{.Service | title}}ServiceImpl implements the {{.Service | title}}Service of the IDL.
-type {{.Service | title}}ServiceImpl struct{}
+// It talks to the database through repo and to other services through the
+// clients app.Setup gives it; it does not open either itself.
+//
+// {{.Service | title}}ServiceImpl 实现 IDL 里的 {{.Service | title}}Service。数据库通过 repo，
+// 其他服务通过 app.Setup 给它的客户端；两者都不由它自己打开。
+type {{.Service | title}}ServiceImpl struct {
+	repo *repo.Repo
+}
 
-// New returns the handler; wire dependencies (repos, clients) here.
-func New() *{{.Service | title}}ServiceImpl {
-	return &{{.Service | title}}ServiceImpl{}
+// New returns the handler; add further dependencies (clients of other
+// services) as parameters and fields.
+//
+// New 返回 handler；更多依赖（其他服务的客户端）作为参数和字段加在这里。
+func New(r *repo.Repo) *{{.Service | title}}ServiceImpl {
+	return &{{.Service | title}}ServiceImpl{repo: r}
 }
 
 // Ping is the sample RPC from the initial IDL. Replace it with real methods:

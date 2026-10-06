@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.8.0",
+      "default": "v0.9.0",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.8.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.9.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -84,9 +84,17 @@
     "app/*",
     "README.md",
     "conf/*.yaml",
-    "handler/*"
+    "handler/*",
+    "repo/*"
   ],
   "changelog": [
+    {
+      "version": "0.10.0",
+      "changes": [
+        "devkit-common v0.9.0: MySQL opened by the framework. main.go now builds a kitexx.Runtime (logger, tracing, and what the configuration enables) and passes it to app.Setup(cfg, rt); a new package repo/ (yours, created once) holds the database code and gets rt.DB; handler.New takes the repo. Turn MySQL on with mysql.enabled in conf/<env>.yaml: source platform in deployments (the tenant's database from the platform's datasource table, TENANT_CODE from the deployment), source static on your machine. Every query is a span of the request's trace and a log record with its trace_id.",
+        "BREAKING for an existing service: after `devkit update` change app.Setup to `func Setup(cfg *Config, rt *kitexx.Runtime)`, add the repo/ package (copy repo/repo.go from a new service or from the template), and make handler.New take *repo.Repo. The conf files gain a `mysql:` section, off by default."
+      ]
+    },
     {
       "version": "0.9.0",
       "changes": [

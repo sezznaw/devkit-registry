@@ -17,12 +17,13 @@ import (
 	"{{.CommonModule}}/kitexx"
 
 	"{{.Module}}/handler"
+	"{{.Module}}/repo"
 )
 
 // Config is the whole configuration of the service, loaded from
 // conf/<APP_ENV>.yaml. The embedded kitexx.Config is the part the framework
-// reads (service, nacos, log, shutdown; see conf/README.md). Add your own
-// sections as fields next to it, together with the matching YAML:
+// reads (service, nacos, log, otel, mysql, shutdown; see conf/README.md). Add
+// your own sections as fields next to it, together with the matching YAML:
 //
 //	Redis redisx.Config `yaml:"redis"`
 //
@@ -30,15 +31,17 @@ import (
 //	  addr: "${REDIS_ADDR}"
 //
 // Config 是本服务的完整配置，从 conf/<APP_ENV>.yaml 加载。内嵌的 kitexx.Config 是
-// 框架读取的部分（service、nacos、log、shutdown，见 conf/README.zh-CN.md）。你自己的配置节
+// 框架读取的部分（service、nacos、log、otel、mysql、shutdown，见 conf/README.zh-CN.md）。你自己的配置节
 // 作为字段加在它旁边，并在 YAML 里写上对应的内容。
 type Config struct {
 	kitexx.Config `yaml:",inline"`
 }
 
-// Setup is called once at start-up, after the configuration is loaded and
-// logging is ready, and before the server accepts requests. Create what the
-// service depends on, register its cleanup, and return the handler.
+// Setup is called once at start-up, after the configuration is loaded,
+// logging is ready and the framework has opened what the configuration
+// enables (rt.DB when mysql.enabled is true), and before the server accepts
+// requests. Hand rt to the repo, create what else the service depends on,
+// register its cleanup, and return the handler.
 //
 // Cleanup registered with kitexx.OnShutdown runs after the server has left
 // Nacos and the last request in progress has finished, in reverse order:
@@ -57,14 +60,15 @@ type Config struct {
 // the version in effect; see "Configuration that follows Nacos" in
 // conf/README.md.
 //
-// Setup 在启动时被调用一次：此时配置已加载、日志已就绪，服务尚未开始接收请求。
-// 在这里创建服务依赖的资源、注册它们的清理动作，并返回 handler。用 kitexx.OnShutdown
+// Setup 在启动时被调用一次：此时配置已加载、日志已就绪、框架已经打开了配置里启用的东西
+// （mysql.enabled 为 true 时 rt.DB 可用），服务尚未开始接收请求。把 rt 交给 repo，
+// 创建服务依赖的其他资源、注册它们的清理动作，并返回 handler。用 kitexx.OnShutdown
 // 注册的清理会在服务从 Nacos 注销、最后一个处理中的请求结束之后，按相反顺序执行。
 // 返回 error 会中止启动，并打印一条明确的错误信息。
 // 需要在运行期间调整的配置来自 Nacos：kitexx.WatchConfig[Dynamic](cfg.Config) 返回的值，
 // 其 Get() 永远是当前生效的版本；见 conf/README.zh-CN.md 的“跟随 Nacos 的配置”一节。
-func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
-	return handler.New(), nil
+func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
+	return handler.New(repo.New(rt)), nil
 }
 
 // ServerOptions returns extra Kitex server options for this service, applied

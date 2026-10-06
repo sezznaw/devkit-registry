@@ -123,6 +123,12 @@ shutdown:
 | `shutdown.drain_timeout` | `15s` |
 | `otel.endpoint` | empty (off) |
 | `otel.sample_ratio` | `1.0` |
+| `mysql.enabled` | `false` |
+| `mysql.source` | `static` |
+| `mysql.role` | `tenant` |
+| `mysql.addr` | `127.0.0.1:3306` |
+| `mysql.max_open` / `max_idle` / `conn_max_lifetime` | `20` / `5` / `30m` |
+| `mysql.slow_query` | `200ms` |
 
 ## The request log and the trace_id
 

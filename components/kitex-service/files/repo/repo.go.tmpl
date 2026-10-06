@@ -1,0 +1,94 @@
+// Package repo is where the {{.Service}} service talks to its database: one
+// file per table or aggregate (repo/member.go, repo/wallet.go), methods on
+// Repo, every query with the request's ctx so that it is a span of the trace
+// and a record of the log with the trace_id.
+//
+// The connection is the framework's: mysql.enabled in conf/<env>.yaml makes
+// kitexx.NewRuntime open it before the service registers, and app.Setup hands
+// it here as rt.DB. A service without MySQL keeps this package as it is; nothing
+// calls it. Rules (see the common README, "MySQL with mysqlx"): no AutoMigrate,
+// the schema comes from the migrations; no associations and no Preload, join
+// explicitly; transactions explicit, WithTx; the writes of a money path in one
+// transaction.
+//
+// This file is yours: devkit creates it once and never rewrites it.
+//
+// repo 包是 {{.Service}} 服务和数据库打交道的地方：一张表或一个聚合一个文件
+// （repo/member.go、repo/wallet.go），方法写在 Repo 上，每条查询都带上请求的 ctx，
+// 这样它就是 trace 里的一个 span、日志里带 trace_id 的一条记录。
+//
+// 连接是框架的：conf/<env>.yaml 里 mysql.enabled 为 true 时，kitexx.NewRuntime 在服务
+// 注册之前打开它，app.Setup 把它作为 rt.DB 交到这里。不用 MySQL 的服务保留本包原样即可，
+// 没有人会调它。规则（见 common 的 README「用 mysqlx 连 MySQL」）：不用 AutoMigrate，表结构
+// 只来自迁移文件；不定义关联、不用 Preload，要连表就写明确的 Join；事务显式传递（WithTx），
+// 资金路径的多表写在一个事务里。
+//
+// 本文件归你所有：devkit 只创建一次，之后不会改写。
+package repo
+
+import (
+	"context"
+
+	"gorm.io/gorm"
+
+	"{{.CommonModule}}/kitexx"
+)
+
+// Repo holds the database handle the framework opened. Methods come as files
+// of this package; a method looks like:
+//
+//	type Member struct {
+//		UID       int64     `gorm:"column:uid;primaryKey"`
+//		Username  string    `gorm:"column:username"`
+//		Status    int32     `gorm:"column:status"`
+//		CreatedAt time.Time `gorm:"column:created_at"`
+//	}
+//
+//	func (Member) TableName() string { return "member" }
+//
+//	func (r *Repo) GetMember(ctx context.Context, uid int64) (*Member, error) {
+//		var m Member
+//		if err := r.db.WithContext(ctx).Where("uid = ?", uid).First(&m).Error; err != nil {
+//			return nil, err // gorm.ErrRecordNotFound when there is no such member
+//		}
+//		return &m, nil
+//	}
+//
+// Repo 保存框架打开的数据库句柄。方法按文件加在本包里，写法见上面的示例。
+type Repo struct {
+	db *gorm.DB
+}
+
+// New takes the database from what the framework opened. rt.DB is nil when
+// mysql.enabled is false; a method called then fails on the nil handle, which
+// is the right outcome for a service that forgot to enable its database.
+//
+// New 从框架打开的东西里取数据库。mysql.enabled 为 false 时 rt.DB 是 nil，
+// 此时调方法会因空句柄失败——忘了启用数据库的服务就该这样失败。
+func New(rt *kitexx.Runtime) *Repo {
+	return &Repo{db: rt.DB}
+}
+
+// WithTx returns a Repo whose methods run inside tx, which is how the writes
+// of one business operation share one transaction:
+//
+//	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+//		txr := r.WithTx(tx)
+//		if err := txr.DebitWallet(ctx, uid, amount); err != nil {
+//			return err
+//		}
+//		return txr.CreateBet(ctx, bet)
+//	})
+//
+// WithTx 返回一个在 tx 里执行方法的 Repo，一个业务操作的多次写入就这样共用一个事务。
+func (r *Repo) WithTx(tx *gorm.DB) *Repo {
+	return &Repo{db: tx}
+}
+
+// DB is the raw handle, for the rare query that does not fit a method. Always
+// WithContext(ctx).
+//
+// DB 是原始句柄，给偶尔不适合写成方法的查询用。永远要 WithContext(ctx)。
+func (r *Repo) DB(ctx context.Context) *gorm.DB {
+	return r.db.WithContext(ctx)
+}

@@ -19,6 +19,7 @@ import (
 
 	"{{.CommonModule}}/config"
 	"{{.CommonModule}}/hertzx"
+	"{{.CommonModule}}/kitexx"
 	"{{.CommonModule}}/zlog"
 
 	"{{.Module}}/app"
@@ -30,7 +31,7 @@ func main() {
 	//    to the executable, so the start directory does not matter.
 	//
 	//    A start-up problem is reported through the logger and ends the process
-	//    with status 1. Before hertzx.New the logger is configured by the
+	//    with status 1. Before kitexx.NewRuntime the logger is configured by the
 	//    environment (the Dockerfile sets ZLOG_FORMAT=json): this is the one line
 	//    a log collector must not fail to parse. zlog.Fatal is called where the
 	//    problem is, so the record names the step that failed.
@@ -41,14 +42,18 @@ func main() {
 
 	// 2. Framework: logging, the listener, the request log with a trace_id,
 	//    recovery from panics, and the checks on Nacos.
-	h, err := hertzx.New(cfg.Config)
+	rt, err := kitexx.NewRuntime(cfg.Config)
+	if err != nil {
+		zlog.Fatal("cannot start", zlog.Err(err))
+	}
+	h, err := hertzx.New(rt)
 	if err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 
 	// 3. Service: the clients of the RPC services it calls, its middleware and
 	//    its cleanup (app/app.go), then the routes generated from the IDL.
-	if err := app.Setup(&cfg, h); err != nil {
+	if err := app.Setup(&cfg, rt, h); err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 	router.GeneratedRegister(h)

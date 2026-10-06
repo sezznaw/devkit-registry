@@ -21,3 +21,13 @@ package deps
 // 并在 app.Setup 里创建。
 //
 //	var User userservice.Client
+
+import "{{.CommonModule}}/kitexx"
+
+// Runtime is what the framework opened (configuration, rt.DB when
+// mysql.enabled is true); app.Setup sets it. A gateway normally has no
+// database of its own, it calls the RPC services that do.
+//
+// Runtime 是框架打开的东西（配置，mysql.enabled 时的 rt.DB），由 app.Setup 赋值。
+// 网关通常没有自己的数据库，它调用有数据库的 RPC 服务。
+var Runtime *kitexx.Runtime
