@@ -29,6 +29,7 @@ package repo
 import (
 	"context"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
 	"{{.CommonModule}}/kitexx"
@@ -56,7 +57,8 @@ import (
 //
 // Repo 保存框架打开的数据库句柄。方法按文件加在本包里，写法见上面的示例。
 type Repo struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rdb *redis.Client // redis.enabled: cache, counters; nil otherwise
 }
 
 // New takes the database from what the framework opened. rt.DB is nil when
@@ -66,7 +68,7 @@ type Repo struct {
 // New 从框架打开的东西里取数据库。mysql.enabled 为 false 时 rt.DB 是 nil，
 // 此时调方法会因空句柄失败——忘了启用数据库的服务就该这样失败。
 func New(rt *kitexx.Runtime) *Repo {
-	return &Repo{db: rt.DB}
+	return &Repo{db: rt.DB, rdb: rt.Redis}
 }
 
 // WithTx returns a Repo whose methods run inside tx, which is how the writes
@@ -82,7 +84,7 @@ func New(rt *kitexx.Runtime) *Repo {
 //
 // WithTx 返回一个在 tx 里执行方法的 Repo，一个业务操作的多次写入就这样共用一个事务。
 func (r *Repo) WithTx(tx *gorm.DB) *Repo {
-	return &Repo{db: tx}
+	return &Repo{db: tx, rdb: r.rdb}
 }
 
 // DB is the raw handle, for the rare query that does not fit a method. Always
@@ -91,4 +93,12 @@ func (r *Repo) WithTx(tx *gorm.DB) *Repo {
 // DB 是原始句柄，给偶尔不适合写成方法的查询用。永远要 WithContext(ctx)。
 func (r *Repo) DB(ctx context.Context) *gorm.DB {
 	return r.db.WithContext(ctx)
+}
+
+// Redis is the client the framework opened, nil when redis.enabled is false.
+// Always pass ctx to a command.
+//
+// Redis 是框架打开的客户端，redis.enabled 为 false 时是 nil。命令永远要传 ctx。
+func (r *Repo) Redis() *redis.Client {
+	return r.rdb
 }

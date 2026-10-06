@@ -224,3 +224,13 @@ mysql:
   # user: tenant_a
   # password: "${MYSQL_PASSWORD}"
   # slow_query: 200ms
+
+# Redis / Valkey. Off by default. Locally your own server (docker run -d -p 6379:6379 valkey/valkey:8).
+#
+# Redis / Valkey。默认关。本机用自己的（docker run -d -p 6379:6379 valkey/valkey:8）。
+redis:
+  enabled: false
+  # source: static
+  # addr: "${REDIS_ADDR}"     # empty: 127.0.0.1:6379
+  # password: "${REDIS_PASSWORD}"
+  # db: 0

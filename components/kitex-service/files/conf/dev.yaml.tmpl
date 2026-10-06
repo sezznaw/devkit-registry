@@ -200,3 +200,16 @@ mysql:
   # role: tenant            # tenant: this tenant's database; platform: the platform database itself
                             # tenant：本租户的库；platform：平台库本身
   # slow_query: 200ms       # slower than this is a warn record "mysql slow query"
+
+# Redis / Valkey. Same rules as mysql: off by default; on, the framework connects
+# before the service registers and hands the client to repo/ as rt.Redis.
+# source platform: the tenant's valkey row of the platform's datasource table.
+# A method whose request has a request_id field needs this (idempotency store).
+#
+# Redis / Valkey。规则和 mysql 一样：默认关；开了框架在注册前连上，句柄作为 rt.Redis
+# 交给 repo/。source platform：平台 datasource 表里本租户 kind 为 valkey 的那一行。
+# 请求带 request_id 字段的方法（幂等）需要它。
+redis:
+  enabled: false
+  # source: platform
+  # role: tenant

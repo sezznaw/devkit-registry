@@ -43,15 +43,18 @@ type Config struct {
 // requests. Hand rt to the repo, create what else the service depends on,
 // register its cleanup, and return the handler.
 //
-// Cleanup registered with kitexx.OnShutdown runs after the server has left
+// MySQL and Redis are not opened here: mysql.enabled / redis.enabled in the
+// configuration make the framework open them, and repo.New(rt) takes them.
+// What the service opens itself (a client of some other system) registers
+// its cleanup with kitexx.OnShutdown, which runs after the server has left
 // Nacos and the last request in progress has finished, in reverse order:
 //
-//	rdb, err := redisx.New(context.Background(), cfg.Redis)
+//	nc, err := natsx.New(cfg.Nats)
 //	if err != nil {
 //		return nil, err
 //	}
-//	kitexx.OnShutdown("redis", rdb.Close)
-//	return handler.New(rdb), nil
+//	kitexx.OnShutdown("nats", nc.Close)
+//	return handler.New(repo.New(rt), nc), nil
 //
 // Returning an error stops the start-up with a plain message.
 //
