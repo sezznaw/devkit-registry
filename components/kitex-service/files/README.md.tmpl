@@ -26,5 +26,10 @@ make test
   registered in the Nacos on it), `dev` (the shared development server), `uat`
   and `prod`. To work from your machine against the development server's Nacos,
   see `register: false` in `conf/local.yaml`; a laptop never registers there.
+- Scheduled jobs go in `app/jobs.go`: a name, a cron schedule (UTC) and a
+  function. `make jobs` lists them, `make job NAME=<name>` runs one here. The
+  deployment turns the list into one Kubernetes CronJob per job; a run is a
+  root trace and a log with its `run_id`, locked against overlap and cancelled
+  at its timeout.
 - Shared infrastructure (logging, Nacos, Redis, ...) comes from
   `{{.CommonModule}}`.

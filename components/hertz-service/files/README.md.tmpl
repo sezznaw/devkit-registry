@@ -27,6 +27,11 @@ curl 'http://127.0.0.1:{{.Port}}/ping?message=hi'
   as `deps.User` and passes the `ctx` of the request on: it carries the trace_id
   to the RPC service. (Not `app.User`: a Hertz handler already has an `app`, the
   package of `*app.RequestContext`.)
+- Scheduled jobs go in `app/jobs.go`: a name, a cron schedule (UTC) and a
+  function. `make jobs` lists them, `make job NAME=<name>` runs one here. The
+  deployment turns the list into one Kubernetes CronJob per job; a run is a
+  root trace and a log with its `run_id`, locked against overlap and cancelled
+  at its timeout.
 - What is yours and what is the framework's: `app/`, `deps/`, `handler/`,
   `router/*/middleware.go`, `conf/*.yaml`, `idl.mk` and `go.mod` are yours and
   never rewritten. `cmd/{{.Service}}/main.go`, the Makefile, `.hz`, the CI files

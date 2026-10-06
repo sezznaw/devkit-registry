@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.11.0",
+      "default": "v0.12.0",
       "track": true
     },
     {
@@ -87,7 +87,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.11.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.12.0 && go mod tidy"
     ]
   },
   "once": [
@@ -100,6 +100,15 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.6.0",
+      "changes": [
+        "devkit-common v0.12.0: scheduled jobs. app/jobs.go (yours, created once) lists the jobs: a name, a cron schedule in UTC, a timeout and a function. main.go understands `--list-jobs` (the CI stores the list next to the image tag and the deployment makes a Kubernetes CronJob of each job) and `--job=<name>` (what the CronJob runs: the framework opens what the configuration enables, runs the job with a root span, a run_id in the log, a Redis lock against overlap and the timeout, and exits 1 on failure; no server, no Nacos registration). `make jobs` lists them, `make job NAME=<name>` runs one on your machine."
+      ],
+      "action": [
+        "An existing service has no app/jobs.go yet, and the new main.go needs it: copy app/jobs.go from a new service (`devkit ngs` into a scratch directory) or from the template, and `go mod tidy`. With an empty list nothing is scheduled; the CI still writes an empty jobs file."
+      ]
+    },
     {
       "version": "0.5.0",
       "changes": [

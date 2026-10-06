@@ -1,0 +1,54 @@
+package app
+
+import (
+	"context"
+	"time"
+
+	"{{.CommonModule}}/jobx"
+	"{{.CommonModule}}/kitexx"
+
+)
+
+// Jobs lists the scheduled jobs of this service. This file is yours; devkit
+// creates it once. A job is a function with a name and a cron schedule; the
+// schedule lives here, next to the code, and the deployment turns the list
+// into one Kubernetes CronJob per job (the CI runs `<binary> --list-jobs`
+// after every build). Each run is `<binary> --job=<name>`: the framework
+// opens what the configuration enables, gives the run a root span, a logger
+// with job / run_id / trace_id, a lock against overlapping runs, the
+// timeout, and exits with 1 on failure. Try one on your machine with
+// `make job NAME=<name>`.
+//
+// Jobs is also called with an empty Runtime to print the list, so it must
+// only register jobs: open nothing, query nothing, here.
+//
+// Rules for the function: idempotent and resumable (a run can be retried),
+// work in chunks and commit each, check ctx.Err() between chunks, read the
+// watermark from the data instead of trusting "last run time". Schedules
+// are UTC, five fields. Names: lowercase letters, digits and dashes.
+//
+// Jobs 列出本服务的定时任务。本文件归你所有，devkit 只创建一次。一个任务就是一个带名字和
+// cron 时间表的函数：时间表写在这里、和代码放在一起，部署会把清单变成一个任务一个
+// Kubernetes CronJob（CI 每次构建后执行 `<二进制> --list-jobs`）。每次运行就是
+// `<二进制> --job=<名>`：框架打开配置里启用的东西，给这次运行一个根 span、带 job / run_id /
+// trace_id 的 logger、防重叠的锁和超时，失败以 1 退出。本机试跑：`make job NAME=<名>`。
+//
+// 打印清单时 Jobs 也会被一个空的 Runtime 调用，所以这里只能登记任务，不能打开或查询任何东西。
+//
+// 函数的规矩：幂等且可续跑（一次运行可能被重试），分块处理、每块提交，块之间看 ctx.Err()，
+// 水位从数据里读而不是相信"上次运行时间"。时间表是 UTC、五段式。名字只用小写字母、数字和横线。
+func Jobs(rt *kitexx.Runtime) []jobx.Job {
+	_ = rt
+	_ = time.Minute
+	return []jobx.Job{
+		// {
+		// 	Name:        "reconcile-bets",
+		// 	Schedule:    "*/5 * * * *",
+		// 	Timeout:     10 * time.Minute,
+		// 	Description: "settle bets whose events have finished",
+		// 	Run:         func(ctx context.Context) error { return reconcile.Run(ctx, r) },
+		// },
+	}
+}
+
+var _ = context.Background

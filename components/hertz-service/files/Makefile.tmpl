@@ -16,7 +16,7 @@ HZ_VERSION       := {{.HzVersion}}
 KITEX_VERSION    := {{.KitexVersion}}
 THRIFTGO_VERSION := {{.ThriftgoVersion}}
 
-.PHONY: tools check-tools gen build run test lint docker clean
+.PHONY: tools check-tools gen build run job jobs test lint docker clean
 
 ## tools: install the code generators (once per machine)
 tools:
@@ -58,6 +58,16 @@ build:
 
 run:
 	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE)
+
+## job: run one scheduled job (app/jobs.go) once, here, against the local
+## configuration: make job NAME=reconcile-bets
+job:
+	@test -n "$(NAME)" || { echo "usage: make job NAME=<job name>   (make jobs lists them)"; exit 1; }
+	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE) --job=$(NAME)
+
+## jobs: list the scheduled jobs as the deployment sees them
+jobs:
+	@go run ./cmd/$(SERVICE) --list-jobs
 
 test:
 	go test ./...
