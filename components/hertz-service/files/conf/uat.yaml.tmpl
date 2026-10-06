@@ -210,3 +210,27 @@ redis:
   enabled: false
   # source: platform
   # role: tenant
+
+# Kafka (Redpanda), the event bus. Same rules: off by default; on, rt.Kafka
+# publishes (Publish) and the handlers registered in app.Setup (Subscribe) run
+# once the server is up. source platform: the tenant's kafka row of the
+# datasource table.
+#
+# Kafka（Redpanda），事件总线。规则相同：默认关；开了 rt.Kafka 发事件（Publish），
+# app.Setup 里注册的 Subscribe 在服务起来后开始消费。source platform：datasource 表里
+# 本租户 kind 为 kafka 的那一行。
+kafka:
+  enabled: false
+  # source: platform
+  # role: tenant
+  # max_retries: 3          # a failing handler is retried this often, then the message goes to <topic>.dlq
+
+# Centrifugo, push to clients. Off by default; on, rt.Centrifugo publishes to
+# channels and signs connection tokens. source platform: address from
+# infra.yaml in Nacos, secrets from the environment variables it names.
+#
+# Centrifugo，推送给客户端。默认关；开了 rt.Centrifugo 往频道推、给客户端签连接 token。
+# source platform：地址来自 Nacos 的 infra.yaml，密钥来自它指名的环境变量。
+centrifugo:
+  enabled: false
+  # source: platform

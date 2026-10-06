@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.10.0",
+      "default": "v0.11.0",
       "track": true
     },
     {
@@ -75,7 +75,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.10.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.11.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -88,6 +88,12 @@
     "repo/*"
   ],
   "changelog": [
+    {
+      "version": "0.12.0",
+      "changes": [
+        "devkit-common v0.11.0: events and push. kafka.enabled gives rt.Kafka (Publish with the standard envelope and the trace; Subscribe in app.Setup, consumers run by rt.Run once the server is up, failures retried then parked in <topic>.dlq); centrifugo.enabled gives rt.Centrifugo (Publish to a channel, ConnectionToken). main.go now ends with rt.Run(svr). The conf files gain kafka: and centrifugo: sections, off by default."
+      ]
+    },
     {
       "version": "0.11.0",
       "changes": [

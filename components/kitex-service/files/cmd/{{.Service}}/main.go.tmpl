@@ -63,9 +63,11 @@ func main() {
 	opts = append(opts, app.ServerOptions(&cfg)...)
 
 	// 4. Serve until SIGINT/SIGTERM, then stop gracefully: leave Nacos, keep
-	//    serving briefly, finish requests in progress, run the cleanup.
+	//    serving briefly, finish requests in progress, run the cleanup. With
+	//    event subscriptions (rt.Kafka.Subscribe in app.Setup), the consumers
+	//    start once the server is up and stop with the cleanup.
 	svr := svc.NewServer(h, opts...)
-	if err := kitexx.Run(svr, cfg.Config); err != nil {
+	if err := rt.Run(svr); err != nil {
 		os.Exit(1)
 	}
 }

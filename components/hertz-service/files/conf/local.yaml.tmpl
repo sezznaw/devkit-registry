@@ -234,3 +234,21 @@ redis:
   # addr: "${REDIS_ADDR}"     # empty: 127.0.0.1:6379
   # password: "${REDIS_PASSWORD}"
   # db: 0
+
+# Kafka (Redpanda). Off by default. Locally: docker run -d -p 9092:9092 redpandadata/redpanda redpanda start --mode dev-container
+#
+# Kafka（Redpanda）。默认关。本机：docker run -d -p 9092:9092 redpandadata/redpanda redpanda start --mode dev-container
+kafka:
+  enabled: false
+  # source: static
+  # brokers: ["127.0.0.1:9092"]
+
+# Centrifugo. Off by default. Locally: docker run -d -p 8000:8000 -p 9000:9000 centrifugo/centrifugo:v6 centrifugo --admin
+#
+# Centrifugo。默认关。本机：docker run -d -p 8000:8000 -p 9000:9000 centrifugo/centrifugo:v6 centrifugo --admin
+centrifugo:
+  enabled: false
+  # source: static
+  # api_addr: "http://127.0.0.1:9000"
+  # api_key: "${CENTRIFUGO_API_KEY}"
+  # token_secret: "${CENTRIFUGO_TOKEN_SECRET}"

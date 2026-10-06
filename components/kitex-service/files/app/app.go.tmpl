@@ -71,7 +71,13 @@ type Config struct {
 // 需要在运行期间调整的配置来自 Nacos：kitexx.WatchConfig[Dynamic](cfg.Config) 返回的值，
 // 其 Get() 永远是当前生效的版本；见 conf/README.zh-CN.md 的“跟随 Nacos 的配置”一节。
 func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
-	return handler.New(repo.New(rt)), nil
+	h := handler.New(repo.New(rt))
+	// Events this service consumes (kafka.enabled), one handler per topic:
+	//
+	//	rt.Kafka.Subscribe("events.wallet", h.OnWalletEvent)
+	//
+	// 本服务消费的事件（需要 kafka.enabled），一个主题一个 handler。
+	return h, nil
 }
 
 // ServerOptions returns extra Kitex server options for this service, applied
