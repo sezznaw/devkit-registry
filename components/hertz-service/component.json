@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.16.0",
+      "default": "v0.17.0",
       "track": true
     },
     {
@@ -87,7 +87,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.16.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.17.0 && go mod tidy"
     ]
   },
   "once": [
@@ -100,6 +100,12 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.11.0",
+      "changes": [
+        "devkit-common v0.17.0: provider callbacks. A provider's `callback:` entry (verify: hmac-sha256 / basic / custom, allow_cidrs, event_id, dedupe_ttl, archive_topic) and, in a Hertz service in the provider namespace, `webhookx.Handle(rt, h, '<provider>', '/callbacks/...', handler)` in app.Setup: source check, signature check, raw copy to Kafka, event-id dedupe through Redis, 500 on a handler error so the provider retries, metrics. Callback paths are the vendor's and are not in the IDL."
+      ]
+    },
     {
       "version": "0.10.1",
       "changes": [

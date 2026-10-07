@@ -271,6 +271,10 @@ providers: {}
 #      token_url: "https://id.vendor.com/token"
 #      client_id: "${PAYMENT_X_CLIENT_ID}"
 #      client_secret: "${PAYMENT_X_CLIENT_SECRET}"
+#    callback:                 # the provider calling us; the route is webhookx.Handle in app.Setup (Hertz service)
+#      verify: {type: hmac-sha256, secret: "${PAYMENT_X_CALLBACK_SECRET}", header: X-Signature, payload: "{timestamp}.{body}"}
+#      allow_cidrs: ["203.0.113.0/24"]
+#      event_id: {json: "data.id"}
 # Secrets: one environment variable per secret, named <PROVIDER>_<FIELD>, filled by
 # the operator in the deployment's provider-secrets Secret and injected automatically.
 #

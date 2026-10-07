@@ -142,6 +142,7 @@ shutdown:
 | `providers.<name>.retries` | `2` |
 | `providers.<name>.max_concurrent` | `64` |
 | `providers.<name>.auth.type` | none (bearer, basic, hmac-sha256, oauth2, custom) |
+| `providers.<name>.callback.dedupe_ttl` / `max_body` / `verify.max_skew` | `168h` / 1 MiB / `5m` |
 | `providers.<name>.breaker_failures` / `breaker_open_for` | `5` / `30s` |
 
 ## The request log and the trace_id
