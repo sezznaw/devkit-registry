@@ -289,4 +289,4 @@ providers: {}
 # webhookx.Server(rt) 拿引擎、webhookx.Handle 注册路由；随 RPC 服务器一起起停。默认端口 8081。
 callbacks:
   enabled: false
-  addr: 8081
+  addr: {{.CallbacksPort}}

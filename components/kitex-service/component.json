@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -43,8 +43,13 @@
     },
     {
       "name": "Port",
-      "description": "Listen port",
+      "description": "Listen port. Decided by the project's port table (idl/ports.yaml): the gateway is 8080, every other service owns ten ports from 8100 on; devkit ngs assigns the next free block",
       "default": "8888"
+    },
+    {
+      "name": "CallbacksPort",
+      "description": "Port of the callback listener (callbacks.addr). devkit sets it to Port + 1 from the project's port table",
+      "default": "8081"
     },
     {
       "name": "NacosAddr",
@@ -88,6 +93,12 @@
     "repo/*"
   ],
   "changelog": [
+    {
+      "version": "0.20.0",
+      "changes": [
+        "Ports come from the project's port table (idl/ports.yaml, written by devkit ngs 0.3.0): every service owns a block of ten from 8100 on, +0 RPC, +1 the callback listener (callbacks.addr is now Port + 1), the rest reserved; the same port in every environment and in the deployment's values. Existing services keep their ports until their table entry says otherwise."
+      ]
+    },
     {
       "version": "0.19.0",
       "changes": [
