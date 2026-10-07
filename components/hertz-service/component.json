@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -90,8 +90,23 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.6.2",
+      "default": "v0.7.0",
       "track": true
+    },
+    {
+      "name": "LocalMySQLDB",
+      "description": "Database of the local stack, written as the default of conf/local.yaml's mysql.db",
+      "default": "app"
+    },
+    {
+      "name": "LocalMySQLUser",
+      "description": "User of the local stack's database (conf/local.yaml default)",
+      "default": "app"
+    },
+    {
+      "name": "LocalMySQLPassword",
+      "description": "Password of the local stack's database (conf/local.yaml default; a laptop value, never a real secret)",
+      "default": "app"
     }
   ],
   "hooks": {
@@ -113,6 +128,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.21.0",
+      "changes": [
+        "devkit 0.7.0: the project-specific lint rules (vendor service, money words, error-code table) come from the IDL repository's devkit.yaml; the generic rules need no configuration. conf/local.yaml's database defaults come from the project's devkit.yaml vars (LocalMySQLDB / LocalMySQLUser / LocalMySQLPassword) instead of a fixed name."
+      ]
+    },
     {
       "version": "0.20.2",
       "changes": [

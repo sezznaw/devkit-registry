@@ -19,7 +19,7 @@
 //
 // @docs title: {{.Service}}
 // @docs description: {{.Service}} 的 HTTP 接口。默认 POST + JSON；响应统一 {code, msg, data}，业务结果看 code。
-// @docs tag member: 会员
+// @docs tag <domain>: <中文名>    （按 /v1/<domain>/... 的领域段分组，一个领域一行，例如 member: 会员）
 namespace go {{.Service | snake}}
 
 struct PingReq {

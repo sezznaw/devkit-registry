@@ -222,9 +222,9 @@ mysql:
   enabled: false
   # source: static
   # addr: "${MYSQL_ADDR:-127.0.0.1:3306}"
-  # db: tenant_a
-  # user: tenant_a
-  # password: "${MYSQL_PASSWORD:-tenant_a}"
+  # db: {{.LocalMySQLDB}}
+  # user: {{.LocalMySQLUser}}
+  # password: "${MYSQL_PASSWORD:-{{.LocalMySQLPassword}}}"
   # slow_query: 200ms
 
 # Redis / Valkey. Off by default. Locally the project's stack (infra/local/local.sh up) has one on 6379.
