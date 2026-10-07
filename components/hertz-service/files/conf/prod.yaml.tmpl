@@ -243,3 +243,21 @@ centrifugo:
 metrics:
   enabled: true
   addr: 9091
+
+# External HTTP APIs this service calls (a sports data vendor, a payment
+# gateway): rt.Provider("<name>") in app.Setup. Timeout per attempt (default
+# 5s); retries (default 2) only for GET/HEAD/OPTIONS/PUT/DELETE on network
+# errors, 429 and 5xx, a POST is never retried; secrets come from the
+# environment. A service with providers is deployed to the -provider
+# namespace (the only one that may leave the cluster); the framework checks.
+#
+# 本服务要调的外部 HTTP 接口（赛事数据源、支付通道）：app.Setup 里 rt.Provider("<名>")。单次超时默认 5s；
+# 重试默认 2 次，只对 GET/HEAD/OPTIONS/PUT/DELETE 且只在网络错误、429、5xx 时，POST 绝不重试；密钥来自环境变量。
+# 有 providers 的服务要部署到 -provider namespace（唯一能出网的），框架启动时会检查。
+providers: {}
+#  odds-feed:
+#    base_url: "https://api.vendor.com"
+#    timeout: 3s
+#    retries: 2
+#    headers:
+#      X-Api-Key: "${ODDS_FEED_API_KEY}"

@@ -53,6 +53,10 @@ type Config struct {
 // In a handler, pass the ctx of the request on: deps.User.GetUser(ctx, req).
 // It carries the trace_id to the RPC service.
 //
+// An external HTTP API (listed under providers: in conf/<env>.yaml) is a
+// client the framework built: deps.Odds = rt.Provider("odds-feed"), then
+// deps.Odds.GetJSON(ctx, "/v1/odds", &out) in a handler.
+//
 // Setup 在启动时被调用一次：此时配置已加载、日志已就绪，服务尚未开始接收请求。
 // 在这里创建路由需要的东西并放进 deps 包，用 h.Use 添加对所有路由生效的中间件，用 hertzx.OnShutdown
 // 注册清理动作：它们会在服务从 Nacos 注销、最后一个处理中的请求结束之后，按相反顺序执行。

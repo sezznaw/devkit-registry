@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.13.0",
+      "default": "v0.14.0",
       "track": true
     },
     {
@@ -87,7 +87,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.13.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.14.0 && go mod tidy"
     ]
   },
   "once": [
@@ -100,6 +100,15 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.8.0",
+      "changes": [
+        "devkit-common v0.14.0: external HTTP APIs. List them under `providers:` in conf/<env>.yaml (base_url, timeout, retries, headers from the environment) and take the client in app.Setup with rt.Provider('<name>'): GetJSON / PostJSON, or R() for anything resty does. Every call carries the trace, is one log record without secrets, and is counted (http_client_*). Retries only for idempotent methods on network errors, 429 and 5xx; a POST is never retried. A service with providers must be deployed to the -provider namespace; the framework refuses to start elsewhere."
+      ],
+      "action": [
+        "conf/*.yaml are yours: add `providers: {}` (or your providers) to each; without the section nothing changes."
+      ]
+    },
     {
       "version": "0.7.0",
       "changes": [

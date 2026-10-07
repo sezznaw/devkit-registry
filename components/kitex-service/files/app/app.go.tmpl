@@ -56,6 +56,11 @@ type Config struct {
 //	kitexx.OnShutdown("nats", nc.Close)
 //	return handler.New(repo.New(rt), nc), nil
 //
+// An external HTTP API (listed under providers: in conf/<env>.yaml) is a
+// client the framework built; take it here and hand it to the handler:
+//
+//	odds := rt.Provider("odds-feed")   // odds.GetJSON(ctx, "/v1/odds", &out)
+//
 // Returning an error stops the start-up with a plain message.
 //
 // Settings that should change while the service runs come from Nacos:
