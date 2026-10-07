@@ -15,6 +15,10 @@ curl 'http://127.0.0.1:{{.Port}}/ping?message=hi'
   annotation such as `api.get="/user/:id"` says which. Change it there, run
   `make gen`, fill in the new function in `handler/`, and open a pull request in
   the IDL repository.
+- The API documentation is generated from the IDL: `make gen` writes
+  `cmd/{{.Service}}/openapi.yaml` and the service serves it at `/docs`
+  (interactive, "Try it out") and `/openapi.yaml` when `docs.enabled` is on
+  (local, dev). Comments on methods and fields in the IDL are the descriptions.
 - What `make gen` writes: `hertz_gen/` (request and response structs),
   `router/` (the routes) and `kitex_gen/` (clients of the RPC services). None of
   it is committed; CI regenerates it. The exceptions are yours and are

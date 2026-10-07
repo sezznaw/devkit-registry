@@ -15,6 +15,7 @@
 package main
 
 import (
+	_ "embed"
 	"os"
 
 	"{{.CommonModule}}/config"
@@ -25,6 +26,12 @@ import (
 	"{{.Module}}/app"
 	"{{.Module}}/router"
 )
+
+// openAPI is the API documentation generated from the IDL by `make gen`
+// (cmd/apidoc); served at /docs and /openapi.yaml when docs.enabled.
+//
+//go:embed openapi.yaml
+var openAPI []byte
 
 func main() {
 	// 0. Jobs. `--list-jobs` prints the scheduled jobs (app/jobs.go) as JSON
@@ -74,6 +81,7 @@ func main() {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 	router.GeneratedRegister(h)
+	hertzx.ServeDocs(h, cfg.Config, openAPI)
 
 	// 4. Serve until SIGINT/SIGTERM, then stop gracefully: leave Nacos, keep
 	//    serving briefly, finish requests in progress, run the cleanup.

@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.20.0",
+      "default": "v0.21.0",
       "track": true
     },
     {
@@ -76,6 +76,12 @@
       "track": true
     },
     {
+      "name": "SwaggerGenVersion",
+      "description": "thrift-gen-http-swagger plugin version (API documentation from the IDL). Decided by the template for every service",
+      "default": "v0.0.0-20260422092556-ee5e0551a20c",
+      "track": true
+    },
+    {
       "name": "ThriftgoVersion",
       "description": "thriftgo tool version. Decided by the template for every service; cannot be set per service or project",
       "default": "v0.4.5",
@@ -84,10 +90,10 @@
   ],
   "hooks": {
     "post_install": [
-      "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
+      "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.20.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.21.0 && go mod tidy"
     ]
   },
   "once": [
@@ -100,6 +106,15 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.15.0",
+      "changes": [
+        "API documentation from the IDL (devkit-common v0.21.0). `make gen` now also writes cmd/<service>/openapi.yaml (CloudWeGo thrift-gen-http-swagger, installed by `make tools`), main.go embeds it, and with `docs.enabled` (new conf section: on in local/dev/uat, off in prod) the service serves /docs (Swagger UI with Try it out) and /openapi.yaml. Comments in the IDL are the descriptions."
+      ],
+      "action": [
+        "Run `make tools` once (the new generator), add the `docs:` section to conf/*.yaml, and run `make gen` before building: main.go embeds cmd/<service>/openapi.yaml."
+      ]
+    },
     {
       "version": "0.14.0",
       "changes": [

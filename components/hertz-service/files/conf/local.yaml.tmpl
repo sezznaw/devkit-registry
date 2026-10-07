@@ -319,3 +319,10 @@ providers: {}
 # the operator in the deployment's provider-secrets Secret and injected automatically.
 #
 # 密钥：一个密钥一个环境变量，命名 <厂商>_<字段>，运维填进部署的 provider-secrets Secret，自动注入。
+
+# API documentation: /docs (Swagger UI, "Try it out" against this service) and
+# /openapi.yaml, generated from the IDL by make gen. Off in production.
+#
+# 接口文档：/docs（Swagger UI，可直接试调）和 /openapi.yaml，make gen 从 IDL 生成。生产关。
+docs:
+  enabled: true
