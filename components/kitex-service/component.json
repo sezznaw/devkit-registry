@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -88,6 +88,12 @@
     "repo/*"
   ],
   "changelog": [
+    {
+      "version": "0.17.1",
+      "changes": [
+        "conf/*.yaml comments: the English and Chinese notes on provider secrets are separated by an empty line, as everywhere else."
+      ]
+    },
     {
       "version": "0.17.0",
       "changes": [

@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -100,6 +100,12 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.10.1",
+      "changes": [
+        "conf/*.yaml comments: the English and Chinese notes on provider secrets are separated by an empty line, as everywhere else."
+      ]
+    },
     {
       "version": "0.10.0",
       "changes": [
