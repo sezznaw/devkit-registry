@@ -253,6 +253,18 @@ centrifugo:
   # api_key: "${CENTRIFUGO_API_KEY}"
   # token_secret: "${CENTRIFUGO_TOKEN_SECRET}"
 
+# Object storage, off by default. Locally: docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3
+# then create the bucket once (any S3 client). source static points at it.
+#
+# 对象存储，默认关。本机：docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3，再建一次桶（任意 S3 客户端）。
+s3:
+  enabled: false
+  # source: static
+  # endpoint: "http://127.0.0.1:8333"
+  # bucket: sportsbook-local-assets
+  # access_key: "${S3_ACCESS_KEY_ID}"
+  # secret_key: "${S3_SECRET_ACCESS_KEY}"
+
 # Prometheus metrics. Off on a laptop: nothing scrapes them, and two services
 # would fight over the port. Turn on to look at http://127.0.0.1:9091/metrics.
 #

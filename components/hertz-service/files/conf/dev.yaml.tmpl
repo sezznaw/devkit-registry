@@ -238,6 +238,17 @@ centrifugo:
   enabled: false
   # source: platform
 
+# Object storage (SeaweedFS on dev, any S3 later), off by default; on, rt.S3
+# stores and reads files under this service's prefix and signs download /
+# upload URLs. source platform: the datasource row of kind s3 (endpoint,
+# bucket, the variables holding the keys), injected by the deployment.
+#
+# 对象存储（dev 是 SeaweedFS，以后可换任何 S3），默认关；开了 rt.S3 在本服务前缀下存取文件、签下载/上传链接。
+# source platform：数据源表 kind=s3 那行（地址、桶、密钥变量名），由部署注入。
+s3:
+  enabled: false
+  # source: platform
+
 # Prometheus metrics on a port of their own (default 9091), scraped by the
 # deployment: requests by method and result code, latency, Go runtime, MySQL
 # pool, Redis commands, Kafka events. Nothing to write in the service.
