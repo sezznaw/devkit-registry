@@ -13,7 +13,9 @@
 # executable. So the service starts from any working directory.
 #
 # ${NAME} anywhere in this file is replaced by the environment variable NAME
-# before the file is parsed. Use it for secrets; never commit real passwords.
+# before the file is parsed; ${NAME:-default} takes the default when NAME is
+# not set. Local values live here as defaults, so `make run` needs no exports;
+# secrets of real environments stay in variables, never in this file.
 #
 # This file is yours: devkit creates it once and never rewrites it. New settings
 # introduced by later template versions are announced by `devkit update` and
@@ -32,8 +34,8 @@
 # conf 目录的查找顺序：环境变量 CONF_DIR、当前目录下的 conf、可执行文件旁边。
 # 因此从任何工作目录启动服务都可以。
 #
-# 文件中任何位置的 ${NAME} 都会在解析前被替换成环境变量 NAME 的值。
-# 密码等敏感信息请用这种方式传入，不要把真实密码提交进仓库。
+# 文件中任何位置的 ${NAME} 都会在解析前被替换成环境变量 NAME 的值；${NAME:-默认值} 在 NAME 没设时取默认值。
+# 本机的值就写成默认值，`make run` 不用先 export；真实环境的密码只放在环境变量里，不进本文件。
 #
 # 本文件归你所有：devkit 只创建一次，之后不会改写。以后模板新增的配置项，
 # `devkit update` 会在升级后提示，完整说明见 conf/README.zh-CN.md。
@@ -114,8 +116,8 @@ nacos:
   #   ~/.zshrc： export NACOS_USERNAME=nacos NACOS_PASSWORD=...
   #   GoLand：   Run | Edit Configurations | Environment
   # Nacos 没有开启鉴权时，两个都不设置即可。
-  username: "${NACOS_USERNAME}"
-  password: "${NACOS_PASSWORD}"
+  username: "${NACOS_USERNAME:-nacos}"
+  password: "${NACOS_PASSWORD:-nacos}"
 
   # Working against the Nacos of the development server instead of your own
   # (you only have this service, the ones it talks to run over there): put that
@@ -219,39 +221,39 @@ otel:
 mysql:
   enabled: false
   # source: static
-  # addr: "${MYSQL_ADDR}"   # empty: 127.0.0.1:3306
+  # addr: "${MYSQL_ADDR:-127.0.0.1:3306}"
   # db: tenant_a
   # user: tenant_a
-  # password: "${MYSQL_PASSWORD}"
+  # password: "${MYSQL_PASSWORD:-tenant_a}"
   # slow_query: 200ms
 
-# Redis / Valkey. Off by default. Locally your own server (docker run -d -p 6379:6379 valkey/valkey:8).
+# Redis / Valkey. Off by default. Locally the project's stack (infra/local/local.sh up) has one on 6379.
 #
-# Redis / Valkey。默认关。本机用自己的（docker run -d -p 6379:6379 valkey/valkey:8）。
+# Redis / Valkey。默认关。本机用项目的一键环境（infra/local/local.sh up），6379。
 redis:
   enabled: false
   # source: static
-  # addr: "${REDIS_ADDR}"     # empty: 127.0.0.1:6379
-  # password: "${REDIS_PASSWORD}"
+  # addr: "${REDIS_ADDR:-127.0.0.1:6379}"
+  # password: "${REDIS_PASSWORD:-}"
   # db: 0
 
-# Kafka (Redpanda). Off by default. Locally: docker run -d -p 9092:9092 redpandadata/redpanda redpanda start --mode dev-container
+# Kafka (Redpanda). Off by default. Locally the project's stack (infra/local/local.sh up --full) has one on 9092.
 #
-# Kafka（Redpanda）。默认关。本机：docker run -d -p 9092:9092 redpandadata/redpanda redpanda start --mode dev-container
+# Kafka（Redpanda）。默认关。本机用项目的一键环境（infra/local/local.sh up --full），9092。
 kafka:
   enabled: false
   # source: static
   # brokers: ["127.0.0.1:9092"]
 
-# Centrifugo. Off by default. Locally: docker run -d -p 8000:8000 -p 9000:9000 centrifugo/centrifugo:v6 centrifugo --admin
+# Centrifugo. Off by default. Locally the project's stack (infra/local/local.sh up --full) serves API and WebSocket on 8000.
 #
-# Centrifugo。默认关。本机：docker run -d -p 8000:8000 -p 9000:9000 centrifugo/centrifugo:v6 centrifugo --admin
+# Centrifugo。默认关。本机用项目的一键环境（infra/local/local.sh up --full），API 和 WebSocket 都在 8000。
 centrifugo:
   enabled: false
   # source: static
-  # api_addr: "http://127.0.0.1:9000"
-  # api_key: "${CENTRIFUGO_API_KEY}"
-  # token_secret: "${CENTRIFUGO_TOKEN_SECRET}"
+  # api_addr: "${CENTRIFUGO_API_ADDR:-http://127.0.0.1:8000}"
+  # api_key: "${CENTRIFUGO_API_KEY:-local-api-key}"
+  # token_secret: "${CENTRIFUGO_TOKEN_SECRET:-local-token-secret}"
 
 # Calls to other services (kitexx.ClientOptions): 3s per call, 1s to connect,
 # one retry only when the request was never sent, a circuit breaker per
@@ -274,8 +276,8 @@ s3:
   # source: static
   # endpoint: "http://127.0.0.1:8333"
   # bucket: sportsbook-local-assets
-  # access_key: "${S3_ACCESS_KEY_ID}"
-  # secret_key: "${S3_SECRET_ACCESS_KEY}"
+  # access_key: "${S3_ACCESS_KEY_ID:-any}"
+  # secret_key: "${S3_SECRET_ACCESS_KEY:-any}"
 
 # Prometheus metrics. Off on a laptop: nothing scrapes them, and two services
 # would fight over the port. Turn on to look at http://127.0.0.1:9091/metrics.
