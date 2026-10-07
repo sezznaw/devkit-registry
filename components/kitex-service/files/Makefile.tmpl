@@ -38,6 +38,13 @@ gen: check-tools
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) $(IDL_DIR)/$$f || exit 1; \
 	done
+	@# idl.lock: the IDL commit this code was generated from. CI builds against exactly it
+	@# (reproducible; nobody else's IDL change slips in). Not rewritten inside CI.
+	@if [ -z "$$CI" ] && git -C $(IDL_DIR) rev-parse HEAD >/dev/null 2>&1; then \
+		git -C $(IDL_DIR) rev-parse HEAD > idl.lock; \
+		if [ -n "$$(git -C $(IDL_DIR) status --porcelain)" ]; then echo ">> idl.lock: the IDL checkout has uncommitted changes; commit and push the IDL before pushing this service"; fi; \
+		if [ -z "$$(git -C $(IDL_DIR) branch -r --contains HEAD 2>/dev/null)" ]; then echo ">> idl.lock: IDL commit $$(git -C $(IDL_DIR) rev-parse --short HEAD) is not pushed yet; push the IDL first or CI cannot fetch it"; fi; \
+	fi
 
 build:
 	go build -o bin/$(SERVICE) ./cmd/$(SERVICE)

@@ -29,6 +29,15 @@ default:
     - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/".insteadOf "https://${CI_SERVER_HOST}/"
 {{- end}}
     - git clone --depth 1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${IDL_PROJECT}.git" "$IDL_DIR"
+    # idl.lock (written by make gen) names the IDL commit this code was generated from; build against exactly it.
+    - |
+      if [ -f idl.lock ]; then
+        SHA=$(cat idl.lock)
+        if ! git -C "$IDL_DIR" fetch -q --depth 1 origin "$SHA" 2>/dev/null; then
+          echo "idl.lock 指向的 IDL 提交 $SHA 不在服务器上：先推送 idl 仓库，再推本服务。"; exit 1
+        fi
+        git -C "$IDL_DIR" checkout -q "$SHA"
+      fi
     - make tools
     - make gen
     - go mod tidy

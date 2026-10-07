@@ -26,6 +26,13 @@ jobs:
           # A token that can read the IDL repository (and private Go modules).
           token: ${{"{{"}} secrets.ORG_READ_TOKEN {{"}}"}}
 {{- end}}
+      - name: IDL at the locked commit (idl.lock)
+        run: |
+          if [ -f idl.lock ]; then
+            SHA=$(cat idl.lock)
+            git -C .idl fetch -q --depth 1 origin "$SHA" || { echo "IDL commit $SHA from idl.lock is not on the server: push the idl repository first"; exit 1; }
+            git -C .idl checkout -q "$SHA"
+          fi
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod

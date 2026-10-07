@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -77,7 +77,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.5.0",
+      "default": "v0.6.0",
       "track": true
     }
   ],
@@ -96,9 +96,19 @@
     "README.md",
     "conf/*.yaml",
     "handler/*",
-    "repo/*"
+    "repo/*",
+    "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.28.0",
+      "changes": [
+        "`make gen` writes idl.lock (the IDL commit the code was generated from) and CI builds against exactly that commit; a lock that lags the IDL checkout or an IDL commit not yet pushed fails `make lint` on your machine instead of the pipeline. Commit idl.lock with the service."
+      ],
+      "action": [
+        "Run `make gen` once and commit the new idl.lock."
+      ]
+    },
     {
       "version": "0.27.0",
       "changes": [
