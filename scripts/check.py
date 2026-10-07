@@ -121,6 +121,10 @@ COMMENTED_KEY = re.compile(r"^\s*(#|//)\s{0,3}[A-Za-z_][A-Za-z0-9_]*:(\s|$)")
 
 
 def comment_kind(line):
+    # `// @docs title: ...` and similar directives are data, not prose: they may
+    # mix scripts and sit next to either language.
+    if re.match(r"^\s*(//|#)\s*@\w+", line):
+        return None
     s = line.strip()
     if not s.startswith(("#", "//")):
         return "none"
