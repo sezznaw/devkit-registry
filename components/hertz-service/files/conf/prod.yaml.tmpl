@@ -233,3 +233,13 @@ kafka:
 centrifugo:
   enabled: false
   # source: platform
+
+# Prometheus metrics on a port of their own (default 9091), scraped by the
+# deployment: requests by method and result code, latency, Go runtime, MySQL
+# pool, Redis commands, Kafka events. Nothing to write in the service.
+#
+# Prometheus 指标，单独端口（默认 9091），由部署抓取：每个方法的请求数和结果码、耗时、Go 运行时、
+# MySQL 连接池、Redis 命令、Kafka 事件。服务里不用写任何代码。
+metrics:
+  enabled: true
+  addr: 9091

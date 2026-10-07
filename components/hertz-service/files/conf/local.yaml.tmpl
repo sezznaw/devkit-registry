@@ -252,3 +252,11 @@ centrifugo:
   # api_addr: "http://127.0.0.1:9000"
   # api_key: "${CENTRIFUGO_API_KEY}"
   # token_secret: "${CENTRIFUGO_TOKEN_SECRET}"
+
+# Prometheus metrics. Off on a laptop: nothing scrapes them, and two services
+# would fight over the port. Turn on to look at http://127.0.0.1:9091/metrics.
+#
+# Prometheus 指标。本机关：没人抓，两个服务还会抢端口。想看就打开，访问 http://127.0.0.1:9091/metrics。
+metrics:
+  enabled: false
+  addr: 9091
