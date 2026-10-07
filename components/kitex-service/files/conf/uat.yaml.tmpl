@@ -279,3 +279,14 @@ providers: {}
 # the operator in the deployment's provider-secrets Secret and injected automatically.
 #
 # 密钥：一个密钥一个环境变量，命名 <厂商>_<字段>，运维填进部署的 provider-secrets Secret，自动注入。
+
+# Callback listener (the vendor-integration service only): an HTTP port the
+# deployment exposes to providers under /callbacks/. webhookx.Server(rt) in
+# app.Setup returns the engine, routes are webhookx.Handle; it starts and
+# stops with the RPC server. Default port 8081.
+#
+# 回调监听（只有对接厂商的那个服务开）：部署只把这个端口的 /callbacks/ 开给厂商。app.Setup 里
+# webhookx.Server(rt) 拿引擎、webhookx.Handle 注册路由；随 RPC 服务器一起起停。默认端口 8081。
+callbacks:
+  enabled: false
+  addr: 8081

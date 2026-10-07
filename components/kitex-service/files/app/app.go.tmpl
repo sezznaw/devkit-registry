@@ -61,6 +61,13 @@ type Config struct {
 //
 //	odds := rt.Provider("odds-feed")   // odds.GetJSON(ctx, "/v1/odds", &out)
 //
+// The callbacks providers send (callbacks.enabled, their callback: entries)
+// are routes on the framework's listener; the vendor dictates path and body,
+// so they are not in the IDL:
+//
+//	cb := webhookx.Server(rt)
+//	webhookx.Handle(rt, cb, "payment-x", "/callbacks/payment-x/paid", callbacks.OnPaid)
+//
 // Returning an error stops the start-up with a plain message.
 //
 // Settings that should change while the service runs come from Nacos:
