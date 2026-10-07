@@ -21,7 +21,6 @@
 // @docs tag member: 会员
 namespace go {{.Service | snake}}
 
-// 健康检查。返回 pong: <message>。
 struct PingReq {
     1: string message (api.query="message")
 }
@@ -31,5 +30,6 @@ struct PingResp {
 }
 
 service {{.Service | title}}Service {
+    // 健康检查。返回 pong: <message>。
     PingResp Ping(1: PingReq req) (api.get="/ping")
 }
