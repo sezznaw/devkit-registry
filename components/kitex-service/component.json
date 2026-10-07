@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.28.0",
+  "version": "0.28.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -77,7 +77,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.6.0",
+      "default": "v0.6.1",
       "track": true
     }
   ],
@@ -100,6 +100,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.28.1",
+      "changes": [
+        "devkit 0.6.1: the idl-lock rule does not ask a shallow CI clone whether the IDL commit is pushed."
+      ]
+    },
     {
       "version": "0.28.0",
       "changes": [
