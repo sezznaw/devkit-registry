@@ -9,8 +9,19 @@
 //   api.path  = "name"    the field comes from the path           (/user/:name)
 //   api.body  = "name"    the field comes from the JSON body
 //   api.header = "Name"   the field comes from a request header
+// The documentation page (/docs) is generated from this file: the first sentence
+// of a method's comment is the endpoint's title, the rest its description, and
+// these @docs lines name the page and its sections (one tag per path domain,
+// /v1/<domain>/...).
+//
+// 文档页（/docs）从本文件生成：方法注释的第一句是接口标题，其余是说明；下面的 @docs 行给页面
+// 起名和分组（按路径的领域段 /v1/<领域>/... 分组，一个领域一个 tag）。
+// @docs title: {{.Service}}
+// @docs description: {{.Service}} 的 HTTP 接口。默认 POST + JSON；响应统一 {code, msg, data}，业务结果看 code。
+// @docs tag member: 会员
 namespace go {{.Service | snake}}
 
+// 健康检查。返回 pong: <message>。
 struct PingReq {
     1: string message (api.query="message")
 }
