@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -106,6 +106,12 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.16.2",
+      "changes": [
+        "make gen no longer passes -title to apidoc: the page title comes from the IDL's `// @docs title:` line (the service name when there is none)."
+      ]
+    },
     {
       "version": "0.16.1",
       "changes": [

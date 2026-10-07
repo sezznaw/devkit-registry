@@ -57,7 +57,7 @@ gen: check-tools
 	done
 	@echo ">> apidoc $(API_IDL) -> cmd/$(SERVICE)/openapi.yaml"
 	@go run {{.CommonModule}}/cmd/apidoc -idl $(IDL_DIR)/$(API_IDL) -out cmd/$(SERVICE)/openapi.yaml \
-		-title "$(SERVICE)" -version "$$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
+		-version "$$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
 
 build:
 	go build -o bin/$(SERVICE) ./cmd/$(SERVICE)
