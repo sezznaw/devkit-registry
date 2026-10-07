@@ -278,3 +278,7 @@ providers: {}
 #    retries: 2
 #    headers:
 #      X-Api-Key: "${ODDS_FEED_API_KEY}"
+#    max_concurrent: 64        # calls in flight at once; the rest wait within their timeout
+#    breaker_failures: 5       # consecutive failures that open the circuit (0 = off)
+#    breaker_open_for: 30s     # fail fast for this long, then one probe
+#    debug: false              # local only: log every request and response with bodies
