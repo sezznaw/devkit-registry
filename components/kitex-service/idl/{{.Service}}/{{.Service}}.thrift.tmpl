@@ -11,5 +11,6 @@ struct PingResp {
 }
 
 service {{.Service | title}}Service {
+    // 健康检查。回显 message。
     PingResp Ping(1: PingReq req)
 }

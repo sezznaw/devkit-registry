@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -86,6 +86,12 @@
       "description": "thriftgo tool version. Decided by the template for every service; cannot be set per service or project",
       "default": "v0.4.5",
       "track": true
+    },
+    {
+      "name": "DevkitVersion",
+      "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
+      "default": "v0.5.0",
+      "track": true
     }
   ],
   "hooks": {
@@ -106,6 +112,12 @@
     "handler/*/*"
   ],
   "changelog": [
+    {
+      "version": "0.19.0",
+      "changes": [
+        "`make lint` now also runs `devkit lint` (via go run, nothing to install): the team's rules from idl/AGENTS.md checked on your machine and in CI's test stage; a finding fails the pipeline. A line opts out with //devkit:lint-ignore <rule>."
+      ]
+    },
     {
       "version": "0.18.0",
       "changes": [

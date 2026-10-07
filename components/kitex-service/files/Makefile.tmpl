@@ -12,6 +12,7 @@ IDLS     ?= $(SERVICE)/$(SERVICE).thrift
 
 KITEX_VERSION    := {{.KitexVersion}}
 THRIFTGO_VERSION := {{.ThriftgoVersion}}
+DEVKIT_VERSION   := {{.DevkitVersion}}
 
 .PHONY: tools check-tools gen build run job jobs test lint docker clean
 
@@ -57,8 +58,10 @@ jobs:
 test:
 	go test ./...
 
+## lint: go vet, then devkit lint (the team's rules: see idl/AGENTS.md; a line opts out with //devkit:lint-ignore <rule>)
 lint:
 	go vet ./...
+	go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lint --idl $(IDL_DIR)
 
 docker:
 	docker build -t $(SERVICE):$$(git rev-parse --short HEAD) .
