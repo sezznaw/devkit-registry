@@ -253,6 +253,18 @@ centrifugo:
   # api_key: "${CENTRIFUGO_API_KEY}"
   # token_secret: "${CENTRIFUGO_TOKEN_SECRET}"
 
+# Calls to other services (kitexx.ClientOptions): 3s per call, 1s to connect,
+# one retry only when the request was never sent, a circuit breaker per
+# service and method. The defaults suit the cluster; uncomment to change.
+#
+# 对其他服务的调用（kitexx.ClientOptions）：单次 3s、建连 1s、只在请求没发出去时重试 1 次、按服务和方法熔断。
+# 默认值就是集群里该有的，要改再打开。
+# rpc_client:
+#   timeout: 3s
+#   connect_timeout: 1s
+#   retries: 1
+#   breaker: true
+
 # Object storage, off by default. Locally: docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3
 # then create the bucket once (any S3 client). source static points at it.
 #

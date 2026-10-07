@@ -130,6 +130,8 @@ shutdown:
 | `kafka.max_retries` | `3` |
 | `centrifugo.enabled` | `false` |
 | `centrifugo.token_ttl` | `24h` |
+| `rpc_client.timeout` / `connect_timeout` | `3s` / `1s` |
+| `rpc_client.retries` / `breaker` | `1` (unsent requests only) / `true` |
 | `s3.enabled` | `false` |
 | `s3.source` | `static` |
 | `s3.prefix` | the service name |
