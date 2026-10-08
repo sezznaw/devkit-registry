@@ -10,7 +10,7 @@ authoritative in `../devkit/docs/registry.md`; read that before editing.
 There are two components, both whole-project templates: `kitex-service`
 behind `devkit ngs` (RPC) and `hertz-service` behind `devkit nas` (HTTP API) (the early `logger` and `grpc` components were removed; shared
 code lives in the Go module `github.com/sezznaw/devkit-common`, checked out
-locally at `../common`).
+locally at `../devkit-common`).
 
 ## Layout and contract
 

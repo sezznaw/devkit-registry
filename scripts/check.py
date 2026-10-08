@@ -18,11 +18,11 @@ def err(msg):
 
 def common_gomod(module, version):
     """go.mod of the pinned common release: sibling checkout first, else GitHub."""
-    sibling = os.path.join(ROOT, "..", "common")
+    sibling = os.path.join(ROOT, "..", "devkit-common")
     if os.path.isdir(os.path.join(sibling, ".git")):
         r = subprocess.run(["git", "-C", sibling, "show", f"{version}:go.mod"], capture_output=True, text=True)
         if r.returncode == 0:
-            return r.stdout, f"../common at tag {version}"
+            return r.stdout, f"../devkit-common at tag {version}"
     m = re.match(r"github\.com/([^/]+/[^/]+)$", module)
     if not m:
         return None, None
