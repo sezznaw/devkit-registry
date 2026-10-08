@@ -323,3 +323,14 @@ providers: {}
 # 接口文档：/docs（Scalar 文档页，可直接试调）和 /openapi.yaml，make gen 从 IDL 生成。生产关。
 docs:
   enabled: true
+
+# CORS: which browser origins may call this service directly (a web front end on
+# its own domain, a tester page). Off unless a page on another origin needs it;
+# list the exact origins. A mobile app or a same-origin page needs nothing here.
+#
+# 跨域：允许哪些浏览器来源直接调用本服务（独立域名的前端、测试页）。默认关；要开就把来源写全
+# （协议、域名、端口）。App 或同域名页面不需要。
+cors:
+  enabled: false
+  allowed_origins: []
+  # allowed_origins: ["https://tester.example.com"]

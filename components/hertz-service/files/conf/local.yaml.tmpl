@@ -342,3 +342,9 @@ providers: {}
 # 接口文档：/docs（Scalar 文档页，可直接试调）和 /openapi.yaml，make gen 从 IDL 生成。生产关。
 docs:
   enabled: true
+
+# CORS: a page served by Vite on this machine may call the service directly.
+# 跨域：本机 Vite 起的页面可以直接调本服务。
+cors:
+  enabled: true
+  allowed_origins: ["http://localhost:5173", "http://127.0.0.1:5173"]
