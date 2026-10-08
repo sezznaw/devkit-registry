@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.30.0",
+      "default": "v0.31.0",
       "track": true
     },
     {
@@ -75,9 +75,14 @@
       "track": true
     },
     {
+      "name": "ValidatorVersion",
+      "description": "Version of thrift-gen-validator (IsValid from the IDL's vt.* annotations). Decided by the template",
+      "default": "v0.2.6"
+    },
+    {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.9.2",
+      "default": "v0.9.3",
       "track": true
     },
     {
@@ -101,7 +106,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.30.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.31.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -115,6 +120,15 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.34.0",
+      "changes": [
+        "Request validation from the IDL: `make gen` runs thrift-gen-validator (vt.* annotations give every request an IsValid) and the framework's ValidationMiddleware (devkit-common v0.31.0) answers 1001 with the field and the rule before the handler runs. `make tools` installs the plugin."
+      ],
+      "action": [
+        "Run `make tools` once (thrift-gen-validator), then `make gen`."
+      ]
+    },
     {
       "version": "0.33.0",
       "changes": [
