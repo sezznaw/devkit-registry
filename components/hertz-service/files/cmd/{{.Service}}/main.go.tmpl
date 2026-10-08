@@ -75,6 +75,9 @@ func main() {
 	if err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
+	// The OpenAPI document (make gen, from the IDL) at run time: RequireLogin,
+	// RequirePermission and the docs page read the IDL's annotations from it.
+	hertzx.SetSpec(h, openAPI)
 	// Login state (auth.enabled): every endpoint needs a valid access token
 	// except the ones the IDL marks `// @public`; the identity is in ctx
 	// (kitexx.UID) and travels to the RPC services. Installed before the
