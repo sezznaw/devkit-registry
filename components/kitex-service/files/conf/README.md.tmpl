@@ -142,6 +142,10 @@ shutdown:
 | `s3.source` | `static` |
 | `s3.prefix` | the service name |
 | `s3.timeout` | `30s` |
+| `auth.enabled` | `false` |
+| `auth.realm` | — (member, admin, agent; gateways) |
+| `auth.access_ttl` / `refresh_ttl` | `15m` / `720h` |
+| `auth.single_session` | `true` |
 | `metrics.enabled` | `false` |
 | `metrics.addr` | `9091` |
 | `providers.<name>.timeout` | `5s` |

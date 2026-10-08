@@ -279,6 +279,20 @@ s3:
   # access_key: "${S3_ACCESS_KEY_ID:-any}"
   # secret_key: "${S3_SECRET_ACCESS_KEY:-any}"
 
+# Login state (authx): this gateway verifies the access tokens of one realm
+# locally plus one Redis read (redis.enabled is required), and protects every
+# endpoint the IDL does not mark `// @public`. The secret is the one ser-auth
+# signs with, from the environment.
+#
+# 登录态（authx）：本网关本地校验一个领域的 access 令牌，再读一次 Redis（需要 redis.enabled），
+# 保护 IDL 里没标 `// @public` 的所有接口。secret 和 ser-auth 签发用的是同一个，来自环境变量。
+auth:
+  enabled: true
+  secret: "${AUTH_JWT_SECRET:-local-jwt-secret-at-least-32-characters}"   # 本机默认值；ser-auth 本机用同一个
+  realm: member                 # member | admin | agent：本网关服务哪类主体
+  access_ttl: 15m
+  refresh_ttl: 720h
+
 # Prometheus metrics. Off on a laptop: nothing scrapes them, and two services
 # would fight over the port. Turn on to look at http://127.0.0.1:9091/metrics.
 #

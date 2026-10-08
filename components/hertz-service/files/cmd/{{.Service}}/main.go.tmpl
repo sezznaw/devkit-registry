@@ -18,6 +18,7 @@ import (
 	_ "embed"
 	"os"
 
+	"{{.CommonModule}}/authx"
 	"{{.CommonModule}}/config"
 	"{{.CommonModule}}/hertzx"
 	"{{.CommonModule}}/kitexx"
@@ -73,6 +74,17 @@ func main() {
 	h, err := hertzx.New(rt)
 	if err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
+	}
+	// Login state (auth.enabled): every endpoint needs a valid access token
+	// except the ones the IDL marks `// @public`; the identity is in ctx
+	// (kitexx.UID) and travels to the RPC services. Installed before the
+	// routes, which is how Hertz applies it to them.
+	if cfg.Auth.Enabled {
+		verifier, err := authx.NewVerifier(cfg.Auth, rt.Redis)
+		if err != nil {
+			zlog.Fatal("cannot start", zlog.Err(err))
+		}
+		hertzx.RequireLogin(h, verifier, openAPI)
 	}
 
 	// 3. Service: the clients of the RPC services it calls, its middleware and

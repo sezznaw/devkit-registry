@@ -257,6 +257,18 @@ s3:
   enabled: false
   # source: platform
 
+# Login state (authx): only the authentication service turns this on and uses
+# authx.NewIssuer(rt.Config.Auth, rt.Redis); the other services get the
+# identity through kitexx.UID(ctx), carried from the gateway.
+#
+# 登录态（authx）：只有认证服务打开它，用 authx.NewIssuer(rt.Config.Auth, rt.Redis) 签发；
+# 其他服务通过 kitexx.UID(ctx) 拿网关传来的身份即可。
+auth:
+  enabled: false
+  # secret: "${AUTH_JWT_SECRET}"
+  # access_ttl: 15m
+  # refresh_ttl: 720h
+
 # Prometheus metrics on a port of their own (default 9091), scraped by the
 # deployment: requests by method and result code, latency, Go runtime, MySQL
 # pool, Redis commands, Kafka events. Nothing to write in the service.

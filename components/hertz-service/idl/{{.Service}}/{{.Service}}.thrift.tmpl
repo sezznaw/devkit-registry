@@ -32,5 +32,6 @@ struct PingResp {
 
 service {{.Service | title}}Service {
     // 健康检查。返回 pong: <message>。
+    // @public
     PingResp Ping(1: PingReq req) (api.get="/ping")
 }

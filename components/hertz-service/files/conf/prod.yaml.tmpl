@@ -257,6 +257,20 @@ s3:
   enabled: false
   # source: platform
 
+# Login state (authx): this gateway verifies the access tokens of one realm
+# locally plus one Redis read (redis.enabled is required), and protects every
+# endpoint the IDL does not mark `// @public`. The secret is the one ser-auth
+# signs with, from the environment.
+#
+# 登录态（authx）：本网关本地校验一个领域的 access 令牌，再读一次 Redis（需要 redis.enabled），
+# 保护 IDL 里没标 `// @public` 的所有接口。secret 和 ser-auth 签发用的是同一个，来自环境变量。
+auth:
+  enabled: true
+  secret: "${AUTH_JWT_SECRET}"
+  realm: member                 # member | admin | agent：本网关服务哪类主体
+  access_ttl: 15m
+  refresh_ttl: 720h
+
 # Prometheus metrics on a port of their own (default 9091), scraped by the
 # deployment: requests by method and result code, latency, Go runtime, MySQL
 # pool, Redis commands, Kafka events. Nothing to write in the service.
