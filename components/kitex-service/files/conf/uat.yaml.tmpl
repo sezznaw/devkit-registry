@@ -224,6 +224,16 @@ kafka:
   # source: platform
   # role: tenant
   # max_retries: 3          # a failing handler is retried this often, then the message goes to <topic>.dlq
+  # Outbox: an event written with PublishTx inside a database transaction is
+  # published by a relay in this process (on by default with mysql.enabled).
+  #
+  # 事务里的事件（PublishTx）由本进程的转发器发出，有 MySQL 时默认开。
+  # outbox:
+  #   enabled: true
+  #   poll_interval: 500ms
+  #   batch: 100
+  #   retention: 168h
+  #   publish_timeout: 10s
 
 # Centrifugo, push to clients. Off by default; on, rt.Centrifugo publishes to
 # channels and signs connection tokens. source platform: address from

@@ -244,6 +244,16 @@ kafka:
   enabled: false
   # source: static
   # brokers: ["127.0.0.1:9092"]
+  # Outbox: an event written with PublishTx inside a database transaction is
+  # published by a relay in this process (on by default with mysql.enabled).
+  #
+  # 事务里的事件（PublishTx）由本进程的转发器发出，有 MySQL 时默认开。
+  # outbox:
+  #   enabled: true
+  #   poll_interval: 500ms
+  #   batch: 100
+  #   retention: 168h
+  #   publish_timeout: 10s
 
 # Centrifugo. Off by default. Locally the project's stack (infra/local/local.sh up --full) serves API and WebSocket on 8000.
 #
