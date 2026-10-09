@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.36.0",
+      "default": "v0.37.1",
       "track": true
     },
     {
@@ -72,7 +72,7 @@
     {
       "name": "HzVersion",
       "description": "Version of hz, the Hertz code generator. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.9.7",
+      "default": "v0.9.8",
       "track": true
     },
     {
@@ -107,6 +107,16 @@
       "name": "LocalMySQLPassword",
       "description": "Password of the local stack's database (conf/local.yaml default; a laptop value, never a real secret)",
       "default": "app"
+    },
+    {
+      "name": "LocalMySQLRootPassword",
+      "description": "Root password of the local stack's MySQL, for the test databases testx creates (Makefile default of MYSQL_TEST_DSN_ROOT; a laptop value)",
+      "default": "root"
+    },
+    {
+      "name": "MigrationsDir",
+      "description": "Where the project's *.up.sql migrations are, relative to the service (Makefile default of MIGRATIONS_DIR, which testx.WithMySQL applies to a test database)",
+      "default": "../infra/db/migrations/tenant"
     }
   ],
   "hooks": {
@@ -114,7 +124,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.36.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.37.1 && go mod tidy"
     ]
   },
   "once": [
@@ -128,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.30.0",
+      "changes": [
+        "devkit-common v0.37.1: tests. testx.New builds the Runtime on in-process Redis and Kafka, a recording Centrifugo and a MySQL database from the project's migrations (WithMySQL(testx.MigrationsDir())); make test passes MYSQL_TEST_DSN_ROOT (the local stack, skipped when absent) and MIGRATIONS_DIR; a sample test in handler/ (yours, created once). devkit v0.9.8: lint rule tests (a handler package needs a test)."
+      ]
+    },
     {
       "version": "0.29.0",
       "changes": [

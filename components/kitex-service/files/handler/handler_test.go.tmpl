@@ -1,0 +1,34 @@
+package handler_test
+
+import (
+	"testing"
+
+	"{{.CommonModule}}/testx"
+
+	"{{.Module}}/app"
+	api "{{.Module}}/kitex_gen/{{.Service | snake}}"
+)
+
+// The handler test sample. testx.New builds a Runtime shaped like the one the
+// server hands app.Setup, on infrastructure that lives for this test only:
+// Redis and Kafka in-process, a Centrifugo that records pushes, and with
+// testx.WithMySQL(testx.MigrationsDir()) a database created from the
+// project's migrations and dropped afterwards (skipped when no local MySQL
+// answers; CI has one). Then call the handler the way the gateway would,
+// with testx.Ctx(uid) as the logged-in member.
+//
+// handler 测试样板。testx.New 搭一个和服务器交给 app.Setup 一样形状的 Runtime，底下是只活这一个
+// 测试的设施：进程内 Redis、Kafka，记录推送的 Centrifugo；加 testx.WithMySQL(testx.MigrationsDir())
+// 就有一个按项目迁移建出来、测完就删的库（本机没有 MySQL 就跳过，CI 有）。然后像网关一样调方法，
+// testx.Ctx(uid) 是已登录的会员。
+func TestPing(t *testing.T) {
+	rt := testx.New(t, "{{.Service}}")
+	h, err := app.Setup(&app.Config{Config: rt.Config}, rt.Runtime)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := h.Ping(testx.Ctx(1), &api.PingReq{Message: "hi"})
+	if err != nil || resp.Message != "pong: hi" {
+		t.Fatalf("ping: %+v %v", resp, err)
+	}
+}

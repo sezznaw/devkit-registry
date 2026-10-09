@@ -88,8 +88,15 @@ jobs:
 verify:
 	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE) --verify
 
+# Tests that need a database (kit-common testx.WithMySQL) use the local
+# stack's MySQL and the project's migrations; without a server they are
+# skipped. CI overrides both variables and sets TESTX_REQUIRE_MYSQL=1.
+MYSQL_TEST_DSN_ROOT ?= root:{{.LocalMySQLRootPassword}}@tcp(127.0.0.1:3306)/
+MIGRATIONS_DIR      ?= $(abspath {{.MigrationsDir}})
+
+## test: unit and handler tests (make test RUN=TestName for one)
 test:
-	go test ./...
+	MYSQL_TEST_DSN_ROOT="$(MYSQL_TEST_DSN_ROOT)" MIGRATIONS_DIR="$(MIGRATIONS_DIR)" go test ./... $(if $(RUN),-run $(RUN) -v,)
 
 ## lint: go vet, then devkit lint (the team's rules: see idl/AGENTS.md; a line opts out with //devkit:lint-ignore <rule>)
 lint:
