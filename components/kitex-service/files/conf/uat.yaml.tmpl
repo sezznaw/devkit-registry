@@ -274,6 +274,19 @@ limits:
 # id:
 #   instance_bits: 5
 
+# Report database (StarRocks, a CDC copy of the business tables, seconds behind):
+# rt.Report.Query / QueryRow for reports and statistics. Only the report service
+# turns it on (devkit lint, rule report-only); source platform reads the
+# starrocks section of infra.yaml in Nacos.
+#
+# 报表库（StarRocks，业务表的 CDC 副本，延迟几秒）：rt.Report.Query / QueryRow 给报表和统计用。
+# 只有报表服务开（lint 规则 report-only）；source platform 读 Nacos 里 infra.yaml 的 starrocks 段。
+report:
+  enabled: false
+  # source: platform
+  # timeout: 30s
+  # max_rows: 10000
+
 # Centrifugo, push to clients. Off by default; on, rt.Centrifugo publishes to
 # channels and signs connection tokens. source platform: address from
 # infra.yaml in Nacos, secrets from the environment variables it names.
