@@ -1,4 +1,4 @@
-package {{.Service | snake}}
+package {{.Service | snake}}_test
 
 import (
 	"strings"
@@ -14,10 +14,13 @@ import (
 // The route test sample: the generated router on a bare server, called
 // in-process with testx.Get / testx.Post (no network, no Nacos). A route that
 // calls an RPC service needs its client in package deps; a test sets a fake
-// there (deps.User = fakeUser{}) before calling the route.
+// there before calling the route: a struct embedding the generated Client
+// interface with only the used methods overridden (deps.User = fakeUser{}).
+// The package name ends in _test because router imports this package.
 //
 // 路由测试样板：生成的路由挂在一个裸服务器上，用 testx.Get / testx.Post 进程内调（不走网络、
-// 不连 Nacos）。调 RPC 服务的路由要先在 deps 包里放假客户端（deps.User = fakeUser{}）。
+// 不连 Nacos）。调 RPC 服务的路由要先在 deps 包里放假客户端：嵌入生成的 Client 接口、只覆盖
+// 用到的方法（deps.User = fakeUser{}）。包名带 _test 后缀，因为 router 引用了本包。
 func TestPing(t *testing.T) {
 	h := server.New(server.WithDisablePrintRoute(true))
 	router.GeneratedRegister(h)

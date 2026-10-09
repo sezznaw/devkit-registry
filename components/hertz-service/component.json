@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.30.1",
+  "version": "0.30.2",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.30.2",
+      "changes": [
+        "The sample route test is an external test package (router imports the handler package)."
+      ]
+    },
     {
       "version": "0.30.1",
       "changes": [
