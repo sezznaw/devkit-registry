@@ -239,7 +239,9 @@ kafka:
   #   publish_timeout: 10s
 
   # Dedupe: a consumer skips an event id it already handled (Redis, 24h); on by
-  # default when the service has Redis. 消费端按事件 id 去重（有 Redis 时默认开）。
+  # default when the service has Redis.
+  #
+  # 消费端按事件 id 去重（有 Redis 时默认开）。
   # dedupe:
   #   enabled: true
   #   ttl: 24h
