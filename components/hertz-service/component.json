@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.30.0",
+  "version": "0.30.1",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -72,7 +72,7 @@
     {
       "name": "HzVersion",
       "description": "Version of hz, the Hertz code generator. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.9.8",
+      "default": "v0.9.7",
       "track": true
     },
     {
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.30.1",
+      "changes": [
+        "HzVersion default back to v0.9.7: hz has no v0.9.8 tag, so make tools of a new service failed."
+      ]
+    },
     {
       "version": "0.30.0",
       "changes": [
