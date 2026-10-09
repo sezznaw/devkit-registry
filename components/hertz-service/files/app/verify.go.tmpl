@@ -1,0 +1,32 @@
+package app
+
+import (
+	"context"
+
+	"{{.CommonModule}}/kitexx"
+	"{{.CommonModule}}/verifyx"
+)
+
+// Checks are this gateway's post-deploy checks. This file is yours; devkit
+// creates it once. After every release the deployment runs the new image
+// as `<binary> --verify`: the framework's checks (connections, Nacos,
+// /ping) and then these, against the gateway that just went live
+// (VERIFY_BASE_URL, set by the deployment; rt.GatewayURL() on your
+// machine). A failure fails the Job and raises the alert. Keep them few
+// and harmless: a public endpoint, a login with a test account and a read.
+//
+// Checks 是本网关的部署后检查。本文件归你所有，devkit 只创建一次。每次发布后部署用新镜像跑
+// `<二进制> --verify`：先是框架的检查（连接、Nacos、/ping），再是这里的，对象是刚上线的网关
+// （部署设的 VERIFY_BASE_URL；本机是 rt.GatewayURL()）。失败就是 Job 失败并告警。写几条就够，
+// 且必须无害：公开接口、测试账号登录后读一条。
+func Checks(cfg *Config, rt *kitexx.Runtime) []verifyx.Check {
+	gw := verifyx.NewGateway(rt.GatewayURL())
+	return []verifyx.Check{{
+		Name:        "ping",
+		Description: "GET /ping answers",
+		Run: func(ctx context.Context) error {
+			_, err := gw.Get(ctx, "/ping")
+			return err
+		},
+	}}
+}

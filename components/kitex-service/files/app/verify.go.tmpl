@@ -1,0 +1,43 @@
+package app
+
+import (
+	"context"
+
+	"{{.CommonModule}}/kitexx"
+	"{{.CommonModule}}/verifyx"
+
+	"{{.Module}}/kitex_gen/{{.Service | snake}}"
+	"{{.Module}}/kitex_gen/{{.Service | snake}}/{{.Service | pascal | lower}}service"
+)
+
+// Checks are this service's post-deploy checks. This file is yours; devkit
+// creates it once. After every release the deployment runs the new image
+// as `<binary> --verify`: the framework's checks (the connections the
+// configuration enables, the migrations, the outbox backlog, the Nacos
+// registration) and then these, against the live deployment; a failure
+// fails the Job and raises the alert. Keep them few and harmless on a live
+// system: read only, or an idempotent write to a test account's own data.
+// `make verify` runs them on your machine against the local stack.
+//
+// Checks 是本服务的部署后检查。本文件归你所有，devkit 只创建一次。每次发布后部署用新镜像跑
+// `<二进制> --verify`：先是框架的检查（配置启用的连接、迁移、outbox 积压、Nacos 注册），再是这里的，
+// 对象是刚上线的部署；失败就是 Job 失败并告警。写几条就够，且必须对线上无害：只读，或对测试账号
+// 自己数据的幂等写。本机 `make verify` 对本地环境跑同一套。
+func Checks(cfg *Config, rt *kitexx.Runtime) []verifyx.Check {
+	return []verifyx.Check{{
+		Name:        "rpc-ping",
+		Description: "the service answers its own Ping through Nacos",
+		Run: func(ctx context.Context) error {
+			opts, err := kitexx.ClientOptions(cfg.Config)
+			if err != nil {
+				return err
+			}
+			cli, err := {{.Service | pascal | lower}}service.NewClient(cfg.Service.Name, opts...)
+			if err != nil {
+				return err
+			}
+			_, err = cli.Ping(ctx, &{{.Service | snake}}.PingReq{Message: "verify"})
+			return err
+		},
+	}}
+}

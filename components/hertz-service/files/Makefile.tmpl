@@ -18,7 +18,7 @@ KITEX_VERSION    := {{.KitexVersion}}
 THRIFTGO_VERSION := {{.ThriftgoVersion}}
 DEVKIT_VERSION   := {{.DevkitVersion}}
 
-.PHONY: tools check-tools gen build run job jobs test lint docker clean
+.PHONY: tools check-tools gen build run job jobs verify test lint docker clean
 
 ## tools: install the code generators (once per machine)
 tools:
@@ -82,6 +82,11 @@ job:
 ## jobs: list the scheduled jobs as the deployment sees them
 jobs:
 	@go run ./cmd/$(SERVICE) --list-jobs
+
+## verify: the post-deploy checks (app/verify.go plus the framework's) against the
+## local stack; the deployment runs the same after every release
+verify:
+	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE) --verify
 
 test:
 	go test ./...

@@ -71,6 +71,14 @@ func main() {
 		// One job, then exit: no server, no Nacos registration.
 		os.Exit(rt.RunJob(jobName))
 	}
+	if kitexx.VerifyFlag() {
+		// Post-deploy verification, then exit: the framework's checks and
+		// app/verify.go, against the deployment that just went live (the
+		// deployment runs it as a PostSync Job; `make verify` on your machine).
+		//
+		// 部署后验证，然后退出：框架的检查加 app/verify.go，对象是刚上线的部署。
+		os.Exit(rt.RunVerify(app.Checks(&cfg, rt)))
+	}
 	h, err := hertzx.New(rt)
 	if err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
