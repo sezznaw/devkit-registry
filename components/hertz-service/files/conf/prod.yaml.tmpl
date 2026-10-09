@@ -349,6 +349,21 @@ providers: {}
 docs:
   enabled: false
 
+# Guard: what this service refuses before any handler runs. Defaults apply
+# without the section: body over 1 MiB is 413; a request has 10s (504, code
+# 1010 when nothing was produced); one client IP may make 600 requests a
+# minute (429, code 1008); a route with `// @limit 10/m` in the IDL has that
+# limit on top.
+#
+# 网关防护：handler 之前就拒绝的东西。不写也有默认值：请求体超 1 MiB 回 413；每个请求 10s
+# （到时没响应回 504、code 1010）；一个 IP 每分钟 600 次（429、code 1008）；IDL 里标了
+# `// @limit 10/m` 的接口再单独限。
+guard:
+  max_body_bytes: 1048576
+  timeout: 10s
+  rate:
+    per_ip: 600/m      # "20/s" / "5000/h" / "off"
+
 # CORS: which browser origins may call this service directly (a web front end on
 # its own domain, a tester page). Off unless a page on another origin needs it;
 # list the exact origins. A mobile app or a same-origin page needs nothing here.
