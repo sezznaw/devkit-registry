@@ -255,6 +255,22 @@ kafka:
   #   retention: 168h
   #   publish_timeout: 10s
 
+# Delayed tasks: run a function once at a chosen time (cancel an unpaid order
+# in 15 minutes, close bets at kick-off). rt.Delay.Schedule(ctx, tx, kind, key,
+# at, payload) in the change's transaction, rt.Delay.Handle(kind, fn) in
+# app.Setup; table delayed_task from the project's migrations. On by default
+# with mysql.enabled once a handler is registered; defaults shown.
+#
+# 延时任务：到某一刻执行一次。事务里 rt.Delay.Schedule，app.Setup 里 rt.Delay.Handle；
+# 表 delayed_task 由项目迁移建。有 MySQL 且注册了 handler 时默认开；下面是默认值。
+# delay:
+#   enabled: true
+#   poll_interval: 1s
+#   batch: 50
+#   max_attempts: 5
+#   timeout: 60s
+#   retention: 168h
+
 # Centrifugo. Off by default. Locally the project's stack (infra/local/local.sh up --full) serves API and WebSocket on 8000.
 #
 # Centrifugo。默认关。本机用项目的一键环境（infra/local/local.sh up --full），API 和 WebSocket 都在 8000。
