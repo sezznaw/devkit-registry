@@ -254,6 +254,18 @@ kafka:
 #   timeout: 60s
 #   retention: 168h
 
+# Limits: what one instance refuses so an overload degrades into quick "busy"
+# answers (business code 5003, passed through by the gateway) instead of a pile
+# of slow requests. Defaults shown; set max_qps once the service knows its
+# capacity.
+#
+# 过载保护：一个实例拒绝什么，让过载变成快速的"忙"（业务码 5003，网关透传）而不是一堆慢请求。
+# 下面是默认值；服务知道自己容量后再设 max_qps。
+limits:
+  max_in_flight: 1000
+  max_qps: 0           # off; e.g. 2000
+  max_connections: 10000
+
 # Unique numbers (rt.ID.Next(): bet, order, statement numbers): 53-bit, exact
 # as a JSON number. The low 12 bits are split between replicas of this service
 # (2^instance_bits) and ids per millisecond per replica (2^(12 - instance_bits)).
