@@ -24,7 +24,8 @@ import (
 // 对象是刚上线的部署；失败就是 Job 失败并告警。写几条就够，且必须对线上无害：只读，或对测试账号
 // 自己数据的幂等写。本机 `make verify` 对本地环境跑同一套。
 func Checks(cfg *Config, rt *kitexx.Runtime) []verifyx.Check {
-	return []verifyx.Check{{
+	return []verifyx.Check{
+		{
 		Name:        "rpc-ping",
 		Description: "the service answers its own Ping through Nacos",
 		Run: func(ctx context.Context) error {
@@ -39,5 +40,6 @@ func Checks(cfg *Config, rt *kitexx.Runtime) []verifyx.Check {
 			_, err = cli.Ping(ctx, &{{.Service | snake}}.PingReq{Message: "verify"})
 			return err
 		},
-	}}
+		},
+	}
 }

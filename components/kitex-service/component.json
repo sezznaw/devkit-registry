@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.35.0",
+  "version": "0.35.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -120,6 +120,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.35.1",
+      "changes": [
+        "app/verify.go renders (a `{{` in the Go code was read as a template action)."
+      ]
+    },
     {
       "version": "0.35.0",
       "changes": [

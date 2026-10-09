@@ -21,12 +21,14 @@ import (
 // 且必须无害：公开接口、测试账号登录后读一条。
 func Checks(cfg *Config, rt *kitexx.Runtime) []verifyx.Check {
 	gw := verifyx.NewGateway(rt.GatewayURL())
-	return []verifyx.Check{{
+	return []verifyx.Check{
+		{
 		Name:        "ping",
 		Description: "GET /ping answers",
 		Run: func(ctx context.Context) error {
 			_, err := gw.Get(ctx, "/ping")
 			return err
 		},
-	}}
+		},
+	}
 }
