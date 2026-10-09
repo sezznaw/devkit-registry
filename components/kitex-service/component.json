@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.37.0",
+  "version": "0.37.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.37.1",
+      "changes": [
+        "CI: the build stage keeps .idl/ as an artifact, so the test stage's make lint runs the IDL rules (they were skipped in CI before)."
+      ]
+    },
     {
       "version": "0.37.0",
       "changes": [
