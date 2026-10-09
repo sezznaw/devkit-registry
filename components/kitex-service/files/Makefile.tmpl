@@ -15,7 +15,7 @@ THRIFTGO_VERSION := {{.ThriftgoVersion}}
 VALIDATOR_VERSION := {{.ValidatorVersion}}
 DEVKIT_VERSION   := {{.DevkitVersion}}
 
-.PHONY: tools check-tools gen build run job jobs verify test lint docker clean
+.PHONY: tools check-tools gen build run job jobs verify dlq test lint docker clean
 
 ## tools: install the code generators (once per machine)
 tools:
@@ -74,6 +74,11 @@ verify:
 # skipped. CI overrides both variables and sets TESTX_REQUIRE_MYSQL=1.
 MYSQL_TEST_DSN_ROOT ?= root:{{.LocalMySQLRootPassword}}@tcp(127.0.0.1:3306)/
 MIGRATIONS_DIR      ?= $(abspath {{.MigrationsDir}})
+
+## dlq: the dead-letter tool against conf/local.yaml (make dlq ARGS="list" | "show <topic> <offset>" | "replay <topic>" | "drop <topic>")
+dlq:
+	@test -n "$(ARGS)" || { echo 'usage: make dlq ARGS="list"'; exit 1; }
+	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE) --dlq $(ARGS)
 
 ## test: unit and handler tests (make test RUN=TestName for one)
 test:

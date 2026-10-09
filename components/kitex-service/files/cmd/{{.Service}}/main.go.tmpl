@@ -86,6 +86,14 @@ func main() {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 	opts = append(opts, app.ServerOptions(&cfg)...)
+	if args, ok := kitexx.DLQFlag(); ok {
+		// The dead-letter tool, then exit: list / show / replay / drop the
+		// messages whose handler kept failing (after Setup: the subscriptions
+		// name the queues). In a deployment: kubectl exec deploy/<service> -- /app/<service> --dlq list
+		//
+		// 死信工具，然后退出：查看 / 回放 / 丢弃 handler 一直失败的消息。
+		os.Exit(rt.RunDLQ(args))
+	}
 
 	// 4. Serve until SIGINT/SIGTERM, then stop gracefully: leave Nacos, keep
 	//    serving briefly, finish requests in progress, run the cleanup. With
