@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.35.3",
+  "version": "0.35.4",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.9.3",
+      "default": "v0.9.4",
       "track": true
     },
     {
@@ -120,6 +120,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.35.4",
+      "changes": [
+        "devkit v0.9.4: the money / rate lint rules match whole words of a field name (duration_ms, feedback no longer flagged)."
+      ]
+    },
     {
       "version": "0.35.3",
       "changes": [
