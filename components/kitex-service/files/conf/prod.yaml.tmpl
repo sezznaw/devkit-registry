@@ -234,6 +234,12 @@ kafka:
   #   retention: 168h
   #   publish_timeout: 10s
 
+  # Dedupe: a consumer skips an event id it already handled (Redis, 24h); on by
+  # default when the service has Redis. 消费端按事件 id 去重（有 Redis 时默认开）。
+  # dedupe:
+  #   enabled: true
+  #   ttl: 24h
+
 # Delayed tasks: run a function once at a chosen time (cancel an unpaid order
 # in 15 minutes, close bets at kick-off). rt.Delay.Schedule(ctx, tx, kind, key,
 # at, payload) in the change's transaction, rt.Delay.Handle(kind, fn) in
