@@ -251,6 +251,17 @@ kafka:
 #   timeout: 60s
 #   retention: 168h
 
+# Unique numbers (rt.ID.Next(): bet, order, statement numbers): 53-bit, exact
+# as a JSON number. The low 12 bits are split between replicas of this service
+# (2^instance_bits) and ids per millisecond per replica (2^(12 - instance_bits)).
+# Default 5: 32 replicas, 128 a millisecond each. The instance number is leased
+# in Redis; without Redis the deployment must set INSTANCE_ID.
+#
+# 唯一号（rt.ID.Next()）：53 位，JSON 数字装得下。低 12 位分给副本数（2^instance_bits）和
+# 每副本每毫秒的号数。默认 5：32 副本、每毫秒 128 个。实例号在 Redis 里租；没有 Redis 要设 INSTANCE_ID。
+# id:
+#   instance_bits: 5
+
 # Centrifugo, push to clients. Off by default; on, rt.Centrifugo publishes to
 # channels and signs connection tokens. source platform: address from
 # infra.yaml in Nacos, secrets from the environment variables it names.
