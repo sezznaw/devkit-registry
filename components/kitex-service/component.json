@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.44.2",
+  "version": "0.44.3",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.11.0",
+      "default": "v0.11.1",
       "track": true
     },
     {
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.44.3",
+      "changes": [
+        "devkit v0.11.1: lint rules common-version (go.mod keeps the team's kit-common version; devkit update moves it) and common-checkout (the project's kit-common/ checkout has no local changes; go.work makes local builds use it); devkit lock also locks kit-common/ and .devkit/manifest.json."
+      ]
+    },
     {
       "version": "0.44.2",
       "changes": [
