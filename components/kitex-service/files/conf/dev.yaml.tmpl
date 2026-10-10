@@ -363,6 +363,16 @@ metrics:
 # 本服务要调的外部 HTTP 接口（赛事数据源、支付通道）：app.Setup 里 rt.Provider("<名>")。单次超时默认 5s；
 # 重试默认 2 次，只对 GET/HEAD/OPTIONS/PUT/DELETE 且只在网络错误、429、5xx 时，POST 绝不重试；密钥来自环境变量。
 # 有 providers 的服务要部署到 -provider namespace（唯一能出网的），框架启动时会检查。
+# Egress: a service with providers must run in a namespace whose name ends in
+# egress.namespace_suffix ("-provider", the one that may reach the internet) and
+# refuses to start elsewhere. A deployment without that split sets check: false.
+#
+# 出网规则：有 providers 的服务必须跑在名字以 namespace_suffix 结尾的命名空间（"-provider"，
+# 能出网的那个），否则拒绝启动。不这样分命名空间的部署把 check 设为 false。
+# egress:
+#   check: true
+#   namespace_suffix: "-provider"
+
 providers: {}
 #  odds-feed:
 #    base_url: "https://api.vendor.com"
