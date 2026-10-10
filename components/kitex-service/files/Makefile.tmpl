@@ -36,6 +36,8 @@ check-tools:
 
 ## gen: generate kitex_gen/ from the IDLs (run after every IDL change)
 gen: check-tools
+	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
+	@chmod -R u+w kitex_gen hertz_gen .idl router idl.lock cmd/$(SERVICE)/openapi.yaml 2>/dev/null || true
 	@for f in $(IDLS); do \
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) --thrift-plugin validator $(IDL_DIR)/$$f || exit 1; \
@@ -47,6 +49,8 @@ gen: check-tools
 		if [ -n "$$(git -C $(IDL_DIR) status --porcelain)" ]; then echo ">> idl.lock: the IDL checkout has uncommitted changes; commit and push the IDL before pushing this service"; fi; \
 		if [ -z "$$(git -C $(IDL_DIR) branch -r --contains HEAD 2>/dev/null)" ]; then echo ">> idl.lock: IDL commit $$(git -C $(IDL_DIR) rev-parse --short HEAD) is not pushed yet; push the IDL first or CI cannot fetch it"; fi; \
 	fi
+	@# Lock again: read-only in the IDE, like a library in the module cache. devkit lock --unlock to undo; lint still checks.
+	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock -q; fi
 
 build:
 	go build -o bin/$(SERVICE) ./cmd/$(SERVICE)

@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.37.0",
+      "changes": [
+        "devkit v0.11.0: `devkit lock` makes the framework's files and generated code read-only in the editor (ngs and update lock; make gen unlocks before generating and locks after; `devkit lock --unlock` undoes it). A reminder, not a wall: lint, the pre-push hook and CI still decide."
+      ]
+    },
     {
       "version": "0.36.0",
       "changes": [

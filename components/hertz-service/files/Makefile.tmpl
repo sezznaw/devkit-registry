@@ -50,6 +50,8 @@ check-tools:
 ## "template=slim" makes plain structs: an HTTP API speaks JSON and has no use
 ## for Thrift's binary codec, nor for the old apache/thrift library it needs.
 gen: check-tools
+	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
+	@chmod -R u+w kitex_gen hertz_gen .idl router idl.lock cmd/$(SERVICE)/openapi.yaml 2>/dev/null || true
 	@echo ">> hz $(API_IDL)"
 	@hz update -I $(IDL_DIR) -idl $(IDL_DIR)/$(API_IDL) -t template=slim
 	@for f in $(IDLS); do \
@@ -66,6 +68,8 @@ gen: check-tools
 	@echo ">> apidoc $(API_IDL) -> cmd/$(SERVICE)/openapi.yaml"
 	@go run {{.CommonModule}}/cmd/apidoc -idl $(IDL_DIR)/$(API_IDL) -out cmd/$(SERVICE)/openapi.yaml \
 		-version "$$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
+	@# Lock again: read-only in the IDE, like a library in the module cache. devkit lock --unlock to undo; lint still checks.
+	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock -q; fi
 
 build:
 	go build -o bin/$(SERVICE) ./cmd/$(SERVICE)
