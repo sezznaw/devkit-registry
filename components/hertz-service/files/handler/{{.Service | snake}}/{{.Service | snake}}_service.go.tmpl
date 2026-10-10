@@ -12,6 +12,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
+	"{{.CommonModule}}/hertzx"
 	"{{.CommonModule}}/zlog"
 
 	// Under the name of the package, not an alias: the functions hz adds to this
@@ -24,8 +25,7 @@ import (
 // @router /ping [GET]
 func Ping(ctx context.Context, c *app.RequestContext) {
 	var req {{.Service | snake}}.PingReq
-	if err := c.BindAndValidate(&req); err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+	if !hertzx.Bind(c, &req) { // answers {code:1001, msg:"<field>: <rule>"} itself
 		return
 	}
 
@@ -34,5 +34,7 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 	// the trace_id travels with the call.
 	zlog.Ctx(ctx).Info("ping", zlog.Str("message", req.Message))
 
-	c.JSON(consts.StatusOK, &{{.Service | snake}}.PingResp{Message: "pong: " + req.Message})
+	// The envelope: code 0 and the payload under data; a failure is a non-zero
+	// code with msg and no data (the response-envelope section of the IDL README).
+	c.JSON(consts.StatusOK, &{{.Service | snake}}.PingResp{Code: 0, Data: &{{.Service | snake}}.Pong{Message: "pong: " + req.Message}})
 }

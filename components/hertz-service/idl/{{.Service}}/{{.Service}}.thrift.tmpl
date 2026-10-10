@@ -26,8 +26,16 @@ struct PingReq {
     1: string message (api.query="message")
 }
 
-struct PingResp {
+// Every gateway response is the same envelope, /ping included: code (0 = ok),
+// msg, and the payload as one struct under data (lint rule resp-shape).
+struct Pong {
     1: string message
+}
+
+struct PingResp {
+    1: i32 code
+    2: string msg
+    3: optional Pong data
 }
 
 service {{.Service | title}}Service {

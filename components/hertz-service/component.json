@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.37.4",
+  "version": "0.38.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -90,7 +90,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.11.1",
+      "default": "v0.12.0",
       "track": true
     },
     {
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.38.0",
+      "changes": [
+        "devkit v0.12.0: lint rules resp-shape (a gateway Resp is exactly `1: i32 code  2: string msg  3: optional <Struct> data`) and rpc-no-envelope (an RPC Resp carries no code/msg; failures are BizStatusErrors). The sample /ping answers the envelope (`{code, msg, data: {message}}`) and binds with hertzx.Bind, so a new gateway passes lint as generated."
+      ]
+    },
     {
       "version": "0.37.4",
       "changes": [
