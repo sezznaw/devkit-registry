@@ -37,7 +37,7 @@ check-tools:
 ## gen: generate kitex_gen/ from the IDLs (run after every IDL change)
 gen: check-tools
 	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
-	@chmod -R u+w kitex_gen hertz_gen .idl router idl.lock cmd/$(SERVICE)/openapi.yaml 2>/dev/null || true
+	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock --unlock -q; fi
 	@for f in $(IDLS); do \
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) --thrift-plugin validator $(IDL_DIR)/$$f || exit 1; \

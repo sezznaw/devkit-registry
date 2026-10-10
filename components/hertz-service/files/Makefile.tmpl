@@ -51,7 +51,7 @@ check-tools:
 ## for Thrift's binary codec, nor for the old apache/thrift library it needs.
 gen: check-tools
 	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
-	@chmod -R u+w kitex_gen hertz_gen .idl router idl.lock cmd/$(SERVICE)/openapi.yaml 2>/dev/null || true
+	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock --unlock -q; fi
 	@echo ">> hz $(API_IDL)"
 	@hz update -I $(IDL_DIR) -idl $(IDL_DIR)/$(API_IDL) -t template=slim
 	@for f in $(IDLS); do \

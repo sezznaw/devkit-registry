@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.44.0",
+  "version": "0.44.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.44.1",
+      "changes": [
+        "make gen unlocks with `devkit lock --unlock` (the same file set as lock) instead of a fixed chmod list; hz's .hz manifest was missed and `make gen` failed on a locked hertz service."
+      ]
+    },
     {
       "version": "0.44.0",
       "changes": [
