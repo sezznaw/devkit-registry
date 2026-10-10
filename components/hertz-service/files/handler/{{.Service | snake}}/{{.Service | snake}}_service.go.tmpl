@@ -10,7 +10,6 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
 	"{{.CommonModule}}/hertzx"
 	"{{.CommonModule}}/zlog"
@@ -34,7 +33,9 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 	// the trace_id travels with the call.
 	zlog.Ctx(ctx).Info("ping", zlog.Str("message", req.Message))
 
-	// The envelope: code 0 and the payload under data; a failure is a non-zero
-	// code with msg and no data (the response-envelope section of the IDL README).
-	c.JSON(consts.StatusOK, &{{.Service | snake}}.PingResp{Code: 0, Data: &{{.Service | snake}}.Pong{Message: "pong: " + req.Message}})
+	// hertzx.OK adds the envelope: {code: 0, msg: "", data: {...}}. An RPC error
+	// is hertzx.Fail(ctx, c, err) (its business code goes through, anything else
+	// is logged and answered as 5001); a code the gateway decides itself is
+	// hertzx.FailCode(c, code, msg). Never c.JSON here (lint rule envelope-write).
+	hertzx.OK(c, &{{.Service | snake}}.Pong{Message: "pong: " + req.Message})
 }

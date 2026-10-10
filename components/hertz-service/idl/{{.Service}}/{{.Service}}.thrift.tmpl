@@ -26,20 +26,16 @@ struct PingReq {
     1: string message (api.query="message")
 }
 
-// Every gateway response is the same envelope, /ping included: code (0 = ok),
-// msg, and the payload as one struct under data (lint rule resp-shape).
+// A method returns its data struct; the framework adds the {code, msg, data}
+// envelope at the edge (hertzx.OK / Fail), so the IDL never spells it out. A
+// method with nothing to return returns common.Empty (include
+// "../common/common.thrift"). Lint rule no-envelope.
 struct Pong {
     1: string message
-}
-
-struct PingResp {
-    1: i32 code
-    2: string msg
-    3: optional Pong data
 }
 
 service {{.Service | title}}Service {
     // 健康检查。返回 pong: <message>。
     // @public
-    PingResp Ping(1: PingReq req) (api.get="/ping")
+    Pong Ping(1: PingReq req) (api.get="/ping")
 }

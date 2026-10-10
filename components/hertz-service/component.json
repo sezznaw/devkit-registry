@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.44.0",
+      "default": "v0.45.1",
       "track": true
     },
     {
@@ -90,7 +90,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.12.0",
+      "default": "v0.13.0",
       "track": true
     },
     {
@@ -124,7 +124,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.44.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.45.1 && go mod tidy"
     ]
   },
   "once": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.39.0",
+      "changes": [
+        "devkit-common v0.45.1: the {code, msg, data} envelope is added by hertzx.OK / Fail / FailCode at the gateway's edge and documented by apidoc; a gateway IDL method returns its data struct (common.Empty when there is none). devkit v0.13.0: lint rules no-envelope (no code/msg in any response struct) and envelope-write (gateway handlers do not c.JSON) replace resp-shape / rpc-no-envelope. The sample IDL returns Pong from Ping and the handler answers hertzx.OK."
+      ]
+    },
     {
       "version": "0.38.0",
       "changes": [
