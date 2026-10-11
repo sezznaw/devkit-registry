@@ -1,0 +1,38 @@
+// The system domain of {{.Service}}: health check and version. One domain, one
+// file: the file name, the namespace and the route segment (/v1/system/...)
+// are the same word, and hz makes a handler package of it (handler/system/).
+// A new domain is a new file next to this one (e.g. member.thrift with
+// `namespace go member`, `service MemberService`, routes /v1/member/...);
+// `make gen` picks it up. Shared structs go to ../common/common.thrift, the
+// only include a domain file has. Lint rules domain-file / domain-path /
+// domain-include.
+//
+//   api.get / api.post / api.put / api.delete = "<path>"   the route of a method
+//   api.query = "name"    the field comes from the query string   (?name=...)
+//   api.path  = "name"    the field comes from the path           (/user/:name)
+//   api.body  = "name"    the field comes from the JSON body
+//   api.header = "Name"   the field comes from a request header
+//
+// {{.Service}} 的 system 领域：健康检查和版本。一个领域一个文件：文件名、namespace、路径段
+// （/v1/system/...）是同一个词，hz 据此生成独立的 handler 包（handler/system/）。新领域就是旁边
+// 新建一个文件（如 member.thrift：`namespace go member`、`service MemberService`、路径 /v1/member/...），
+// `make gen` 自动处理。共用的结构体放 ../common/common.thrift，领域文件只 include 它。
+namespace go system
+
+struct PingReq {
+    1: string message (api.query="message")
+}
+
+// A method returns its data struct; the framework adds the {code, msg, data}
+// envelope at the edge (hertzx.OK / Fail), so the IDL never spells it out. A
+// method with nothing to return returns common.Empty (include
+// "../common/common.thrift"). Lint rule no-envelope.
+struct Pong {
+    1: string message
+}
+
+service SystemService {
+    // 健康检查。返回 pong: <message>。
+    // @public
+    Pong Ping(1: PingReq req) (api.get="/ping")
+}

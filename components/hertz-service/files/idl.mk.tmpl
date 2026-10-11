@@ -3,13 +3,14 @@
 # This file is yours: devkit created it once and never touches it again, so the
 # Makefile itself can keep being upgraded by `devkit update`.
 #
-# API_IDL is the IDL of this service's own HTTP API: routes, handlers and
-# request/response structs are generated from it (hz).
+# API_IDL_DIR is the directory of this service's own HTTP API: one Thrift file
+# per domain (system.thrift, member.thrift, ...); hz generates a handler package
+# per file, apidoc documents the directory as one page.
 #
 # IDLS lists the RPC services this API calls; their clients appear in
 # kitex_gen/ after `make gen`. Example:
 #
 #   IDLS := user/user.thrift order/order.thrift
 
-API_IDL := {{.Service}}/{{.Service}}.thrift
+API_IDL_DIR := {{.Service}}
 IDLS    :=

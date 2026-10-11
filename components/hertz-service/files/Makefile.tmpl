@@ -5,11 +5,12 @@ SERVICE  := {{.Service}}
 # Thrift IDLs live in the project's shared IDL repository. Locally that is the
 # idl/ directory next to this service; CI overrides IDL_DIR after cloning it.
 IDL_DIR  ?= ../idl
-# Which IDLs to generate is listed in idl.mk (yours to edit): API_IDL is this
-# service's own HTTP API, IDLS are the RPC services it calls. Without that file
+# Which IDLs to generate is listed in idl.mk (yours to edit): API_IDL_DIR is the
+# directory of this service's own HTTP API (one file per domain), IDLS are the
+# RPC services it calls. Without that file
 # only the service's own IDL is used.
 -include idl.mk
-API_IDL  ?= $(SERVICE)/$(SERVICE).thrift
+API_IDL_DIR ?= $(SERVICE)
 IDLS     ?=
 
 HZ_VERSION       := {{.HzVersion}}
@@ -52,8 +53,11 @@ check-tools:
 gen: check-tools
 	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
 	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock --unlock -q; fi
-	@echo ">> hz $(API_IDL)"
-	@hz update -I $(IDL_DIR) -idl $(IDL_DIR)/$(API_IDL) -t template=slim
+	@# One hz run per domain file (a file that declares a service): handler/<domain>/, router/<domain>/.
+	@for f in $$(grep -ls '^service ' $(IDL_DIR)/$(API_IDL_DIR)/*.thrift | sort); do \
+		echo ">> hz $$f"; \
+		hz update -I $(IDL_DIR) -idl $$f -t template=slim || exit 1; \
+	done
 	@for f in $(IDLS); do \
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) $(IDL_DIR)/$$f || exit 1; \
@@ -65,8 +69,8 @@ gen: check-tools
 		if [ -n "$$(git -C $(IDL_DIR) status --porcelain)" ]; then echo ">> idl.lock: the IDL checkout has uncommitted changes; commit and push the IDL before pushing this service"; fi; \
 		if [ -z "$$(git -C $(IDL_DIR) branch -r --contains HEAD 2>/dev/null)" ]; then echo ">> idl.lock: IDL commit $$(git -C $(IDL_DIR) rev-parse --short HEAD) is not pushed yet; push the IDL first or CI cannot fetch it"; fi; \
 	fi
-	@echo ">> apidoc $(API_IDL) -> cmd/$(SERVICE)/openapi.yaml"
-	@go run {{.CommonModule}}/cmd/apidoc -idl $(IDL_DIR)/$(API_IDL) -out cmd/$(SERVICE)/openapi.yaml \
+	@echo ">> apidoc $(API_IDL_DIR)/ -> cmd/$(SERVICE)/openapi.yaml"
+	@go run {{.CommonModule}}/cmd/apidoc -dir $(IDL_DIR)/$(API_IDL_DIR) -out cmd/$(SERVICE)/openapi.yaml \
 		-version "$$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
 	@# Lock again: read-only in the IDE, like a library in the module cache. devkit lock --unlock to undo; lint still checks.
 	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock -q; fi

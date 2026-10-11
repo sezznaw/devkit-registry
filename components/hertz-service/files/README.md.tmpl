@@ -11,7 +11,7 @@ curl 'http://127.0.0.1:{{.Port}}/ping?message=hi'
 ```
 
 - The HTTP API is defined in the project's shared IDL repository
-  (`../idl/{{.Service}}/{{.Service}}.thrift`): every method is a route, and an
+  (`../idl/{{.Service}}/<domain>.thrift`, one file per domain, each its own handler package `handler/<domain>/`): every method is a route, and an
   annotation such as `api.get="/user/:id"` says which. Change it there, run
   `make gen`, fill in the new function in `handler/`, and open a pull request in
   the IDL repository.

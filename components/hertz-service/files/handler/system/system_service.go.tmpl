@@ -1,10 +1,10 @@
-// Package {{.Service | snake}} implements the routes of the {{.Service | title}}Service of the IDL.
+// Package system implements the routes of the system domain (../idl/{{.Service}}/system.thrift).
 //
 // This file is yours. `make gen` (hz) adds an empty function here for every
 // method that is new in the IDL and never changes the ones that exist. What a
 // handler needs (the clients of the RPC services it calls) is created in
 // app/app.go, kept in package deps and used as deps.User.GetUser(ctx, ...).
-package {{.Service | snake}}
+package system
 
 import (
 	"context"
@@ -15,15 +15,16 @@ import (
 	"{{.CommonModule}}/zlog"
 
 	// Under the name of the package, not an alias: the functions hz adds to this
-	// file for new methods refer to the structs as {{.Service | snake}}.XxxReq.
-	{{.Service | snake}} "{{.Module}}/hertz_gen/{{.Service | snake}}"
+	// file for new methods refer to the structs as system.XxxReq.
+	system "{{.Module}}/hertz_gen/system"
 )
 
 // Ping is the sample route from the initial IDL. Replace it with real ones:
-// edit ../idl/{{.Service}}/{{.Service}}.thrift and run `make gen`.
+// edit ../idl/{{.Service}}/system.thrift and run `make gen`. Another domain
+// is another file there and another package here (handler/<domain>/).
 // @router /ping [GET]
 func Ping(ctx context.Context, c *app.RequestContext) {
-	var req {{.Service | snake}}.PingReq
+	var req system.PingReq
 	if !hertzx.Bind(c, &req) { // answers {code:1001, msg:"<field>: <rule>"} itself
 		return
 	}
@@ -37,5 +38,5 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 	// is hertzx.Fail(ctx, c, err) (its business code goes through, anything else
 	// is logged and answered as 5001); a code the gateway decides itself is
 	// hertzx.FailCode(c, code, msg). Never c.JSON here (lint rule envelope-write).
-	hertzx.OK(c, &{{.Service | snake}}.Pong{Message: "pong: " + req.Message})
+	hertzx.OK(c, &system.Pong{Message: "pong: " + req.Message})
 }
