@@ -266,7 +266,7 @@ type Dynamic struct {
 
 var Dyn *nacosx.Value[Dynamic]
 
-func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
 	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id 取 config_data_id，默认 {{.Service}}.yaml
 	if err != nil {
 		return nil, err
@@ -324,7 +324,7 @@ redis:
 
 ```go
 // app/app.go
-func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
 	rdb, err := redisx.New(context.Background(), cfg.Redis)
 	if err != nil {
 		return nil, err

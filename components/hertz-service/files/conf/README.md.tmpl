@@ -163,7 +163,7 @@ and `client`; a 4xx is a warning, a 5xx an error. What a handler logs with
 `zlog.Ctx(ctx)` carries the same `trace_id`, `method` and `path`:
 
 ```
-INFO handler/{{.Service | snake}}/{{.Service | snake}}_service.go:36 ping trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping message=hi
+INFO handler/system/system_service.go:36 ping trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping message=hi
 INFO http trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping status=200 latency=1.2ms client=127.0.0.1
 ```
 
@@ -303,7 +303,7 @@ type Dynamic struct {
 
 var Dyn *nacosx.Value[Dynamic]
 
-func Setup(cfg *Config, h *server.Hertz) error {
+func Setup(cfg *Config, rt *kitexx.Runtime, h *server.Hertz) error {
 	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id: config_data_id, default {{.Service}}.yaml
 	if err != nil {
 		return err
@@ -366,7 +366,7 @@ Then create the dependency in `app.Setup` and register its cleanup there:
 
 ```go
 // app/app.go
-func Setup(cfg *Config, h *server.Hertz) error {
+func Setup(cfg *Config, rt *kitexx.Runtime, h *server.Hertz) error {
 	rdb, err := redisx.New(context.Background(), cfg.Redis)
 	if err != nil {
 		return err

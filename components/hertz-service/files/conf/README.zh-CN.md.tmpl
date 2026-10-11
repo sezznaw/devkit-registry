@@ -157,7 +157,7 @@ shutdown:
 `method` 和 `path`：
 
 ```
-INFO handler/{{.Service | snake}}/{{.Service | snake}}_service.go:36 ping trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping message=hi
+INFO handler/system/system_service.go:36 ping trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping message=hi
 INFO http trace_id=7adc392a0e4f48b5998ebc77031d701a method=GET path=/ping status=200 latency=1.2ms client=127.0.0.1
 ```
 
@@ -282,7 +282,7 @@ type Dynamic struct {
 
 var Dyn *nacosx.Value[Dynamic]
 
-func Setup(cfg *Config, h *server.Hertz) error {
+func Setup(cfg *Config, rt *kitexx.Runtime, h *server.Hertz) error {
 	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id 取 config_data_id，默认 {{.Service}}.yaml
 	if err != nil {
 		return err
@@ -340,7 +340,7 @@ redis:
 
 ```go
 // app/app.go
-func Setup(cfg *Config, h *server.Hertz) error {
+func Setup(cfg *Config, rt *kitexx.Runtime, h *server.Hertz) error {
 	rdb, err := redisx.New(context.Background(), cfg.Redis)
 	if err != nil {
 		return err

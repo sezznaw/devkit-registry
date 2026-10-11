@@ -285,7 +285,7 @@ type Dynamic struct {
 
 var Dyn *nacosx.Value[Dynamic]
 
-func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
 	dyn, err := kitexx.WatchConfig[Dynamic](cfg.Config) // data id: config_data_id, default {{.Service}}.yaml
 	if err != nil {
 		return nil, err
@@ -348,7 +348,7 @@ Then create the dependency in `app.Setup` and register its cleanup there:
 
 ```go
 // app/app.go
-func Setup(cfg *Config) (*handler.{{.Service | title}}ServiceImpl, error) {
+func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
 	rdb, err := redisx.New(context.Background(), cfg.Redis)
 	if err != nil {
 		return nil, err
