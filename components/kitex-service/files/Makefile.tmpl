@@ -38,7 +38,8 @@ check-tools:
 gen: check-tools
 	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
 	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock --unlock -q; fi
-	@for f in $(IDLS); do \
+	@# The business codes (idl/errors/*.thrift, one file per domain) become kitex_gen/errcode constants in every service.
+	@for f in $(IDLS) $$(cd $(IDL_DIR) && ls errors/*.thrift 2>/dev/null); do \
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) --thrift-plugin validator $(IDL_DIR)/$$f || exit 1; \
 	done

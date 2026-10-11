@@ -58,7 +58,8 @@ gen: check-tools
 		echo ">> hz $$f"; \
 		hz update -I $(IDL_DIR) -idl $$f -t template=slim || exit 1; \
 	done
-	@for f in $(IDLS); do \
+	@# The business codes (idl/errors/*.thrift, one file per domain) become kitex_gen/errcode constants in every service.
+	@for f in $(IDLS) $$(cd $(IDL_DIR) && ls errors/*.thrift 2>/dev/null); do \
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) $(IDL_DIR)/$$f || exit 1; \
 	done

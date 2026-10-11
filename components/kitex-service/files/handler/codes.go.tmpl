@@ -1,12 +1,13 @@
 package handler
 
-// Business codes this service answers to its callers, one constant each,
-// registered in the IDL repository's errors.md before use (lint rule
-// error-code). Kitex carries a BizStatusError (code + message) over the
-// TTHeader; the gateway turns it into the {code, msg, data} envelope.
+// Business codes are not declared here. They live in the IDL repository,
+// idl/errors/<domain>.thrift (`const i32 OrderNotFound = 4001` with a
+// comment line, registered in lint.error_ranges), and `make gen` turns them
+// into kitex_gen/errcode constants:
 //
-//	const (
-//		CodeOrderNotFound int32 = 4001
-//	)
+//	return nil, kerrors.NewBizStatusError(errcode.OrderNotFound, "订单不存在")
 //
-// 本服务返回给调用方的业务码，一个常量一个码，用之前先在 idl 仓库的 errors.md 登记。
+// This file is for names this service alone needs (none at first).
+//
+// 业务码不在这里声明：在 idl 仓库的 idl/errors/<领域>.thrift 里加一行 const 和一行说明，
+// `make gen` 后用 errcode.<名字>。本文件留给本服务自己的常量。
