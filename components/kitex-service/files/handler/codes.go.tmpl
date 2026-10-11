@@ -1,0 +1,12 @@
+package handler
+
+// Business codes this service answers to its callers, one constant each,
+// registered in the IDL repository's errors.md before use (lint rule
+// error-code). Kitex carries a BizStatusError (code + message) over the
+// TTHeader; the gateway turns it into the {code, msg, data} envelope.
+//
+//	const (
+//		CodeOrderNotFound int32 = 4001
+//	)
+//
+// 本服务返回给调用方的业务码，一个常量一个码，用之前先在 idl 仓库的 errors.md 登记。

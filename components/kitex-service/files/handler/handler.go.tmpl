@@ -1,4 +1,22 @@
 // Package handler implements the {{.Service | title}}Service RPCs.
+//
+// One package (Kitex wants one struct for the whole service), split by file:
+//
+//	handler.go     this struct, New and Ping; nothing else (lint rule handler-split)
+//	codes.go       the business codes this service answers (kerrors.NewBizStatusError)
+//	<topic>.go     the RPC methods of one topic, a noun (profile.go, credential.go,
+//	               status.go), together with the event consumers (OnXxxEvent) and
+//	               delayed-task handlers (OnXxxExpire) of that topic; at most
+//	               lint.handler_methods RPC methods per file (default 8)
+//	<topic>_test.go
+//
+// kitex never rewrites this directory: a method new in the IDL is added by
+// hand to its topic file (the compiler names what is missing), and the data
+// access lives in repo/, one file per table.
+//
+// 一个包（Kitex 要一个结构体实现整个 service），按文件分：handler.go 只放结构体、New、Ping；
+// codes.go 放业务码；<主题>.go 放一个主题的 RPC 方法（名词：profile、credential、status），
+// 该主题的事件消费者和延时任务 handler 也放这里；测试同名。kitex 不会重写这个目录。
 package handler
 
 import (
