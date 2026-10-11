@@ -5,3 +5,6 @@ output/
 *.test
 .idl/
 .go/
+
+# [takeover] written by devkit takeover while it runs; never committed
+.devkit/takeover.json
