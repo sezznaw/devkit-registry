@@ -63,6 +63,8 @@ gen: check-tools
 		echo ">> kitex $$f"; \
 		kitex -module $(MODULE) $(IDL_DIR)/$$f || exit 1; \
 	done
+	@# Business error messages: errcode.Message / Err / Errf from the comments in idl/errors/*.thrift.
+	@if ls $(IDL_DIR)/errors/*.thrift >/dev/null 2>&1; then go run {{.CommonModule}}/cmd/errgen -dir $(IDL_DIR)/errors -out kitex_gen/errcode; fi
 	@# idl.lock: the IDL commit this code was generated from. CI builds against exactly it
 	@# (reproducible; nobody else's IDL change slips in). Not rewritten inside CI.
 	@if [ -z "$$CI" ] && git -C $(IDL_DIR) rev-parse HEAD >/dev/null 2>&1; then \
