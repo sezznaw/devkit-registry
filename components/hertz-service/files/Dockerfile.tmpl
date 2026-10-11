@@ -4,11 +4,12 @@
 # refuses a module that needs a newer Go than it ships.
 FROM golang:{{.GoVersion}} AS build
 WORKDIR /src
-{{- if .GoPrivate}}
-ENV GOPRIVATE={{.GoPrivate}}
-{{- end}}
+# Private modules (the project's lib/ on this GitLab): the pipeline passes
+# --build-arg GOPRIVATE=<host> and --secret id=netrc,src=<netrc with the job token>;
+# the secret is mounted for this step only and never enters a layer.
+ARG GOPRIVATE={{.GoPrivate}}
+ENV GOPRIVATE=${GOPRIVATE}
 COPY go.mod go.sum ./
-# For private modules pass a netrc: docker build --secret id=netrc,src=$HOME/.netrc .
 RUN --mount=type=secret,id=netrc,target=/root/.netrc,required=false go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /out/{{.Service}} ./cmd/{{.Service}}

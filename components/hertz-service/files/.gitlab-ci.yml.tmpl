@@ -24,10 +24,10 @@ default:
     paths: [.go/pkg/mod]
   before_script:
     - export PATH="$GOPATH/bin:$PATH"
-{{- if .GoPrivate}}
-    # Private Go modules on this GitLab are fetched with the job token.
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/".insteadOf "https://${CI_SERVER_HOST}/"
-{{- end}}
+    # Private Go modules on this GitLab (the project's lib/, for one) are fetched with the job
+    # token: the netrc covers go's module discovery and the git clone, GOPRIVATE skips the proxy.
+    - printf 'machine %s login gitlab-ci-token password %s\n' "$CI_SERVER_HOST" "$CI_JOB_TOKEN" > ~/.netrc && chmod 600 ~/.netrc
+    - export GOPRIVATE="${GOPRIVATE:+$GOPRIVATE,}$CI_SERVER_HOST"
     - git clone --depth 1 "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${IDL_PROJECT}.git" "$IDL_DIR"
     # idl.lock (written by make gen) names the IDL commit this code was generated from; build against exactly it.
     - |

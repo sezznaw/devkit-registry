@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.42.0",
+  "version": "0.43.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.43.0",
+      "changes": [
+        "CI fetches private Go modules on the same GitLab (the project's lib/) with the job token: a netrc in build/test, GOPRIVATE=<GitLab host>; the Dockerfile takes GOPRIVATE as a build arg and the netrc as a build secret. go.work gains ./lib (devkit v0.16.1)."
+      ]
+    },
     {
       "version": "0.42.0",
       "changes": [
