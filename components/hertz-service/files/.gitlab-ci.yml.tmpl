@@ -13,15 +13,21 @@ variables:
   IDL_PROJECT: "{{if .IdlRepo}}{{.IdlRepo}}{{else}}${CI_PROJECT_NAMESPACE}/idl{{end}}"
   IDL_DIR: "$CI_PROJECT_DIR/.idl"
   GOPATH: "$CI_PROJECT_DIR/.go"
+  GOCACHE: "$CI_PROJECT_DIR/.go-build"
 {{- if .GoPrivate}}
   GOPRIVATE: "{{.GoPrivate}}"
 {{- end}}
 
 default:
   image: golang:{{.GoVersion}}
+  # One cache per branch, seeded from the default branch's: downloaded modules,
+  # the installed generators, and Go's build cache, so that a job compiles only
+  # what changed and make tools is a no-op. The build job refreshes it; test
+  # only reads it (policy: pull).
   cache:
     key: go-$CI_COMMIT_REF_SLUG
-    paths: [.go/pkg/mod]
+    fallback_keys: [go-$CI_DEFAULT_BRANCH]
+    paths: [.go/pkg/mod, .go/bin, .go-build]
   before_script:
     - export PATH="$GOPATH/bin:$PATH"
     # Private Go modules on this GitLab (the project's lib/, for one) are fetched with the job
@@ -53,7 +59,12 @@ build:
 
 test:
   stage: test
+  cache:
+    key: go-$CI_COMMIT_REF_SLUG
+    fallback_keys: [go-$CI_DEFAULT_BRANCH]
+    paths: [.go/pkg/mod, .go/bin, .go-build]
+    policy: pull
   script:
     - make lint
-    - make test
+    - make test TESTFLAGS=-count=1
 {{- end}}

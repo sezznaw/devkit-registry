@@ -1,0 +1,9 @@
+# What the image build never needs: the pipeline's Go caches (GOPATH and
+# GOCACHE live in the project directory there), git history, devkit's files,
+# the IDL checkout. bin/ stays: the pipeline's image is assembled from it.
+.go/
+.go-build/
+.git/
+.github/
+.devkit/
+.idl/

@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.45.6",
+  "version": "0.45.7",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.45.7",
+      "changes": [
+        "Faster pipelines: the image is assembled from the build job's binary (Dockerfile BINARY_FROM=prebuilt; make docker still compiles) with a .dockerignore; CI caches Go's build cache (GOCACHE) and the installed generators per branch, seeded from the default branch, and the test job only reads the cache; make build is static (CGO_ENABLED=0); make test takes TESTFLAGS (CI passes -count=1)."
+      ]
+    },
     {
       "version": "0.45.6",
       "changes": [

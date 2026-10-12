@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.52.6",
+  "version": "0.52.7",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.52.7",
+      "changes": [
+        "Faster pipelines: the image is assembled from the build job's binary (Dockerfile BINARY_FROM=prebuilt; make docker still compiles) with a .dockerignore; CI caches Go's build cache (GOCACHE) and the installed generators per branch, seeded from the default branch, and the test job only reads the cache; make build is static (CGO_ENABLED=0); make test takes TESTFLAGS (CI passes -count=1)."
+      ]
+    },
     {
       "version": "0.52.6",
       "changes": [

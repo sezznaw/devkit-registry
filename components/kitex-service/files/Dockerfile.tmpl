@@ -1,6 +1,13 @@
 # Run `make gen` before building the image: kitex_gen/ is not in git.
 # The Go version is the team's (GoVersion in the template); the official image
 # refuses a module that needs a newer Go than it ships.
+# BINARY_FROM picks where the binary comes from: "build" (default; make docker
+# on a developer's machine compiles it below) or "prebuilt" (the pipeline:
+# its build job already produced bin/{{.Service}}, a static linux binary, and
+# the package job passes --build-arg BINARY_FROM=prebuilt so that the image is
+# assembled in seconds and the golang image is never pulled). BuildKit builds
+# only the stage the final image refers to.
+ARG BINARY_FROM=build
 FROM golang:{{.GoVersion}} AS build
 WORKDIR /src
 # Private modules (the project's lib/ on this GitLab): the pipeline passes
@@ -21,10 +28,17 @@ RUN CGO_ENABLED=0 go build -o /out/{{.Service}} ./cmd/{{.Service}}
 # has no shell, so the selection is made here.)
 RUN mkdir -p /out/conf && cp conf/*.yaml /out/conf/ && rm -f /out/conf/local.yaml
 
+FROM alpine:3.21 AS prebuilt
+COPY bin/{{.Service}} /out/{{.Service}}
+COPY conf/ /out/conf/
+RUN rm -f /out/conf/local.yaml
+
+FROM ${BINARY_FROM} AS artifact
+
 FROM gcr.io/distroless/static-debian12
 WORKDIR /app
-COPY --from=build /out/{{.Service}} /app/{{.Service}}
-COPY --from=build /out/conf /app/conf
+COPY --from=artifact /out/{{.Service}} /app/{{.Service}}
+COPY --from=artifact /out/conf /app/conf
 ENV APP_ENV=prod
 # What is logged before the configuration is read, which is the case when it
 # cannot be read, has to be JSON for the log collector as well.
