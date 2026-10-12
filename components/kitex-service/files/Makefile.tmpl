@@ -27,6 +27,8 @@ tools:
 ## another kitex may not match the library, and everyone must get the same
 ## output from the same IDL.
 check-tools:
+	@command -v kitex >/dev/null 2>&1 || { echo "kitex is not installed (or ~/go/bin is not in PATH). Run: make tools"; exit 1; }
+	@command -v thriftgo >/dev/null 2>&1 || { echo "thriftgo is not installed (or ~/go/bin is not in PATH). Run: make tools"; exit 1; }
 	@have=$$(kitex -version 2>&1 | tail -1); \
 	if [ "$${have#v}" != "$(KITEX_VERSION:v%=%)" ]; then \
 		echo "kitex reports '$$have', this project uses $(KITEX_VERSION). Run: make tools"; exit 1; fi

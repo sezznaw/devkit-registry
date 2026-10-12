@@ -32,6 +32,9 @@ tools:
 ## another version may not match the library, and everyone must get the same
 ## output from the same IDL.
 check-tools:
+	@command -v hz >/dev/null 2>&1 || { echo "hz is not installed (or ~/go/bin is not in PATH). Run: make tools"; exit 1; }
+	@command -v kitex >/dev/null 2>&1 || { echo "kitex is not installed (or ~/go/bin is not in PATH). Run: make tools"; exit 1; }
+	@command -v thriftgo >/dev/null 2>&1 || { echo "thriftgo is not installed (or ~/go/bin is not in PATH). Run: make tools"; exit 1; }
 	@have=$$(hz --version 2>&1 | tail -1 | awk '{print $$NF}'); \
 	if [ "$${have#v}" != "$(HZ_VERSION:v%=%)" ]; then \
 		echo "hz reports '$$have', this project uses $(HZ_VERSION). Run: make tools"; exit 1; fi
