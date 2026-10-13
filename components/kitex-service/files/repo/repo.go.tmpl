@@ -38,17 +38,13 @@ import (
 // Repo holds the database handle the framework opened. Methods come as files
 // of this package; a method looks like:
 //
-//	type Member struct {
-//		UID       int64     `gorm:"column:uid;primaryKey"`
-//		Username  string    `gorm:"column:username"`
-//		Status    int32     `gorm:"column:status"`
-//		CreatedAt time.Time `gorm:"column:created_at"`
-//	}
+//	// The row struct comes from the project's lib (one struct per table,
+//	// column and type on every field); this package only queries. A repo
+//	// never declares a table or TableName of its own (lint: schema-in-lib).
+//	import model "<project lib module>/model/mysql"
 //
-//	func (Member) TableName() string { return "member" }
-//
-//	func (r *Repo) GetMember(ctx context.Context, uid int64) (*Member, error) {
-//		var m Member
+//	func (r *Repo) GetMember(ctx context.Context, uid int64) (*model.Member, error) {
+//		var m model.Member
 //		if err := r.db.WithContext(ctx).Where("uid = ?", uid).First(&m).Error; err != nil {
 //			return nil, err // gorm.ErrRecordNotFound when there is no such member
 //		}

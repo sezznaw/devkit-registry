@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.53.1",
+  "version": "0.53.2",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.53.2",
+      "changes": [
+        "repo.go sample: the row struct comes from the project's lib/model/mysql; a repo declares no table of its own."
+      ]
+    },
     {
       "version": "0.53.1",
       "changes": [

@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.46.1",
+  "version": "0.46.2",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -138,6 +138,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.46.2",
+      "changes": [
+        "repo.go sample: the row struct comes from the project's lib/model/mysql; a repo declares no table of its own."
+      ]
+    },
     {
       "version": "0.46.1",
       "changes": [
