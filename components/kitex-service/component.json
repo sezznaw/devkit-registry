@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.53.3",
+  "version": "0.54.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.50.1",
+      "default": "v0.51.0",
       "track": true
     },
     {
@@ -104,11 +104,6 @@
       "name": "LocalMySQLRootPassword",
       "description": "Root password of the local stack's MySQL, for the test databases testx creates (Makefile default of MYSQL_TEST_DSN_ROOT; a laptop value)",
       "default": "root"
-    },
-    {
-      "name": "MigrationsDir",
-      "description": "Where the project's *.up.sql migrations are, relative to the service (Makefile default of MIGRATIONS_DIR, which testx.WithMySQL applies to a test database)",
-      "default": "../infra/db/migrations/tenant"
     }
   ],
   "hooks": {
@@ -116,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.50.1 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.51.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -130,6 +125,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.54.0",
+      "changes": [
+        "devkit-common v0.51.0: no SQL migrations. The framework creates its own tables (outbox, delayed_task); the service's come from lib/model/mysql through rt.AutoMigrate; tests use testx.WithMySQL(\"\") + WithModels. make test no longer needs MIGRATIONS_DIR (variable removed)."
+      ]
+    },
     {
       "version": "0.53.3",
       "changes": [

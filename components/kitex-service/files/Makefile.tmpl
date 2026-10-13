@@ -79,10 +79,10 @@ verify:
 	APP_ENV=$${APP_ENV:-local} go run ./cmd/$(SERVICE) --verify
 
 # Tests that need a database (kit-common testx.WithMySQL) use the local
-# stack's MySQL and the project's migrations; without a server they are
-# skipped. CI overrides both variables and sets TESTX_REQUIRE_MYSQL=1.
+# stack's MySQL; the tables come from the framework and the project's models
+# (testx.WithModels), not from migration files. Without a server they are
+# skipped. CI overrides the variable and sets TESTX_REQUIRE_MYSQL=1.
 MYSQL_TEST_DSN_ROOT ?= root:{{.LocalMySQLRootPassword}}@tcp(127.0.0.1:3306)/
-MIGRATIONS_DIR      ?= $(abspath {{.MigrationsDir}})
 
 ## dlq: the dead-letter tool against conf/local.yaml (make dlq ARGS="list" | "show <topic> <offset>" | "replay <topic>" | "drop <topic>")
 dlq:
@@ -91,7 +91,7 @@ dlq:
 
 ## test: unit and handler tests (make test RUN=TestName for one)
 test:
-	MYSQL_TEST_DSN_ROOT="$(MYSQL_TEST_DSN_ROOT)" MIGRATIONS_DIR="$(MIGRATIONS_DIR)" go test $(TESTFLAGS) ./... $(if $(RUN),-run $(RUN) -v,)
+	MYSQL_TEST_DSN_ROOT="$(MYSQL_TEST_DSN_ROOT)" go test $(TESTFLAGS) ./... $(if $(RUN),-run $(RUN) -v,)
 
 ## lint: go vet, then devkit lint (the team's rules: see idl/AGENTS.md; a line opts out with //devkit:lint-ignore <rule>)
 lint:
