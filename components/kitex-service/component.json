@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.53.0",
+  "version": "0.53.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.17.1",
+      "default": "v0.21.16",
       "track": true
     },
     {
@@ -130,6 +130,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.53.1",
+      "changes": [
+        "devkit v0.21.16 for make lint (was v0.17.1: every lint rule since then now runs in the services and in CI), including schema-in-lib: no DDL, no GORM AutoMigrate, no TableName() structs in a service."
+      ]
+    },
     {
       "version": "0.53.0",
       "changes": [
