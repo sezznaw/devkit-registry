@@ -83,6 +83,17 @@ type Config struct {
 // 需要在运行期间调整的配置来自 Nacos：kitexx.WatchConfig[Dynamic](cfg.Config) 返回的值，
 // 其 Get() 永远是当前生效的版本；见 conf/README.zh-CN.md 的“跟随 Nacos 的配置”一节。
 func Setup(cfg *Config, rt *kitexx.Runtime) (*handler.{{.Service | title}}ServiceImpl, error) {
+	// Tables this service owns (mysql.enabled): the structs live in the
+	// project's lib/model/mysql; the framework creates a missing table and
+	// adds missing columns and indexes (on in local and dev; see the guide
+	// for the three kinds of change it refuses to make):
+	//
+	//	if err := rt.AutoMigrate(mysql.Bet{}, mysql.ExportTask{}); err != nil {
+	//		return nil, err
+	//	}
+	//
+	// 本服务拥有的表（需要 mysql.enabled）：结构体在项目的 lib/model/mysql 里，框架补表、补列、补索引
+	//（local / dev 开着；三类它不做的改动见开发指南）。
 	h := handler.New(repo.New(rt))
 	// Events this service consumes (kafka.enabled), one handler per topic:
 	//
