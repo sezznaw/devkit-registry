@@ -34,6 +34,12 @@ locally at `../devkit-common`).
 
 Version strings carry no leading `v` in JSON; the `v` is only in the tag.
 
+`DevkitVersion` must be at least the newest devkit tag that changed the
+built-in skills (`../devkit/internal/skills/builtin`): devkit update and pull
+compare the binary with it before refreshing the skill copies. check.py
+fails otherwise; CI runs it on every push and daily, and devkit's release
+workflow runs it after each tag.
+
 After pushing, the new index is not visible immediately: raw.githubusercontent.com
 caches `registry.json` for 300 s, separately per `Accept-Encoding`. Plain
 `curl` may already show the new version while devkit (Go client, gzip) still

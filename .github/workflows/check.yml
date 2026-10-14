@@ -4,12 +4,24 @@ on:
   # here has to be green before main is touched.
   push:
   pull_request:
+  # Daily as well: a devkit release that changed the built-in skills makes
+  # this red until the templates' DevkitVersion follows it.
+  schedule:
+    - cron: "0 1 * * *"
 jobs:
   consistency:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python3 scripts/check.py
+        with:
+          path: devkit-registry
+      # check.py compares the built-in skills across devkit tags in ../devkit.
+      - uses: actions/checkout@v4
+        with:
+          repository: sezznaw/devkit
+          path: devkit
+          fetch-depth: 0
+      - run: python3 devkit-registry/scripts/check.py
 
   dockerfile:
     runs-on: ubuntu-latest

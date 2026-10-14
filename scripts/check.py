@@ -95,6 +95,45 @@ for name, entry in index["components"].items():
             else:
                 notes.append(f"{name}: Kitex {kitex} matches {common_mod}@{common_ver} ({where})")
 
+# devkit update and pull tell a devkit older than the template's DevkitVersion
+# to self-update, and only then refresh the AI skill copies, because the
+# built-in skills are compiled into the binary. A devkit release that changes
+# those skills therefore needs DevkitVersion raised to it, or colleagues on the
+# previous binary are never told and keep the old steps.
+SKILLS = "internal/skills/builtin"
+
+
+def devkit_git(*args):
+    sibling = os.path.join(ROOT, "..", "devkit")
+    return subprocess.run(["git", "-C", sibling, *args], capture_output=True, text=True)
+
+
+def check_devkit_skills(name, devkit_version):
+    if not os.path.isdir(os.path.join(ROOT, "..", "devkit", ".git")):
+        notes.append(f"{name}: no ../devkit checkout, built-in skills vs DevkitVersion not checked")
+        return
+    tags = devkit_git("tag", "--list", "v*", "--sort=-v:refname").stdout.split()
+    if not tags:
+        notes.append(f"{name}: ../devkit has no v* tags, built-in skills vs DevkitVersion not checked")
+        return
+    latest = tags[0]
+    if latest == devkit_version:
+        return
+    r = devkit_git("diff", "--quiet", devkit_version, latest, "--", SKILLS)
+    if r.returncode == 1:
+        err(f"{name}: DevkitVersion is {devkit_version} but devkit {latest} changed the built-in skills ({SKILLS}); "
+            f"set DevkitVersion to {latest} so devkit update and pull tell older binaries to run devkit self-update")
+    elif r.returncode != 0:
+        err(f"{name}: cannot compare ../devkit {devkit_version}..{latest}: {r.stderr.strip()}")
+
+
+for name in index["components"]:
+    path = os.path.join(ROOT, "components", name, "component.json")
+    if os.path.exists(path):
+        dv = {v["name"]: v.get("default", "") for v in json.load(open(path)).get("vars", [])}.get("DevkitVersion")
+        if dv:
+            check_devkit_skills(name, dv)
+
 # One project has services of every kind, side by side, on one common/ checkout
 # and one set of generators: the templates must agree on what they share.
 for v, values in sorted(shared.items()):
