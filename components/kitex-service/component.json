@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.54.1",
+  "version": "0.54.2",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.21.16",
+      "default": "v0.21.17",
       "track": true
     },
     {
@@ -125,6 +125,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.54.2",
+      "changes": [
+        "devkit v0.21.17: devkit update refreshes the AI skill copies (.agents/skills, .claude/skills) and, when the local devkit is older than DevkitVersion, says to run devkit self-update first."
+      ]
+    },
     {
       "version": "0.54.1",
       "changes": [
