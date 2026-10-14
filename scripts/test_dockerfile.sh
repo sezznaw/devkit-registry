@@ -42,9 +42,9 @@ for env in local dev uat prod; do echo "name: from-$env" > "conf/$env.yaml"; don
 echo "not a configuration file" > conf/README.md
 
 # The template with its variables filled in; the optional GOPRIVATE block is
-# left out, the stand-in has no private modules.
+# left out and GOPRIVATE is empty, the stand-in has no private modules.
 sed -e '/^{{- if .GoPrivate}}$/,/^{{- end}}$/d' \
-    -e "s/{{.GoVersion}}/$go_version/g" -e "s/{{.Service}}/demo/g" -e "s/{{.Port}}/$port/g" \
+    -e "s/{{.GoVersion}}/$go_version/g" -e "s/{{.Service}}/demo/g" -e "s/{{.Port}}/$port/g" -e "s/{{.GoPrivate}}//g" \
     "$comp/files/Dockerfile.tmpl" > Dockerfile
 if grep -n '{{' Dockerfile; then echo "FAIL: the Dockerfile template uses a variable this script does not fill in"; exit 1; fi
 
