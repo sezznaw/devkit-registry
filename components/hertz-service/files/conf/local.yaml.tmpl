@@ -307,12 +307,18 @@ centrifugo:
 # Object storage, off by default. Locally: docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3
 # then create the bucket once (any S3 client). source static points at it.
 #
-# 对象存储，默认关。本机：docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3，再建一次桶（任意 S3 客户端）。
+# 对象存储，默认关。本机：infra/local/local.sh up --full 起 SeaweedFS（8333）并建好两个桶；没有 infra 时
+# docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3，再用任意 S3 客户端建桶。
+# 两个桶一条规矩：私密文件（证件、凭证、导出）在 bucket，用 rt.S3.PresignGet 给临时链接；
+# 公开文件（头像、banner、logo）在 public_bucket，用 rt.S3.Public().URL(key) 给固定地址。库里只存 key，不存 URL。
 s3:
   enabled: false
   # source: static
   # endpoint: "http://127.0.0.1:8333"
   # bucket: sportsbook-local-assets
+  # public_bucket: sportsbook-local-public
+  # public_endpoint: "http://127.0.0.1:8333"   # 浏览器访问 S3 的地址，默认同 endpoint
+  # public_url: ""                             # 公开桶前面有 CDN 时填，替代 <public_endpoint>/<public_bucket>
   # access_key: "${S3_ACCESS_KEY_ID:-any}"
   # secret_key: "${S3_SECRET_ACCESS_KEY:-any}"
 

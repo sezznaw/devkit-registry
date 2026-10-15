@@ -141,6 +141,9 @@ shutdown:
 | `s3.enabled` | `false` |
 | `s3.source` | `static` |
 | `s3.prefix` | the service name |
+| `s3.public_bucket` | `""` (no public bucket; `rt.S3.Public()` is nil) |
+| `s3.public_endpoint` | `s3.endpoint` |
+| `s3.public_url` | `<s3.public_endpoint>/<s3.public_bucket>` |
 | `s3.timeout` | `30s` |
 | `auth.enabled` | `false` |
 | `auth.realm` | — (member, admin, agent; gateways) |
