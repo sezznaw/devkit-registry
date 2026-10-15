@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.48.4",
+  "version": "0.49.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.52.3",
+      "default": "v0.53.0",
       "track": true
     },
     {
@@ -90,7 +90,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.21.18",
+      "default": "v0.22.0",
       "track": true
     },
     {
@@ -119,7 +119,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.52.3 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.53.0 && go mod tidy"
     ]
   },
   "once": [
@@ -133,6 +133,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.49.0",
+      "changes": [
+        "devkit-common v0.53.0 and devkit v0.22.0: a write RPC call passes on the request_id of the request being handled — kitexx.RequestID(ctx), kitexx.SubRequestID(ctx, part) for several calls of one method, kitexx.WithRequestID(ctx, id) for jobs and consumers; RPC clients refuse an empty id, an id not derived from the request, or the same method twice with the same id (gateways take the id from the request body); lint rule request-id-source."
+      ]
+    },
     {
       "version": "0.48.4",
       "changes": [
