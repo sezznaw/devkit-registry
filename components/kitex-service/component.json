@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.56.0",
+  "version": "0.56.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.22.0",
+      "default": "v0.23.0",
       "track": true
     },
     {
@@ -125,6 +125,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.56.1",
+      "changes": [
+        "devkit v0.23.0: three lint rules for files. file-field also refuses a file's content in a request (binary, a _data / _base64 / _content string, a bare `avatar`); upload-method: one upload method per service, GetUploadURL(kind, content_type) → upload_url + file_key, required whenever requests carry file keys (an RPC service also declares enum UploadKind), no per-field upload methods; upload-through-gateway: no c.FormFile / multipart and no S3.Put in a gateway handler, the client PUTs to the presigned link. make lint runs devkit v0.23.0."
+      ]
+    },
     {
       "version": "0.56.0",
       "changes": [
