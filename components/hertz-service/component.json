@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.49.2",
+  "version": "0.50.0",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.53.1",
+      "default": "v0.54.0",
       "track": true
     },
     {
@@ -119,7 +119,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.53.1 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.54.0 && go mod tidy"
     ]
   },
   "once": [
@@ -133,6 +133,12 @@
     "idl.lock"
   ],
   "changelog": [
+    {
+      "version": "0.50.0",
+      "changes": [
+        "devkit-common v0.54.0: delayx long tasks. rt.Delay.Handle(kind, fn, delayx.Long(), delayx.Timeout(d)) runs a kind of minutes (an export, a reconciliation) in a pool of delay.long_workers (default 1) instead of the poller, with its own time limit; every running task heartbeats locked_at every delay.heartbeat (30s) and only a row silent for three heartbeats is claimed again; rt.Delay.Abort(ctx, tx, kind, key) stops a pending or running task (handler sees context.Cause(ctx) == delayx.ErrAborted); a run interrupted by the service stopping goes back to pending at once without counting an attempt (cause delayx.ErrShutdown). conf templates show long_workers and heartbeat under delay:. No behaviour change for services that register no Long() kind; run devkit update to pick it up."
+      ]
+    },
     {
       "version": "0.49.2",
       "changes": [

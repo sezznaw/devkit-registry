@@ -247,8 +247,10 @@ kafka:
 #   poll_interval: 1s
 #   batch: 50
 #   max_attempts: 5
-#   timeout: 60s
+#   timeout: 60s          # one run; a kind overrides it with delayx.Timeout(d)
 #   retention: 168h
+#   long_workers: 1       # runs of delayx.Long() kinds at once per replica
+#   heartbeat: 30s        # a running task refreshes locked_at this often; 3 missed = abandoned
 
 # Unique numbers (rt.ID.Next(): bet, order, statement numbers): 53-bit, exact
 # as a JSON number. The low 12 bits are split between replicas of this service

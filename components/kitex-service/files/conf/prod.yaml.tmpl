@@ -255,8 +255,10 @@ kafka:
 #   poll_interval: 1s
 #   batch: 50
 #   max_attempts: 5
-#   timeout: 60s
+#   timeout: 60s          # one run; a kind overrides it with delayx.Timeout(d)
 #   retention: 168h
+#   long_workers: 1       # runs of delayx.Long() kinds at once per replica
+#   heartbeat: 30s        # a running task refreshes locked_at this often; 3 missed = abandoned
 
 # Limits: what one instance refuses so an overload degrades into quick "busy"
 # answers (business code 5003, passed through by the gateway) instead of a pile
