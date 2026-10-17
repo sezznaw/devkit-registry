@@ -210,13 +210,13 @@ otel:
   sample_ratio: 1.0
 
 # MySQL. Off by default; a service that uses MySQL turns it on in every
-# environment's file. Locally it is your own database: `infra/db/local.sh up`
+# environment's file. Locally it is your own database: `local/local.sh up`
 # starts one in Docker with the same schema as dev. To look at dev's database
 # instead, port-forward it (port rule: 13306) and set MYSQL_ADDR and
 # MYSQL_PASSWORD; the framework warns that you are on a shared database.
 #
 # MySQL。默认关闭；用 MySQL 的服务在每个环境的文件里都打开。本机连的是你自己的库：
-# `infra/db/local.sh up` 在 Docker 里起一个，表结构和 dev 一样。想看 dev 的库就 port-forward
+# `local/local.sh up` 在 Docker 里起一个，表结构和 dev 一样。想看 dev 的库就 port-forward
 # （端口规则：13306）并设置 MYSQL_ADDR 和 MYSQL_PASSWORD，框架会提醒你连的是共享库。
 mysql:
   enabled: false
@@ -227,9 +227,9 @@ mysql:
   # password: "${MYSQL_PASSWORD:-{{.LocalMySQLPassword}}}"
   # slow_query: 200ms
 
-# Redis / Valkey. Off by default. Locally the project's stack (infra/local/local.sh up) has one on 6379.
+# Redis / Valkey. Off by default. Locally the project's stack (local/local.sh up) has one on 6379.
 #
-# Redis / Valkey。默认关。本机用项目的一键环境（infra/local/local.sh up），6379。
+# Redis / Valkey。默认关。本机用项目的一键环境（local/local.sh up），6379。
 redis:
   enabled: false
   # source: static
@@ -237,9 +237,9 @@ redis:
   # password: "${REDIS_PASSWORD:-}"
   # db: 0
 
-# Kafka (Redpanda). Off by default. Locally the project's stack (infra/local/local.sh up --full) has one on 9092.
+# Kafka (Redpanda). Off by default. Locally the project's stack (local/local.sh up --full) has one on 9092.
 #
-# Kafka（Redpanda）。默认关。本机用项目的一键环境（infra/local/local.sh up --full），9092。
+# Kafka（Redpanda）。默认关。本机用项目的一键环境（local/local.sh up --full），9092。
 kafka:
   enabled: false
   # source: static
@@ -284,9 +284,9 @@ kafka:
 # id:
 #   instance_bits: 5
 
-# Centrifugo. Off by default. Locally the project's stack (infra/local/local.sh up --full) serves API and WebSocket on 8000.
+# Centrifugo. Off by default. Locally the project's stack (local/local.sh up --full) serves API and WebSocket on 8000.
 #
-# Centrifugo。默认关。本机用项目的一键环境（infra/local/local.sh up --full），API 和 WebSocket 都在 8000。
+# Centrifugo。默认关。本机用项目的一键环境（local/local.sh up --full），API 和 WebSocket 都在 8000。
 centrifugo:
   enabled: false
   # source: static
@@ -309,7 +309,7 @@ centrifugo:
 # Object storage, off by default. Locally: docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3
 # then create the bucket once (any S3 client). source static points at it.
 #
-# 对象存储，默认关。本机：infra/local/local.sh up --full 起 SeaweedFS（8333）并建好两个桶；没有 infra 时
+# 对象存储，默认关。本机：local/local.sh up --full 起 SeaweedFS（8333）并建好两个桶；没有 infra 时
 # docker run -d -p 8333:8333 chrislusf/seaweedfs server -s3，再用任意 S3 客户端建桶。
 # 两个桶一条规矩：私密文件（证件、凭证、导出）在 bucket，用 rt.S3.PresignGet 给临时链接；
 # 公开文件（头像、banner、logo）在 public_bucket，用 rt.S3.Public().URL(key) 给固定地址。库里只存 key，不存 URL。
