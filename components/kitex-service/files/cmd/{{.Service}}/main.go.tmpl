@@ -17,6 +17,7 @@
 package main
 
 import (
+	_ "embed"
 	"os"
 
 	"{{.CommonModule}}/config"
@@ -28,6 +29,14 @@ import (
 	// (news -> package newsservice_), and the code below should not care.
 	svc "{{.Module}}/kitex_gen/{{.Service | snake}}/{{$pkg}}"
 )
+
+// idlDeps is idl.deps as `make gen` copied it here: the IDL generation of this
+// service and of the RPC services it calls. The instance registers its own in
+// Nacos and, before it listens, waits for the ones it calls (kit-common's
+// dependency gate), so releases need no order.
+//
+//go:embed idl.deps
+var idlDeps string
 
 func main() {
 	// 0. Jobs. `--list-jobs` prints the scheduled jobs (app/jobs.go) as JSON
@@ -50,6 +59,9 @@ func main() {
 	//    problem is, so the record names the step that failed.
 	var cfg app.Config
 	if err := config.LoadDefault(&cfg); err != nil {
+		zlog.Fatal("cannot start", zlog.Err(err))
+	}
+	if err := kitexx.SetIDLDeps(idlDeps); err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 

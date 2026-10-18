@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.57.2",
+  "version": "0.58.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.54.2",
+      "default": "v0.55.0",
       "track": true
     },
     {
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.23.1",
+      "default": "v0.24.0",
       "track": true
     },
     {
@@ -111,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.54.2 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.55.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -122,9 +122,16 @@
     "conf/*.yaml",
     "handler/*",
     "repo/*",
-    "idl.lock"
+    "idl.lock",
+    "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.58.0",
+      "changes": [
+        "devkit-common v0.55.0 and devkit v0.24.0: releases need no order. make gen writes idl.deps (the IDL generation of this service and of each service in IDLS: how many IDL commits touched its directory) and copies it to cmd/<service>/idl.deps, which main.go embeds (kitexx.SetIDLDeps); every instance registers idl.gen in Nacos and a service waits before listening until the services it calls are at least that new (the deployment needs a startupProbe so that the waiting pod is neither killed nor given traffic; with DEPS_GATE=off it does not wait). --verify retries a failing check for two minutes and checks idl-deps too. make lint runs go vet with GOWORK=off (what CI builds, not the go.work checkouts) and devkit v0.24.0, whose rule idl-deps requires idl.deps to be committed with idl.lock. After devkit update: make gen, then commit idl.deps with the service."
+      ]
+    },
     {
       "version": "0.57.2",
       "changes": [

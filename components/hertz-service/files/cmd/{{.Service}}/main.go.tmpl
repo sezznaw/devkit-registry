@@ -35,6 +35,14 @@ import (
 //go:embed openapi.yaml
 var openAPI []byte
 
+// idlDeps is idl.deps as `make gen` copied it here: the IDL generation of this
+// service and of the RPC services it calls. The instance registers its own in
+// Nacos and, before it listens, waits for the ones it calls (kit-common's
+// dependency gate), so releases need no order.
+//
+//go:embed idl.deps
+var idlDeps string
+
 func main() {
 	// 0. Jobs. `--list-jobs` prints the scheduled jobs (app/jobs.go) as JSON
 	//    and exits, before any configuration is read: the CI runs it on the
@@ -56,6 +64,9 @@ func main() {
 	//    problem is, so the record names the step that failed.
 	var cfg app.Config
 	if err := config.LoadDefault(&cfg); err != nil {
+		zlog.Fatal("cannot start", zlog.Err(err))
+	}
+	if err := kitexx.SetIDLDeps(idlDeps); err != nil {
 		zlog.Fatal("cannot start", zlog.Err(err))
 	}
 

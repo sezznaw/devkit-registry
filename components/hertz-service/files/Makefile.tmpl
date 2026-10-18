@@ -75,6 +75,23 @@ gen: check-tools
 		if [ -n "$$(git -C $(IDL_DIR) status --porcelain)" ]; then echo ">> idl.lock: the IDL checkout has uncommitted changes; commit and push the IDL before pushing this service"; fi; \
 		if [ -z "$$(git -C $(IDL_DIR) branch -r --contains HEAD 2>/dev/null)" ]; then echo ">> idl.lock: IDL commit $$(git -C $(IDL_DIR) rev-parse --short HEAD) is not pushed yet; push the IDL first or CI cannot fetch it"; fi; \
 	fi
+	@# idl.deps: the IDL generation of this service and of each RPC service in IDLS — how many IDL commits touched
+	@# that service's directory up to this commit. Instances register theirs in Nacos, and a service waits at start
+	@# until the ones it calls are at least that new (kit-common's dependency gate), so releases need no order.
+	@# Computed from the IDL history, so written here and committed like idl.lock; not rewritten inside CI.
+	@if [ -z "$$CI" ] && git -C $(IDL_DIR) rev-parse HEAD >/dev/null 2>&1; then \
+		{ echo "# Written by make gen; commit it with the service, next to idl.lock. Do not edit."; \
+		  echo "# idl <commit>: the IDL commit the code was generated from. self / dep <service> <generation>: how many IDL"; \
+		  echo "# commits touched <service>/ up to it, for this service and for each RPC service it calls (idl.mk IDLS)."; \
+		  echo "# At start the service waits until every dep registers at least that generation in Nacos (deps gate)."; \
+		  echo "idl $$(git -C $(IDL_DIR) rev-parse HEAD)"; \
+		  echo "self $(API_IDL_DIR) $$(git -C $(IDL_DIR) rev-list --count HEAD -- $(API_IDL_DIR)/)"; \
+		  for f in $(IDLS); do d=$${f%%/*}; case "$$d" in common|errors|$(API_IDL_DIR)) continue;; esac; \
+		    echo "dep $$d $$(git -C $(IDL_DIR) rev-list --count HEAD -- $$d/)"; done; } > idl.deps; \
+	fi
+	@# The binary embeds a copy (cmd/<service>/idl.deps, git-ignored). Without the committed file it carries no
+	@# generations and the gate stays off; make lint (rule idl-deps) then says to run make gen and commit idl.deps.
+	@if [ -f idl.deps ]; then cp idl.deps cmd/$(SERVICE)/idl.deps; else echo "# idl.deps missing: run make gen on your machine and commit idl.deps" > cmd/$(SERVICE)/idl.deps; fi
 	@echo ">> apidoc $(API_IDL_DIR)/ -> cmd/$(SERVICE)/openapi.yaml"
 	@go run {{.CommonModule}}/cmd/apidoc -dir $(IDL_DIR)/$(API_IDL_DIR) -out cmd/$(SERVICE)/openapi.yaml \
 		-version "$$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
@@ -113,8 +130,10 @@ test:
 	MYSQL_TEST_DSN_ROOT="$(MYSQL_TEST_DSN_ROOT)" go test $(TESTFLAGS) ./... $(if $(RUN),-run $(RUN) -v,)
 
 ## lint: go vet, then devkit lint (the team's rules: see idl/AGENTS.md; a line opts out with //devkit:lint-ignore <rule>)
+## go vet runs with GOWORK=off: the project's go.work points a build at the local kit-common / lib checkouts, while
+## CI has no go.work and builds what go.mod says. Vetting what CI builds catches a go.mod left behind before the push.
 lint:
-	go vet ./...
+	GOWORK=off go vet -mod=mod ./...
 	go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lint --idl $(IDL_DIR)
 
 docker:
