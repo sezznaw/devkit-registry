@@ -391,6 +391,26 @@ guard:
   rate:
     per_ip: 600/m      # "20/s" / "5000/h" / "off"
 
+# The client of a request. Its IP is always taken (the proxy's X-Forwarded-For,
+# else the connection) and travels to the RPC services as metainfo, read with
+# kitexx.ClientIP(ctx). Its device type is read from the X-Device-Type header
+# only when `types` lists the accepted values; with `required` every request must
+# send one (a missing or unlisted value is refused with code 1001). A player
+# gateway lists its platforms; a back-office gateway leaves it empty. Anywhere in
+# the call chain kitexx.Device(ctx) / kitexx.DeviceID(ctx) read them; request
+# bodies carry no IP or device fields.
+#
+# 请求的客户端。IP 总是取（代理的 X-Forwarded-For，没有就是连接地址），经 metainfo 传给 RPC
+# 服务，用 kitexx.ClientIP(ctx) 读。设备类型只在 `types` 列了允许值时才读请求头 X-Device-Type；
+# `required` 时每个请求必须带（没带或不在列表里回 code 1001）。玩家网关列出自己的平台，后台
+# 网关留空。链路上任何地方用 kitexx.Device(ctx) / kitexx.DeviceID(ctx) 读；请求体里不放
+# IP 和设备字段。
+client:
+  device:
+    required: false
+    types: []
+    # types: [PC, H5, Android, iOS, Telegram]
+
 # CORS: which browser origins may call this service directly (a web front end on
 # its own domain, a tester page). Off unless a page on another origin needs it;
 # list the exact origins. A mobile app or a same-origin page needs nothing here.
