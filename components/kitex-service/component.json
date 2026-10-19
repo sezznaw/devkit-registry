@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.58.3",
+  "version": "0.58.4",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.24.0",
+      "default": "v0.25.0",
       "track": true
     },
     {
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.58.4",
+      "changes": [
+        "devkit v0.25.0: lint rule method-title — a gateway method's title (the first sentence of its comment, the /docs sidebar entry) is at most 12 characters with no punctuation; details go after the first 。. The devkit-gateway-api skill says the same. Run devkit update."
+      ]
+    },
     {
       "version": "0.58.3",
       "changes": [
