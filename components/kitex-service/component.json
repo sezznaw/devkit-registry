@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.58.4",
+  "version": "0.58.5",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.55.3",
+      "default": "v0.55.4",
       "track": true
     },
     {
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.58.5",
+      "changes": [
+        "devkit-common v0.55.4: apidoc drops the closing 。 of a one-sentence method title, so the /docs sidebar shows 「角色列表」, not 「角色列表。」. No code change in services; run devkit update and make gen."
+      ]
+    },
     {
       "version": "0.58.4",
       "changes": [
