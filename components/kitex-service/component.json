@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.59.0",
+  "version": "0.60.0",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.56.0",
+      "default": "v0.57.0",
       "track": true
     },
     {
@@ -111,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.56.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.57.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.60.0",
+      "changes": [
+        "devkit-common v0.57.0: authx.Issuer.RevokeAll(ctx, realm, uid, reason) takes the reason the sessions end; the auth service passes the word its RPC caller gave. Verify / Refresh return a *authx.RevokedError whose RevokeReason the gateway puts in the 1005 answer. No template file changes; run devkit update (the auth service adds the argument at its RevokeAll call)."
+      ]
+    },
     {
       "version": "0.59.0",
       "changes": [
@@ -279,7 +285,7 @@
     {
       "version": "0.53.0",
       "changes": [
-        "devkit-common v0.50.0: rt.AutoMigrate \u2014 the schema comes from the project's lib/model/mysql structs; the owning service creates a missing table and adds missing columns and indexes at start-up (local and dev; off elsewhere), under a Redis lock; a field without an explicit type is refused. testx.WithModels for tests. app.go shows the call."
+        "devkit-common v0.50.0: rt.AutoMigrate — the schema comes from the project's lib/model/mysql structs; the owning service creates a missing table and adds missing columns and indexes at start-up (local and dev; off elsewhere), under a Redis lock; a field without an explicit type is refused. testx.WithModels for tests. app.go shows the call."
       ]
     },
     {
