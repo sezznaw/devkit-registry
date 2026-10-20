@@ -273,6 +273,18 @@ limits:
   max_qps: 0           # off; e.g. 2000
   max_connections: 10000
 
+# Callers: which services may call which methods of this one. A method in a
+# rule accepts only the listed services (and this service itself, for its
+# post-deploy checks); a method in no rule accepts everybody. Anybody else gets
+# business code 1007. For the services that move money or hold secrets.
+#
+# 按调用方放行：写进规则的方法只接受列出的服务（和本服务自己，部署后检查用），没写进任何规则的方法谁都能调；
+# 其余调用方回业务码 1007。给动钱、持密钥的服务用。
+# callers:
+#   rules:
+#     - methods: [DebitBet, CreditSettle]
+#       allow: [ser-bet]
+
 # Unique numbers (rt.ID.Next(): bet, order, statement numbers): 53-bit, exact
 # as a JSON number. The low 12 bits are split between replicas of this service
 # (2^instance_bits) and ids per millisecond per replica (2^(12 - instance_bits)).
