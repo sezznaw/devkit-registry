@@ -396,7 +396,7 @@ guard:
 # the call chain kitexx.Device(ctx) / kitexx.DeviceID(ctx) read them; request
 # bodies carry no IP or device fields.
 #
-# 请求的客户端。IP 总是取（代理的 X-Forwarded-For，没有就是连接地址），经 metainfo 传给 RPC
+# 请求的客户端。IP 总是取（连接地址，或可信代理转发的 X-Forwarded-For，见 trusted_proxies），经 metainfo 传给 RPC
 # 服务，用 kitexx.ClientIP(ctx) 读。设备类型只在 `types` 列了允许值时才读请求头 X-Device-Type；
 # `required` 时每个请求必须带（没带或不在列表里回 code 1001）。玩家网关列出自己的平台，后台
 # 网关留空。链路上任何地方用 kitexx.Device(ctx) / kitexx.DeviceID(ctx) 读；请求体里不放
@@ -406,6 +406,13 @@ client:
     required: false
     types: []
     # types: [PC, H5, Android, iOS, Telegram]
+  # Proxies besides the private networks and loopback (always trusted): a CDN's ranges
+  # (Cloudflare) when traffic comes through one. The client IP is the rightmost
+  # X-Forwarded-For entry that is not a trusted proxy; what a client sends itself is ignored.
+  #
+  # 除内网和本机（总是可信）之外的可信代理：服务前面有 CDN（如 Cloudflare）时列它的网段。客户端 IP 取
+  # X-Forwarded-For 里从右往左第一个不可信的地址，客户端自己带的转发头无效。
+  trusted_proxies: []
 
 # CORS: which browser origins may call this service directly (a web front end on
 # its own domain, a tester page). Off unless a page on another origin needs it;
