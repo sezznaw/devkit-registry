@@ -377,11 +377,13 @@ docs:
 # without the section: body over 1 MiB is 413; a request has 10s (504, code
 # 1010 when nothing was produced); one client IP may make 600 requests a
 # minute (429, code 1008); a route with `// @limit 10/m` in the IDL has that
-# limit on top.
+# limit on top. Keep max_body_bytes small (what the real requests need); a
+# route that takes a big batch says `// @maxbody 384k` in the IDL instead.
 #
 # 网关防护：handler 之前就拒绝的东西。不写也有默认值：请求体超 1 MiB 回 413；每个请求 10s
 # （到时没响应回 504、code 1010）；一个 IP 每分钟 600 次（429、code 1008）；IDL 里标了
-# `// @limit 10/m` 的接口再单独限。
+# `// @limit 10/m` 的接口再单独限。max_body_bytes 按实际请求定小；要收大批量的个别接口在 IDL
+# 里标 `// @maxbody 384k` 单独放大，不要整体调大。
 guard:
   max_body_bytes: 1048576
   timeout: 10s
