@@ -381,7 +381,7 @@ s3:
 # 其他服务通过 kitexx.UID(ctx) 拿网关传来的身份即可。
 auth:
   enabled: false
-  # secret: "${AUTH_JWT_SECRET:-local-jwt-secret-at-least-32-characters}"
+  # private_key: "${AUTH_JWT_PRIVATE_KEY:-f+CoIGbL3wSzbuPBvzkiJMrlghSf4SrMKa/5To4ETwY=}"   # 只有认证服务打开：本机默认私钥（只限本机）
   # access_ttl: 15m
   # refresh_ttl: 720h
 

@@ -306,10 +306,10 @@ s3:
 # signs with, from the environment.
 #
 # 登录态（authx）：本网关本地校验一个领域的 access 令牌，再读一次 Redis（需要 redis.enabled），
-# 保护 IDL 里没标 `// @public` 的所有接口。secret 和 ser-auth 签发用的是同一个，来自环境变量。
+# 保护 IDL 里没标 `// @public` 的所有接口。只用公钥验签（EdDSA），签令牌的私钥只在认证服务里。
 auth:
   enabled: true
-  secret: "${AUTH_JWT_SECRET}"
+  public_keys: ["${AUTH_JWT_PUBLIC_KEY}"]   # 验签公钥（不保密）；私钥只在认证服务
   realm: member                 # member | admin | agent：本网关服务哪类主体
   access_ttl: 15m
   refresh_ttl: 720h
