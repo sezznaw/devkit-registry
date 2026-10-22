@@ -442,3 +442,16 @@ providers: {}
 callbacks:
   enabled: false
   addr: {{.CallbacksPort}}
+
+# Which services may call which methods (code 1007 otherwise). Every method of
+# the IDL has a rule (devkit lint callers-coverage); a method only this service
+# calls (Ping: its post-deploy check) allows this service. callers.default
+# (CALLERS_DEFAULT when empty): allow, log or deny for a method in no rule.
+#
+# 哪些服务能调本服务的哪些方法（否则 1007）。IDL 里每个方法都要有规则（devkit lint 的
+# callers-coverage）；只有本服务自己调的方法（Ping：部署后检查）allow 写本服务。
+# callers.default（留空取 CALLERS_DEFAULT）：没写进规则的方法 allow / log / deny。
+callers:
+  rules:
+    - methods: [Ping]
+      allow: [{{.Service}}]
