@@ -373,6 +373,16 @@ s3:
   # access_key: "${S3_ACCESS_KEY_ID:-any}"
   # secret_key: "${S3_SECRET_ACCESS_KEY:-any}"
 
+# Service identity: the calling service proven by the ServiceAccount token every pod carries (the deployment
+# mounts it); callers: then matches the proven name, not the one the caller writes. off (default) / log / enforce (1007).
+# Empty takes SERVICE_IDENTITY and SERVICE_IDENTITY_NAMESPACES from the environment.
+#
+# 服务身份：用每个 Pod 带的 ServiceAccount 令牌（部署挂进来）证明调用方是哪个服务；callers: 按证明出的名字判断，
+# 不再信调用方自己写的服务名。off（默认）/ log / enforce（1007）。不写时取环境变量 SERVICE_IDENTITY、SERVICE_IDENTITY_NAMESPACES。
+# service_identity:
+#   mode: log
+#   namespaces: [sportsbook-dev, sportsbook-dev-provider]
+
 # Identity: the login a call claims (uid / realm in metainfo, written by the caller) is checked against the
 # user token the gateway passes along. off (default) / log (count and warn, let through) / enforce (1004).
 # Empty takes IDENTITY_CHECK and AUTH_JWT_PUBLIC_KEY from the environment (the deployment sets them for every service).
