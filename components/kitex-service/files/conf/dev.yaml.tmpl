@@ -345,6 +345,16 @@ s3:
   enabled: false
   # source: platform
 
+# Identity: the login a call claims (uid / realm in metainfo, written by the caller) is checked against the
+# user token the gateway passes along. off (default) / log (count and warn, let through) / enforce (1004).
+# Empty takes IDENTITY_CHECK and AUTH_JWT_PUBLIC_KEY from the environment (the deployment sets them for every service).
+#
+# 登录者核对：调用声称的登录者（metainfo 里的 uid / realm，调用方自己写的）要和网关一起传下来的用户令牌对得上。
+# off（默认）/ log（计数并告警、放行）/ enforce（拒绝 1004）。不写时取环境变量 IDENTITY_CHECK 和 AUTH_JWT_PUBLIC_KEY（部署统一下发）。
+# identity:
+#   mode: log
+#   public_keys: ["${AUTH_JWT_PUBLIC_KEY}"]
+
 # Login state (authx): only the authentication service turns this on and uses
 # authx.NewIssuer(rt.Config.Auth, rt.Redis); the other services get the
 # identity through kitexx.UID(ctx), carried from the gateway.
