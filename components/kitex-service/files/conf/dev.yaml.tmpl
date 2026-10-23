@@ -365,12 +365,21 @@ s3:
 # Identity: the login a call claims (uid / realm in metainfo, written by the caller) is checked against the
 # user token the gateway passes along. off (default) / log (count and warn, let through) / enforce (1004).
 # Empty takes IDENTITY_CHECK and AUTH_JWT_PUBLIC_KEY from the environment (the deployment sets them for every service).
+# require_login (empty takes IDENTITY_REQUIRE_LOGIN; the gateways and their realms come from IDENTITY_GATEWAYS):
+# a call from a gateway must claim a login unless the method is in anonymous (registration, the steps of a login,
+# password recovery, public lookups), and the login must be of that gateway's realm. Handlers take the user from
+# kitexx.LoginUID(ctx), or guard a uid in the request with kitexx.CheckMemberUID (devkit lint rpc-uid-from-ctx).
 #
 # 登录者核对：调用声称的登录者（metainfo 里的 uid / realm，调用方自己写的）要和网关一起传下来的用户令牌对得上。
 # off（默认）/ log（计数并告警、放行）/ enforce（拒绝 1004）。不写时取环境变量 IDENTITY_CHECK 和 AUTH_JWT_PUBLIC_KEY（部署统一下发）。
-# identity:
-#   mode: log
-#   public_keys: ["${AUTH_JWT_PUBLIC_KEY}"]
+# require_login（不写时取 IDENTITY_REQUIRE_LOGIN；网关名单与 realm 来自 IDENTITY_GATEWAYS）：来自网关的调用必须声称登录者，
+# 除非方法在 anonymous 名单里（注册、登录各步、找回密码、公开查询）；声称的 realm 必须是该网关登录的 realm。
+# handler 用 kitexx.LoginUID(ctx) 取登录者，请求体带目标 uid 的共用方法用 kitexx.CheckMemberUID（devkit lint rpc-uid-from-ctx）。
+identity:
+  # mode: log
+  # public_keys: ["${AUTH_JWT_PUBLIC_KEY}"]
+  # 网关可以不带登录者调用的方法；其它方法网关必须带已验证的登录者。新服务一般为空（网关只在登录后调它）。
+  anonymous: []
 
 # Login state (authx): only the authentication service turns this on and uses
 # authx.NewIssuer(rt.Config.Auth, rt.Redis); the other services get the
