@@ -199,10 +199,13 @@ mysql:
   # source: platform
   # role: tenant            # tenant: this tenant's database; platform: the platform database itself
                             # tenant：本租户的库；platform：平台库本身
-  # source: service         # the service's own database <tenant>_<domain> (infra/scripts/service-accounts.py add <svc> --mysql
-                            # creates it); falls back to source platform, with a warning, until its Secret and address exist
+  # source: service         # the service's own database <tenant>_<domain>, created by infra/scripts/service-accounts.py --mysql;
+                            # until its Secret and address exist: source platform, with a warning
+                            #
                             # 本服务自己的库 <租户>_<领域>（service-accounts.py --mysql 建）；Secret 和地址没就位前回落到 platform 并告警
-  # domain: {{.Service}}    # default: the service name without "ser-" ("-" as "_")   默认服务名去 ser-、- 换 _
+  # domain: {{.Service}}    # default: the service name without "ser-", "-" as "_"
+                            #
+                            # 默认服务名去 ser-、- 换 _
   # slow_query: 200ms       # slower than this is a warn record "mysql slow query"
 
 # Redis / Valkey. Same rules as mysql: off by default; on, the framework connects
