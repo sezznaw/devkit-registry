@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.67.0",
+  "version": "0.67.1",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -90,7 +90,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.29.0",
+      "default": "v0.30.0",
       "track": true
     },
     {
@@ -134,6 +134,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.67.1",
+      "changes": [
+        "devkit v0.30.0: four ownership lint rules — redis-key-owner (string literals with another service's Redis key prefix or imports of its key-builder package; registry lint.redis_keys), redis-pubsub (no go-redis Subscribe / Publish: cross-service notification is a Kafka event), event-owner (Publish / PublishTx only to events.<own domain>; callbacks.* only from lint.vendor_service; lint.event_producers for transitional producers), model-owner (no reference to or AutoMigrate of a lib table model another service owns; lint.model_owners / lint.model_owner_exceptions). `make lint` runs devkit v0.30.0; nothing else changes."
+      ]
+    },
     {
       "version": "0.67.0",
       "changes": [
