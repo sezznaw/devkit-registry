@@ -218,6 +218,7 @@ otel:
 # MySQL。默认关闭；用 MySQL 的服务在每个环境的文件里都打开。本机连的是你自己的库：
 # `local/local.sh up` 在 Docker 里起一个，表结构和 dev 一样。想看 dev 的库就 port-forward
 # （端口规则：13306）并设置 MYSQL_ADDR 和 MYSQL_PASSWORD，框架会提醒你连的是共享库。
+# 已切到自己库的服务：db / user / password 改成 tenant_a_<领域>（local/local.sh up 会建）。
 mysql:
   enabled: false
   # source: static
