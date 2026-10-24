@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.75.2",
+  "version": "0.75.3",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.31.0",
+      "default": "v0.32.0",
       "track": true
     },
     {
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.75.3",
+      "changes": [
+        "devkit v0.32.0: lint now recognizes service methods whose return type is qualified or a container (common.Empty, list<Item>, map<...>), so method-comment, method-title, limit, request-id and upload-method also check them (they were skipped before); the delay and vendor-only rule summaries describe what the rules actually detect. `make lint` runs devkit v0.32.0; nothing else changes."
+      ]
+    },
     {
       "version": "0.75.2",
       "changes": [
