@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.75.1",
+  "version": "0.75.2",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -82,7 +82,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.30.0",
+      "default": "v0.31.0",
       "track": true
     },
     {
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.75.2",
+      "changes": [
+        "devkit v0.31.0: the anonymous contract — an RPC method a gateway may call without a login is tagged `// @anonymous` in the IDL; lint anonymous-coverage (RPC service: conf identity.anonymous equals the tagged set) and public-anonymous (gateway: @public handlers and middlewares only call @anonymous methods; a call that carries a fresh login is marked //devkit:lint-ignore public-anonymous). `make lint` runs devkit v0.31.0; nothing else changes."
+      ]
+    },
     {
       "version": "0.75.1",
       "changes": [
