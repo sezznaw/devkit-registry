@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.77.0",
+  "version": "0.77.1",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.77.1",
+      "changes": [
+        "CI runs the tests under the race detector (make test TESTFLAGS=\"-count=1 -race\" in .gitlab-ci.yml, TESTFLAGS=-race in the GitHub workflow): a data race in a handler, or in a test fake written by a handler goroutine, fails the pipeline instead of flaking later."
+      ]
+    },
     {
       "version": "0.77.0",
       "changes": [

@@ -66,5 +66,6 @@ test:
     policy: pull
   script:
     - make lint
-    - make test TESTFLAGS=-count=1
+    # -race: a data race only shows under the race detector (a test fake written by a handler goroutine, a shared breaker)
+    - make test TESTFLAGS="-count=1 -race"
 {{- end}}
