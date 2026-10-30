@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.70.1",
+  "version": "0.70.2",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.76.0",
+      "default": "v0.76.1",
       "track": true
     },
     {
@@ -119,7 +119,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.76.0 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.76.1 && go mod tidy"
     ]
   },
   "once": [
@@ -135,6 +135,12 @@
   ],
   "changelog": [
     {
+      "version": "0.70.2",
+      "changes": [
+        "kit-common v0.76.1: apidoc splits a schema that both a request and a response use (common.Money under a filter and under a balance) into a request-side `<name>Request` copy carrying the nullable marks and the original for responses with exact `required`, so that a client generator does not type every response amount as nullable. Only the gateways' OpenAPI documents change; nothing for a Kitex service, the version moves so that both templates pin the same kit-common. Run devkit update."
+      ]
+    },
+    {
       "version": "0.70.1",
       "changes": [
         "devkit v0.34.0: lint upload-method also checks GetUploadURL's response, which may carry only upload_url, file_key and expires_in. A file URL in it ends up written into JSON configs or sent back in requests, and the database then holds addresses that a change of domain, bucket or CDN cannot follow; store the key and let the read endpoint build the URL. Run devkit update."
@@ -143,7 +149,7 @@
     {
       "version": "0.70.0",
       "changes": [
-        "kit-common v0.76.0: apidoc documents a request field as `required` only when the gateway refuses its absence (Thrift `required`, or an api.vd rule that rejects the zero value, such as len($)>0); every other request field is `nullable: true`, since Hertz binds a missing or null member to the zero value. Response schemas are unchanged. Shared structs of common/ (PageReq) now get their field rules too. Run devkit update and make gen so cmd/<service>/openapi.yaml matches what the gateway checks."
+        "kit-common v0.76.1: apidoc documents a request field as `required` only when the gateway refuses its absence (Thrift `required`, or an api.vd rule that rejects the zero value, such as len($)>0); every other request field is `nullable: true`, since Hertz binds a missing or null member to the zero value. Response schemas are unchanged. Shared structs of common/ (PageReq) now get their field rules too. Run devkit update and make gen so cmd/<service>/openapi.yaml matches what the gateway checks."
       ]
     },
     {
