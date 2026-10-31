@@ -416,6 +416,31 @@ client:
   # 除内网和本机（总是可信）之外的可信代理：服务前面有 CDN（如 Cloudflare）时列它的网段。客户端 IP 取
   # X-Forwarded-For 里从右往左第一个不可信的地址，客户端自己带的转发头无效。
   trusted_proxies: []
+  # Edges (CDNs) in front of the service prove themselves on every request: each one sets a key
+  # header and a client-IP header when it forwards to the origin ("set" semantics: whatever the
+  # client sent under those names is replaced), the client IP is read from the edge whose key
+  # matches, and where the connection came from never decides who is trusted (no CDN ranges to
+  # keep up to date, any number of CDNs and domains). `required` refuses a business request no
+  # edge vouches for (403, code 1011): on in production, off where requests come in without a
+  # CDN (a laptop, the API tester). Keys come from the environment, at least 16 bytes, two
+  # during a rotation (the new one first; an empty value is ignored). peer_cidrs only warn.
+  #
+  # 服务前面的 CDN（边缘）每个请求都要证明自己：回源时用「设置」语义写密钥头和客户端 IP 头（客户端自带的
+  # 同名头被覆盖），密钥对上哪家就从那家写的头取 IP，连接从哪来不再决定可信（不用维护 CDN 网段，几家 CDN、
+  # 多少域名都一样）。required 时没有 CDN 担保的业务请求回 403 / 1011：正式服开，本机、api-tester 这类不经
+  # CDN 的地方关。密钥从环境变量来，至少 16 字节，轮换时列两把（新的在前，空值忽略）。peer_cidrs 只告警。
+  edges:
+    required: false
+    # key_header: X-Edge-Key
+    # ip_header: X-Edge-Client-IP
+    list: []
+    # list:
+    #   - name: cloudflare
+    #     keys: ["${EDGE_KEY_CLOUDFLARE}", "${EDGE_KEY_CLOUDFLARE_PREV}"]
+    #   - name: cloudfront
+    #     keys: ["${EDGE_KEY_CLOUDFRONT}", "${EDGE_KEY_CLOUDFRONT_PREV}"]
+    #     ip_header: CloudFront-Viewer-Address   # this CDN cannot write a variable into a header of our name
+    #     peer_cidrs: []                         # its published origin ranges: a connection outside them is a warning, not a refusal
 
 # CORS: which browser origins may call this service directly (a web front end on
 # its own domain, a tester page). Off unless a page on another origin needs it;

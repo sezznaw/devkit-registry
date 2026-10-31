@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.70.2",
+  "version": "0.70.3",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.76.1",
+      "default": "v0.77.0",
       "track": true
     },
     {
@@ -119,7 +119,7 @@
       "if command -v hz >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1 && command -v thrift-gen-http-swagger >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> hz/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.76.1 && go mod tidy"
+      "go get github.com/cloudwego/hertz@v0.10.6 github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.77.0 && go mod tidy"
     ]
   },
   "once": [
@@ -134,6 +134,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.70.3",
+      "changes": [
+        "kit-common v0.77.0: `client.edges` — the client IP behind CDNs without trusting source ranges. Each CDN (edge) sets a key header (X-Edge-Key, a secret from the environment) and a client-IP header (X-Edge-Client-IP, or its own such as CloudFront-Viewer-Address via `ip_header`) when it forwards to the origin, replacing what the client sent; the key says which edge forwarded the request and the IP is read from that edge's header, so any number of CDNs and domains need no `trusted_proxies` ranges kept up to date. `client.edges.required: true` (production) refuses a business request no edge vouches for with 403 / code 1011 (fail closed: a wrong IP is worse than an outage); leave it off on a laptop and for the API tester. Two keys per edge for a rotation, `peer_cidrs` only warn. Metric http_edge_requests_total{edge,result}; the request log and kitexx.Edge(ctx) carry the edge's name. The four conf templates gain `client.edges` (off, empty); existing services add it by hand (conf is never rewritten) and remove CDN ranges from `trusted_proxies` once their CDNs write the headers. Run devkit update."
+      ]
+    },
     {
       "version": "0.70.2",
       "changes": [
