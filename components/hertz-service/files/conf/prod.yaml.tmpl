@@ -430,8 +430,8 @@ client:
   # 头之后就开。密钥从环境变量来，至少 16 字节，轮换时列两把（新的在前，空值忽略）。peer_cidrs 只告警。
   edges:
     required: false
-    # key_header: X-Edge-Key
-    # ip_header: X-Edge-Client-IP
+    # key_header: X-CDN-Key
+    # ip_header: X-CDN-Client-IP
     list: []
     # list:
     #   - name: cloudflare
