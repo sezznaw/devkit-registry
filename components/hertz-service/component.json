@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.70.6",
+  "version": "0.70.7",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -90,7 +90,7 @@
     {
       "name": "DevkitVersion",
       "description": "devkit version `make lint` runs (go run github.com/sezznaw/devkit@<version> lint). Decided by the template for every service",
-      "default": "v0.34.0",
+      "default": "v0.35.0",
       "track": true
     },
     {
@@ -134,6 +134,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.70.7",
+      "changes": [
+        "devkit v0.35.0: lint rule registry-signed verifies idl/registry.sig (idl/devkit.yaml and the Redis key registry are signed by one key holder; editing them without a new signature turns every service's lint red). DevkitVersion v0.35.0. Version moves with kitex-service 0.78.7. Run devkit update."
+      ]
+    },
     {
       "version": "0.70.6",
       "changes": [
