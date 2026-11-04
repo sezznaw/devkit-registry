@@ -1,6 +1,6 @@
 {
   "name": "hertz-service",
-  "version": "0.70.10",
+  "version": "0.70.11",
   "description": "Complete API (HTTP) service on CloudWeGo Hertz: routes generated from the Thrift IDL with hz, clients for the RPC services behind it, Nacos registration, logging with a trace_id, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit nas`.",
   "deps": [],
   "vars": [
@@ -134,6 +134,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.70.11",
+      "changes": [
+        "Makefile `gen` runs hz on the domain files shortest name first instead of alphabetically. hz decides whether a domain is already in router/register.go by substring, so a domain whose name is a suffix of one generated before it (`announcement` after `agentannouncement`) failed with \"the router has been registered\" and one that is a prefix (`bet` after `betting`) was skipped without a word; the suffix or prefix is always the shorter name. A gateway with such a pair cannot be generated from a fresh checkout (CI) without this. Run devkit update."
+      ]
+    },
     {
       "version": "0.70.10",
       "changes": [

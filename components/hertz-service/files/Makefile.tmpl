@@ -57,7 +57,15 @@ gen: check-tools
 	@# Framework files and generated code are read-only in the editor (devkit lock); the generators must be able to overwrite them.
 	@if [ -z "$$CI" ]; then go run github.com/sezznaw/devkit@$(DEVKIT_VERSION) lock --unlock -q; fi
 	@# One hz run per domain file (a file that declares a service): handler/<domain>/, router/<domain>/.
-	@for f in $$(grep -ls '^service ' $(IDL_DIR)/$(API_IDL_DIR)/*.thrift | sort); do \
+	@# Shortest name first: hz looks for "<domain>.Register(r)" in router/register.go by substring, so a
+	@# domain that is a suffix of one generated before it (announcement after agentannouncement) fails as
+	@# "already registered", and one that is a prefix (bet after betting) is skipped without a word. The
+	@# suffix or prefix is always the shorter name, so it goes first.
+	@#
+	@# 名字短的先生成：hz 用子串判断 router/register.go 里有没有 "<领域>.Register(r)"，排在后面的后缀领域
+	@# （agentannouncement 之后的 announcement）会报「已注册」，前缀领域（betting 之后的 bet）会被悄悄跳过；
+	@# 后缀、前缀总比整体短，所以短的先。
+	@for f in $$(grep -ls '^service ' $(IDL_DIR)/$(API_IDL_DIR)/*.thrift | awk '{ print length($$0), $$0 }' | sort -k1,1n -k2,2 | cut -d' ' -f2-); do \
 		echo ">> hz $$f"; \
 		hz update -I $(IDL_DIR) -idl $$f -t template=slim || exit 1; \
 	done
