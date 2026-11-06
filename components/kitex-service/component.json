@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.78.11",
+  "version": "0.78.12",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.78.0",
+      "default": "v0.79.0",
       "track": true
     },
     {
@@ -111,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.78.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.79.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.78.12",
+      "changes": [
+        "kit-common v0.79.0: testx's `WithMySQL` no longer creates, migrates and drops a database for every test. The tests of one process take turns on one database per service, emptied before each test: rows deleted, every AUTO_INCREMENT that moved back to 1, the triggers, views, routines and events an earlier test created dropped, and a test that altered a table it found gets the database dropped after it, so the next one starts on a new one. DDL was most of what a database test cost (a few dozen fsyncs per table): ser-admin's handler package creates 34 tables instead of 2618. A test that asks while another one holds the database (`t.Parallel`, a second Runtime in one test), a test with SQL migrations, and a test with the new `testx.WithFreshDatabase()` (for a test about the schema itself: AutoMigrate, a table that must not exist yet) still get a fresh database. Nothing to change in a service; run devkit update."
+      ]
+    },
     {
       "version": "0.78.11",
       "changes": [
