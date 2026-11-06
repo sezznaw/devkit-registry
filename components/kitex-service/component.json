@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.78.13",
+  "version": "0.78.14",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.79.0",
+      "default": "v0.80.0",
       "track": true
     },
     {
@@ -111,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.79.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.80.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -126,6 +126,12 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.78.14",
+      "changes": [
+        "kit-common v0.80.0: webhookx.Event.ClientIP (the source address the listener resolved, for a custom verifier that judges a whitelist kept as data) and providers.<x>.deny_private_hosts (the dialer refuses loopback / private / link-local / multicast addresses, for a provider whose request URL comes from data; httpx.ErrPrivateHost). Nothing to change in a service; run devkit update. A vendor service whose provider URL is editable in a back office sets deny_private_hosts: true on that provider."
+      ]
+    },
     {
       "version": "0.78.13",
       "changes": [
