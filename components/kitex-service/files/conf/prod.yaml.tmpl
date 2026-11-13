@@ -243,11 +243,18 @@ kafka:
 
   # Dedupe: a consumer skips an event id it already handled (Redis, 24h); on by
   # default when the service has Redis.
+  # While a handler runs the id is only claimed. The claim lasts inflight_ttl
+  # (60s by default, at least 5s) unless the consumer that holds it renews it;
+  # when that consumer dies in the middle of a handler, another one takes the
+  # event over once the claim has run out. So a handler must be re-runnable.
   #
   # 消费端按事件 id 去重（有 Redis 时默认开）。
+  # handler 运行期间事件 id 只是「处理中」占位：有效期 inflight_ttl（默认 60s，最小 5s），由持有它的消费者续期；
+  # 该消费者处理到一半死掉，占位到期后由别的消费者接手再跑一次。所以 handler 必须可重跑。
   # dedupe:
   #   enabled: true
   #   ttl: 24h
+  #   inflight_ttl: 60s
 
 # Delayed tasks: run a function once at a chosen time (cancel an unpaid order
 # in 15 minutes, close bets at kick-off). rt.Delay.Schedule(ctx, tx, kind, key,
@@ -448,12 +455,22 @@ providers: {}
 # deployment exposes to providers under /callbacks/. webhookx.Server(rt) in
 # app.Setup returns the engine, routes are webhookx.Handle; it starts and
 # stops with the RPC server. Default port 8081.
+# The listener's own limits: max_body_bytes is the largest request body it
+# reads, for every route on it (a larger one is answered 413 before it is
+# read); unset, it reads up to 4 MiB as before and warns at start. A provider's
+# callback.max_body may not be larger. read_timeout is how long one read waits
+# for data (a connection that sends its headers and then nothing); unset: 3m.
 #
 # 回调监听（只有对接厂商的那个服务开）：部署只把这个端口的 /callbacks/ 开给厂商。app.Setup 里
 # webhookx.Server(rt) 拿引擎、webhookx.Handle 注册路由；随 RPC 服务器一起起停。默认端口 8081。
+# 监听级的上限：max_body_bytes 是监听读取的最大请求体，对监听上所有路由生效（更大的在读取之前回 413）；
+# 不设 = 和以前一样读到 4 MiB，并在启动时打一条 Warn。厂商的 callback.max_body 不能比它大。
+# read_timeout 是一次读等不到数据的最长时间（发了头不发体的连接）；不设 = 3 分钟。
 callbacks:
   enabled: false
   addr: {{.CallbacksPort}}
+  # max_body_bytes: 1048576   # e.g. 1 MiB
+  # read_timeout: 3m
 
 # Which services may call which methods (code 1007 otherwise). Every method of
 # the IDL has a rule (devkit lint callers-coverage); a method only this service

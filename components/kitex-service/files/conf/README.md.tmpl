@@ -129,11 +129,13 @@ shutdown:
 | `mysql.addr` | `127.0.0.1:3306` |
 | `mysql.max_open` / `max_idle` / `conn_max_lifetime` | `20` / `5` / `30m` |
 | `mysql.slow_query` | `200ms` |
+| `mysql.log_values` | `false` (`conf/local.yaml` only; ignored with a warning anywhere else) |
 | `redis.enabled` | `false` |
 | `redis.source` | `static` |
 | `redis.addr` | `127.0.0.1:6379` |
 | `kafka.enabled` | `false` |
 | `kafka.max_retries` | `3` |
+| `kafka.dedupe.enabled` / `ttl` / `inflight_ttl` | `true` (with Redis) / `24h` / `60s` (at least `5s`) |
 | `centrifugo.enabled` | `false` |
 | `centrifugo.token_ttl` | `24h` |
 | `rpc_client.timeout` / `connect_timeout` | `3s` / `1s` |
@@ -157,6 +159,7 @@ shutdown:
 | `providers.<name>.auth.type` | none (bearer, basic, hmac-sha256, oauth2, custom) |
 | `providers.<name>.callback.dedupe_ttl` / `max_body` / `verify.max_skew` | `168h` / 1 MiB / `5m` |
 | `callbacks.enabled` / `callbacks.addr` | `false` / service port + 1 |
+| `callbacks.max_body_bytes` / `callbacks.read_timeout` | 4 MiB, with a warning at start / `3m` |
 | `providers.<name>.breaker_failures` / `breaker_open_for` | `5` / `30s` |
 
 ## Which services are alive

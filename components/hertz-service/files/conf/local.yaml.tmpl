@@ -226,6 +226,10 @@ mysql:
   # user: {{.LocalMySQLUser}}
   # password: "${MYSQL_PASSWORD:-{{.LocalMySQLPassword}}}"
   # slow_query: 200ms
+  # log_values: true        # SQL records carry the bound values (they never do otherwise). Honoured in this
+                            # file only: any other environment, and takeover mode, ignore it with a warning.
+                            #
+                            # SQL 日志带上绑定值（不写就永远不带）。只在本文件里生效：其它环境和接管模式写了也忽略并告警。
 
 # Redis / Valkey. Off by default. Locally the project's stack (local/local.sh up) has one on 6379.
 #

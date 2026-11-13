@@ -1,6 +1,6 @@
 {
   "name": "kitex-service",
-  "version": "0.78.18",
+  "version": "0.78.19",
   "description": "Complete Kitex (Thrift) service project: Nacos registration, logging, config, Makefile codegen, CI for GitHub Actions and/or GitLab CI, Dockerfile. Used by `devkit ngs`.",
   "deps": [],
   "vars": [
@@ -23,7 +23,7 @@
     {
       "name": "CommonVersion",
       "description": "Version of common to require. Decided by the template for every service; cannot be set per service or project",
-      "default": "v0.81.3",
+      "default": "v0.82.0",
       "track": true
     },
     {
@@ -111,7 +111,7 @@
       "if command -v kitex >/dev/null 2>&1 && command -v thriftgo >/dev/null 2>&1; then make gen && go mod tidy; else echo '>> kitex/thriftgo not installed. Run: make tools && make gen && go mod tidy'; fi"
     ],
     "post_update": [
-      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.81.3 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
+      "go get github.com/cloudwego/kitex@v0.16.3 github.com/sezznaw/devkit-common@v0.82.0 && if grep -rqs --include='*.go' --exclude-dir=kitex_gen 'github.com/sezznaw/devkit-common/log\"' .; then echo '>> This service still imports devkit-common/log, which devkit-common v0.3.0 replaced by zlog.'; echo '>> go mod tidy was skipped, it cannot succeed until that code is changed.'; echo '>> Change it as described below, then run: go mod tidy'; else go mod tidy; fi"
     ]
   },
   "once": [
@@ -126,6 +126,18 @@
     "idl.deps"
   ],
   "changelog": [
+    {
+      "version": "0.78.19",
+      "changes": [
+        "kit-common v0.82.0, the framework side of a review of a payment integration. kafkax: the consumer-side dedupe has two phases. An event id is only claimed while its handler runs (the claim lasts `kafka.dedupe.inflight_ttl`, 60s by default and at least 5s, and the consumer renews it) and is remembered as handled only after the handler returned nil. A consumer killed in the middle of a handler (kill -9, out of memory) no longer loses the event: it used to be skipped as a duplicate on redelivery, now it runs again once the claim has run out. So every Kafka handler must be re-runnable. webhookx: `callbacks.max_body_bytes` and `callbacks.read_timeout` bound the callback listener itself (a larger body is answered 413 before it is read; unset, the listener reads up to 4 MiB as before and warns at start; a provider's callback.max_body above it refuses to start); a custom verifier that returns webhookx.ErrUnavailable is answered 503, not counted as bad_signature and not archived; webhookx.UseClientRule exports the rule the listener uses to resolve the source IP. mysqlx: no SQL record carries the bound values, at any level and in any environment, and the value MySQL quotes in an error text is masked in the logged copy (the error a handler gets is untouched); `mysql.log_values: true` puts the values back on a developer's own machine only. hertzx (gateways): the audit no longer reads JSON that does not parse as a form. Run devkit update and make gen."
+      ],
+      "action": [
+        "Check that every Kafka handler (rt.Kafka.Subscribe) can run again for an event whose first run was cut short: the framework no longer hides such a redelivery.",
+        "conf/*.yaml are yours and nothing has to be added. The vendor-integration service (callbacks.enabled: true) sets the listener's limit in every conf/<env>.yaml, at least as large as its largest providers.<name>.callback.max_body (1 MiB when not set), or the start-up warning stays:\ncallbacks:\n  max_body_bytes: 1048576\n  # read_timeout: 3m",
+        "Optional, in conf/local.yaml only, to see the bound values while debugging a statement:\nmysql:\n  log_values: true",
+        "Optional, in conf/<env>.yaml, for handlers that need more or less time before another consumer takes an event over:\nkafka:\n  dedupe:\n    inflight_ttl: 60s"
+      ]
+    },
     {
       "version": "0.78.18",
       "changes": [
